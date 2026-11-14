@@ -251,6 +251,10 @@
       .cred-diamond .cred-fill { background: linear-gradient(90deg, #6fc7de, #d3f3fb); }
       .cred-diamond .cred-tier-name, .cred-diamond .cred-state { color: #3d9db8; }
       .cred-diamond .cred-chip { background: #e8f8fc; color: #2f7e96; border-color: #bfe6f0; }
+      .cred-card.locked { opacity: 0.92; }
+      .cred-card.locked .cred-state { font-size: 16px; color: var(--ink-soft); }
+      .cred-lock-note { font-size: 14.5px; color: var(--ink-soft); margin-top: 12px; }
+      .cred-lock-note strong { color: var(--ink); }
       .pending-pill { display: inline-block; font-family: "Archivo", sans-serif; font-weight: 800; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; background: var(--ember); color: #fff; border-radius: 6px; padding: 4px 9px; vertical-align: 2px; }
       .pay-code { border: 2px dashed var(--gold-bright); border-radius: 12px; background: color-mix(in srgb, var(--gold) 7%, var(--bg)); padding: 12px 14px; text-align: center; display: grid; gap: 2px; }
       .pay-code .pc-label { font-family: "Archivo", sans-serif; font-weight: 700; font-size: 11.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-soft); }
@@ -661,6 +665,7 @@
       .mem-tier-row .mt-math .mt-was { color: var(--ink-soft); text-decoration: line-through; margin-right: 6px; }
       .mem-join-btn { min-height: 42px; padding: 9px 16px; font-size: 14px; }
       .mem-pays { font-size: 13px; font-weight: 700; color: var(--gold); margin-top: 6px; }
+      .mt-welcome { font-size: 13px; font-weight: 700; color: var(--gold); margin-top: 6px; }
       .mem-terms { font-size: 12.5px; color: var(--ink-soft); margin-top: 12px; }
       .mem-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 8px; }
       @media (max-width: 1020px) { .mem-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -1245,10 +1250,6 @@
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Account balance</h3>
                   <div id="acctBalanceBody"></div>
                 </div>
-                <div class="panel" style="margin-top: 18px;" id="acctCreditPanel" hidden>
-                  <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Credit line</h3>
-                  <div id="acctCreditBody"></div>
-                </div>
                 <div class="panel" style="margin-top: 18px;">
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Your orders — live tracking</h3>
                   <p style="font-size: 13.5px; color: var(--ink-soft); margin-bottom: 6px;">Every order’s tracker lives here — come back any time to see where it stands. The gold “Business controls” box on each order is the store side: advancing the status there is what moves the customer’s tracker.</p>
@@ -1262,6 +1263,10 @@
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Shipping information</h3>
                   <div id="shipAcctBody"></div>
                 </div>
+              </div>
+              <div class="panel" style="margin-top: 18px;" id="acctCreditPanel">
+                <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Credit line</h3>
+                <div id="acctCreditBody"></div>
               </div>
               <div class="panel" style="margin-top: 18px;" id="supportPanel">
                 <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 6px;">Support tickets</h3>
@@ -1380,7 +1385,7 @@
               <div class="sec-head" style="margin-bottom: 20px;">
                 <div class="tag">Membership</div>
                 <h2>Pick your tier — <span class="gold-text">save on every order</span></h2>
-                <p style="color: var(--ink-soft); max-width: 660px;">Your member discount is your tier’s percent off your cart total — 5% for Silver, 10% for Gold, 15% for Platinum, 15% for Diamond — applied automatically to the product subtotal at checkout while your membership is active. It is the only discount in the store and never stacks with any other offer. One membership per account, tied to your account email.</p>
+                <p style="color: var(--ink-soft); max-width: 660px;">Your member discount is your tier’s percent off your cart total — 5% for Silver, 10% for Gold, 15% for Platinum, 15% for Diamond — applied automatically to the product subtotal at checkout while your membership is active. It is the only discount in the store and never stacks with any other offer. One membership per account, tied to your account email. Joining — and every paid renewal while you stay subscribed — also drops welcome credit straight into your account balance the moment the payment lands: $5 for Silver, $10 for Gold, $20 for Platinum, $35 for Diamond on the monthly term, multiplied on prepaid terms, up to $105 on a 12-month Diamond.</p>
                 <div class="gold-rule"></div>
               </div>
               <div id="memViewStatus"></div>
@@ -1389,7 +1394,7 @@
                 <p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;">Pick a term — the longer the term, the bigger the cut off the membership fee, charged once up front for the whole term. The term discount is on the fee only: your tier’s percent off your orders is the same on every term. Cancelling stops renewal; benefits run to the end of the paid term and fees aren’t refunded mid-term.</p>
               </div>
               <div class="mem-grid" id="memGrid"></div>
-              <p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 18px;">Membership fees are billed as their own line, charged up front for the term you pick. Perks waive delivery and shipping fees only — order minimums still apply. Joining at checkout applies your discount to that order instantly; that instant-join discount is a once-per-12-months deal per account and payment method. No mid-term refunds — cancelling stops the next renewal and your benefits run to the end of the term you paid for.</p>
+              <p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 18px;">Membership fees are billed as their own line, charged up front for the term you pick. Perks waive delivery and shipping fees only — order minimums still apply. Joining at checkout applies your discount to that order instantly; that instant-join discount is a once-per-12-months deal per account and payment method. No mid-term refunds — cancelling stops the next renewal and your benefits run to the end of the term you paid for. Welcome credit is store credit under the same wallet rules — it never expires and can’t be cashed out — with one exception: it can’t pay membership fees, balance top-ups, or credit-line tabs. Cancel and rejoin the same tier within 12 months of your last welcome grant for that tier and no new grant drops; continuous renewals always grant.</p>
             </div>
           </section>
         </div>
@@ -1604,7 +1609,7 @@
           shipInfo: null, shipDraft: { street: "", apt: "", city: "", state: "", zip: "" },
           payMethod: "card", pendingCode: null,
           tipChoice: "5", tipCustom: "", ticketSeq: 0, currentOrderNum: null,
-          memberships: {}, joinCharge: null, memTerm: 1, coTerm: 1, instantPayKeys: {},
+          memberships: {}, joinCharge: null, memTerm: 1, coTerm: 1, instantPayKeys: {}, welcomeGrants: {},
           balances: {}, topupSeq: 0, useBalance: true,
           topupOpen: false, topupAmt: 100, topupCustom: "", topupMethod: "cashapp",
           creditLines: {}, repayOpen: false, repayMethod: "cashapp"
@@ -1810,6 +1815,7 @@
           closeMenu(); closeDrawer();
           window.scrollTo({ top: 0 });
           updateCartBar();
+          if (v === "account") renderCreditCard();
         }
         function goNav(target) {
           if (target === "home") { showView("home"); }
@@ -1945,10 +1951,10 @@
         }
         /* ================= Membership ================= */
         var MEMBERSHIP_TIERS = [
-          { id: "silver", name: "Silver", price: 9.99, pct: 0.05, freeDelivery: false, freeShipping: false, perks: ["5% off every order"] },
-          { id: "gold", name: "Gold", price: 19.99, pct: 0.10, freeDelivery: true, freeShipping: false, perks: ["10% off every order", "Free delivery"], flag: "Most popular" },
-          { id: "platinum", name: "Platinum", price: 34.99, pct: 0.15, freeDelivery: true, freeShipping: true, perks: ["15% off every order", "Free delivery", "Free shipping"] },
-          { id: "diamond", name: "Diamond", price: 59.99, pct: 0.15, freeDelivery: true, freeShipping: true, perks: ["15% off every order", "Free delivery", "Free shipping", "First access to exclusive drops", "Priority pickup"], flag: "Top tier" }
+          { id: "silver", name: "Silver", price: 9.99, pct: 0.05, welcome: 5, freeDelivery: false, freeShipping: false, perks: ["5% off every order"] },
+          { id: "gold", name: "Gold", price: 19.99, pct: 0.10, welcome: 10, freeDelivery: true, freeShipping: false, perks: ["10% off every order", "Free delivery"], flag: "Most popular" },
+          { id: "platinum", name: "Platinum", price: 34.99, pct: 0.15, welcome: 20, freeDelivery: true, freeShipping: true, perks: ["15% off every order", "Free delivery", "Free shipping"] },
+          { id: "diamond", name: "Diamond", price: 59.99, pct: 0.15, welcome: 35, freeDelivery: true, freeShipping: true, perks: ["15% off every order", "Free delivery", "Free shipping", "First access to exclusive drops", "Priority pickup"], flag: "Top tier" }
         ];
         var MEM_INSTANT_WINDOW = 365 * 24 * 60 * 60 * 1000;
         function tierById(id) { for (var i = 0; i < MEMBERSHIP_TIERS.length; i++) if (MEMBERSHIP_TIERS[i].id === id) return MEMBERSHIP_TIERS[i]; return null; }
@@ -1970,6 +1976,99 @@
         function termName(months) { return (months || 1) === 1 ? "Monthly" : (months || 1) + "-month term"; }
         function termFeeLabel(months) { return (months || 1) === 1 ? "first month" : (months || 1) + "-month term, paid up front"; }
         function recTermMonths(r) { return r && r.termMonths ? r.termMonths : (r && r.period === "yearly" ? 12 : 1); }
+        /* ================= Welcome credit =================
+           The moment a membership payment lands — the initial join AND
+           every paid renewal while the subscription stays continuous —
+           store credit drops into the member's account balance: Silver
+           $5, Gold $10, Platinum $20, Diamond $35 on the monthly term,
+           multiplied on prepaid terms (3 mo ×1.5, 6 mo ×2, 9 mo ×2.5,
+           12 mo ×3), always whole dollars. The grant is regular store
+           credit (never expires, no cash-out) with one exception: it
+           can't pay membership fees, balance top-ups, or credit-line
+           tabs — top-ups and tab repayments never take balance at all,
+           and the wallet tracks the unspent grant portion as
+           welcomeRestricted so checkout holds it back from a fee.
+           Anti-farming: cancel and rejoin the SAME tier within 12
+           months of the last grant for that tier and no new grant
+           drops; continuous renewals always grant. */
+        var WELCOME_TERM_MULT = { 1: 1, 3: 1.5, 6: 2, 9: 2.5, 12: 3 };
+        var WELCOME_WINDOW = 365 * 24 * 60 * 60 * 1000;
+        function welcomeGrantFor(tier, months) {
+          if (!tier) return 0;
+          return Math.round((tier.welcome || 0) * (WELCOME_TERM_MULT[months || 1] || 1));
+        }
+        function wholeMoney(n) { return "$" + (n % 1 === 0 ? String(n) : n.toFixed(2)); }
+        function welcomeLastGrant(email, tierId) {
+          var log = email ? state.welcomeGrants[email] : null;
+          return log ? (log[tierId] || 0) : 0;
+        }
+        /* The grant this join/renewal would drop right now (0 when the
+           anti-farming rule blocks it), so panels promise it honestly. */
+        function welcomePreview(email, tier, months, prevRec) {
+          if (!email || !tier) return 0;
+          var continuous = !!(prevRec && prevRec.status === "active" && !prevRec.cancelAtPeriodEnd);
+          if (!continuous) {
+            var last = welcomeLastGrant(email, tier.id);
+            if (last && Date.now() - last < WELCOME_WINDOW) return 0;
+          }
+          return welcomeGrantFor(tier, months);
+        }
+        function grantWelcomeCredit(email, tier, months, prevRec) {
+          var amt = welcomePreview(email, tier, months, prevRec);
+          if (amt <= 0) return 0;
+          if (!state.welcomeGrants[email]) state.welcomeGrants[email] = {};
+          state.welcomeGrants[email][tier.id] = Date.now();
+          var w = state.balances[email];
+          if (!w) { w = { balance: 0, ledger: [], topups: [] }; state.balances[email] = w; }
+          w.balance = r2(w.balance + amt);
+          w.welcomeRestricted = r2((w.welcomeRestricted || 0) + amt);
+          w.ledger.unshift({ type: "welcome", amount: amt, when: nowStamp(), note: tier.name });
+          return amt;
+        }
+        function welcomeRestrictedFor(email) {
+          var w = email ? state.balances[email] : null;
+          return w ? Math.max(0, Math.min(w.balance || 0, w.welcomeRestricted || 0)) : 0;
+        }
+        function welcomeGrantsGiven() {
+          var n = 0;
+          Object.keys(state.balances).forEach(function (em) {
+            state.balances[em].ledger.forEach(function (e) { if (e.type === "welcome") n += e.amount || 0; });
+          });
+          return r2(n);
+        }
+        function welcomeGrantEvents() {
+          var out = [];
+          Object.keys(state.balances).forEach(function (em) {
+            state.balances[em].ledger.forEach(function (e) { if (e.type === "welcome") out.push({ email: em, tier: e.note || "", amount: e.amount || 0, when: e.when || "" }); });
+          });
+          return out;
+        }
+        /* Membership money, store side: fees collected at checkout vs
+           what memberships have given back — member discounts on orders
+           plus welcome grants — for the net-position line. */
+        function membershipNetPosition() {
+          var fees = 0, discounts = 0;
+          state.history.forEach(function (o) {
+            var b = o.breakdown || {};
+            fees += b.memFee || 0;
+            if (b.discKind === "member") discounts += b.disc || 0;
+          });
+          var grants = welcomeGrantsGiven();
+          return { fees: r2(fees), discounts: r2(discounts), grants: grants, net: r2(fees - discounts - grants) };
+        }
+        function membershipBizBoxHTML() {
+          var np = membershipNetPosition();
+          return '<div class="biz-box"><span class="biz-title">Business controls — Memberships net position</span>' +
+            '<p>Membership fees collected: <strong style="color: var(--ink);">' + money(np.fees) + '</strong> · Member discounts given: <strong style="color: var(--ink);">' + money(np.discounts) + '</strong> · Welcome grants given: <strong style="color: var(--ink);">' + money(np.grants) + '</strong><br>Net position (fees − discounts − welcome grants): <strong style="color: var(--ink);">' + money(np.net) + "</strong> — welcome credit is product owed to members, and every grant is counted here the moment it lands.</p></div>";
+        }
+        function welcomeEventsBizHTML() {
+          var evs = welcomeGrantEvents();
+          if (!evs.length) return "";
+          return '<p style="margin-top: 4px;">Welcome grants given so far: <strong style="color: var(--ink);">' + money(welcomeGrantsGiven()) + '</strong> — each grant lands in that member’s balance ledger the moment a membership payment lands.</p>' +
+            evs.slice(0, 8).map(function (ev) {
+              return '<div class="ledger-row"><span class="lr-what">Welcome credit — ' + esc(ev.tier) + "<small>" + esc(ev.email) + " · " + esc(ev.when) + '</small></span><span class="lr-amt pos">+' + money(ev.amount) + "</span></div>";
+            }).join("");
+        }
         function memberRecord() {
           if (!state.user || !state.user.email) return null;
           return state.memberships[String(state.user.email).trim().toLowerCase()] || null;
@@ -2046,10 +2145,25 @@
              checkout only, and only for a signed-in account holder. */
           t.balanceAvail = state.user ? walletBalance() : 0;
           t.balanceApplied = 0;
+          t.balanceWelcomeUsed = 0;
+          t.balanceFeeHeld = 0;
           t.dueNow = t.total;
           if (state.view === "checkout" && state.useBalance && state.payMethod !== "credit" && t.balanceAvail > 0 && t.total > 0) {
-            t.balanceApplied = Math.round(Math.min(t.balanceAvail, t.total) * 100) / 100;
-            t.dueNow = Math.round((t.total - t.balanceApplied) * 100) / 100;
+            /* Welcome credit spends on the order like any balance, but it
+               can never cover the membership-fee part of the total: the
+               fee is paid only from the non-welcome part of the balance,
+               so the welcome portion is held back from the fee. */
+            var feePart = t.memFee || 0;
+            var nonFeePart = Math.max(0, r2(t.total - feePart));
+            var restr = Math.min(t.balanceAvail, welcomeRestrictedFor(walletEmail()));
+            var appliedNonFee = Math.min(t.balanceAvail, nonFeePart);
+            var welcomeUsed = Math.min(restr, appliedNonFee);
+            var openBalance = Math.max(0, r2(t.balanceAvail - restr - (appliedNonFee - welcomeUsed)));
+            var appliedFee = Math.min(openBalance, feePart);
+            t.balanceApplied = r2(appliedNonFee + appliedFee);
+            t.balanceWelcomeUsed = welcomeUsed;
+            t.balanceFeeHeld = restr > 0 ? r2(feePart - appliedFee) : 0;
+            t.dueNow = r2(t.total - t.balanceApplied);
           }
           return t;
         }
@@ -2212,6 +2326,10 @@
             '<div class="bal-head"><div><div class="bal-amt">' + money(w.balance) + '</div>' +
             '<div class="bal-sub">Available store credit — at checkout, choose “Pay with balance” and it comes off your order first.</div></div>' +
             '<button class="btn btn-gold" type="button" id="balAddBtn">' + (state.topupOpen ? "Close Add Funds" : "Add Funds") + "</button></div>";
+          var restrNow = welcomeRestrictedFor(walletEmail());
+          if (restrNow > 0) {
+            html += '<p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;">Includes <strong style="color: var(--ink);">' + money(restrNow) + '</strong> in welcome credit — it spends on orders like regular credit, but it can’t pay membership fees, balance top-ups, or credit-line tabs.</p>';
+          }
           if (pend.length) {
             html += '<p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;">' + pend.length + (pend.length === 1 ? " top-up is" : " top-ups are") + " pending approval — " + money(pendCredit) + " in credit lands in your balance the moment the business approves.</p>";
             pend.forEach(function (tp) {
@@ -2240,7 +2358,7 @@
                 return '<button type="button" class="pay-opt" data-tf-pay="' + mm.id + '" aria-pressed="' + (state.topupMethod === mm.id ? "true" : "false") + '"><span class="po-name">' + mm.name + '</span><span class="po-desc">' + mm.desc + "</span></button>";
               }).join("") + "</div>" +
               '<div style="display: grid; gap: 12px;">' + topupMethodBodyHTML(amt) + "</div>" +
-              '<p class="pay-note">' + LOCK_SVG + "<span>The rules, plain: balance is store credit for Packs N’ Packs Out only. It never expires, and it can’t be cashed out or transferred. Top-ups show as pending and become spendable when the business approves them.</span></p>" +
+              '<p class="pay-note">' + LOCK_SVG + "<span>The rules, plain: balance is store credit for Packs N’ Packs Out only. It never expires, and it can’t be cashed out or transferred. Top-ups show as pending and become spendable when the business approves them. Welcome credit follows the same rules, with one exception: it can’t pay membership fees, balance top-ups, or credit-line tabs.</span></p>" +
               '<div class="form-msg" id="tfMsg" role="status" aria-live="polite"></div>' +
               '<button class="btn btn-gold" type="button" id="tfSubmit">Add ' + money(amt) + " to My Balance</button>" +
               "</div>";
@@ -2252,12 +2370,13 @@
               return '<div class="topup-card"><div class="tc-top"><span class="tc-amt">' + money(tp.amount) + " load → " + money(tp.credit) + " credit" + (tp.bonus > 0 ? " (incl. " + money(tp.bonus) + " bonus)" : "") + '</span><span class="pending-pill">Pending</span></div>' +
                 '<div class="tc-meta">' + esc(tp.email) + " · " + esc(tp.brand) + (tp.sender ? " · from " + esc(tp.sender) : "") + " · " + esc(tp.when) + "</div>" +
                 '<button class="btn btn-espresso" type="button" data-topup-approve="' + esc(tp.email) + "|" + tp.id + '">Approve top-up — make it spendable</button></div>';
-            }).join("") : "<p>No top-ups are waiting on approval right now.</p>") + "</div>";
+            }).join("") : "<p>No top-ups are waiting on approval right now.</p>") + welcomeEventsBizHTML() + "</div>";
           html += '<h4 style="font-size: 15px; font-weight: 800; margin: 18px 0 2px;">Balance history</h4>';
           if (w.ledger.length) {
             html += w.ledger.map(function (e) {
-              var label = e.type === "load" ? "Balance load" : e.type === "bonus" ? "Load bonus" : "Order payment";
-              return '<div class="ledger-row"><span class="lr-what">' + label + "<small>" + esc(e.note || "") + " · " + esc(e.when) + '</small></span><span class="lr-amt' + (e.amount >= 0 ? " pos" : "") + '">' + (e.amount >= 0 ? "+" : "−") + money(Math.abs(e.amount)) + "</span></div>";
+              var label = e.type === "load" ? "Balance load" : e.type === "bonus" ? "Load bonus" : e.type === "welcome" ? "Welcome credit — " + (e.note || "") : "Order payment";
+              var sub = e.type === "welcome" ? esc(e.when) : esc(e.note || "") + " · " + esc(e.when);
+              return '<div class="ledger-row"><span class="lr-what">' + label + "<small>" + sub + '</small></span><span class="lr-amt' + (e.amount >= 0 ? " pos" : "") + '">' + (e.amount >= 0 ? "+" : "−") + money(Math.abs(e.amount)) + "</span></div>";
             }).join("");
           } else {
             html += '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 4px 0 0;">No balance activity yet — loads, bonuses, and order payments will show here.</p>';
@@ -2441,7 +2560,7 @@
             '<div class="cred-track"><div class="cred-fill" style="width: ' + pct.toFixed(1) + '%;"></div></div>' +
             (mini
               ? '<p class="cred-sub">' + (spend >= ms.spend
-                  ? "Your lifetime spend already passes " + money(ms.spend) + " — this " + money(ms.line) + " line unlocks when you move up to " + esc(tier ? tier.name : "") + "."
+                  ? "Your lifetime spend already passes " + money(ms.spend) + " — members at " + esc(tier ? tier.name : "") + " and above hold a " + money(ms.line) + " credit line at this level."
                   : money(r2(ms.spend - spend)) + " of lifetime spend to go — with a " + esc(tier ? tier.name : "") + " membership, your line grows to " + money(ms.line) + ".") + "</p>"
               : unlocked
               ? '<div class="cred-state">Credit Line Unlocked — ' + money(ms.line) + ' available</div>' +
@@ -2507,21 +2626,42 @@
             '<label class="f" style="margin: 0;">Your Bitcoin transaction ID or sending address <small>(so we can match your payment)</small><input type="text" id="rpSenderBtc" placeholder="Transaction ID (txid)" /></label>' +
             rpSentConfirmHTML("Bitcoin", amt);
         }
+        /* Locked preview bar: the tier's target and prize line are visible,
+           but the bar is NOT filled by the viewer's spend — filling a bar
+           starts with a Gold-or-above membership. */
+        function credLockedBarHTML(ms) {
+          var tier = tierById(ms.tierId);
+          return '<div class="cred-card cred-' + ms.tierId + ' mini locked">' +
+            '<div class="cred-top"><span class="cred-tier-name">' + esc(tier ? tier.name : ms.tierId) + ' credit line</span>' +
+            '<span class="cred-chip">' + money(ms.line) + " line · " + money(ms.spend) + " lifetime spend</span></div>" +
+            '<div class="cred-track"><div class="cred-fill" style="width: 0%;"></div></div>' +
+            '<div class="cred-state">Locked</div>' +
+            '<p class="cred-sub">Spend ' + money(ms.spend) + " as a " + esc(tier ? tier.name : ms.tierId) + " member and a " + money(ms.line) + " credit line unlocks — orders go out now, due in " + CREDIT_TERM_DAYS + " days.</p>" +
+            "</div>";
+        }
         function renderCreditCard() {
           var panel = $("acctCreditPanel"), body = $("acctCreditBody");
           if (!panel || !body) return;
           var cs = creditSummary();
           var pendRepay = allPendingRepayments();
-          if (!cs && !pendRepay.length) { panel.hidden = true; body.innerHTML = ""; return; }
+          /* The Credit Line card ALWAYS renders — Gold+ members get their
+             live bars; everyone else (guest, non-member, Silver) gets the
+             same three bars as a locked preview with the join prompt.
+             No viewer state may leave this card missing. */
           panel.hidden = false;
           var html = "";
           if (cs) {
             var leadUnlocked = cs.spend >= cs.leadMs.spend;
-            html += credBarHTML(cs.leadMs, cs.spend, false, leadUnlocked);
+            CREDIT_MILESTONES.forEach(function (ms) {
+              if (ms.tierId === cs.tier.id) {
+                html += credBarHTML(ms, cs.spend, false, leadUnlocked);
+              } else {
+                html += '<div style="margin-top: 10px;">' + credBarHTML(ms, cs.spend, true, cs.spend >= ms.spend) + "</div>";
+              }
+            });
             if (cs.line > 0 && !leadUnlocked) {
               html += '<p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;">Good news — a <strong style="color: var(--ink);">' + money(cs.line) + '</strong> credit line is already unlocked on your account from a milestone you passed, and it’s available at checkout with Pay with Credit.</p>';
             }
-            if (cs.nextMs) html += '<div style="margin-top: 10px;">' + credBarHTML(cs.nextMs, cs.spend, true, false) + "</div>";
             var tab = cs.tab;
             if (tab) {
               var dueStr = fmtDate(new Date(tab.dueAt));
@@ -2559,6 +2699,20 @@
                   return '<div class="ledger-row"><span class="lr-what">Credit tab — order ' + esc(h.orderNum || "") + "<small>Settled " + esc(h.when) + '</small></span><span class="lr-amt">' + money(h.total) + "</span></div>";
                 }).join("");
             }
+          } else {
+            /* Locked preview — guest, non-member, or Silver. All three bars
+               show their targets and prize lines at 0%: spend only starts
+               filling a bar on a Gold-or-above membership. */
+            var memNow = state.user ? activeMembership() : null;
+            var isSilver = !!(memNow && memNow.tierId === "silver");
+            CREDIT_MILESTONES.forEach(function (ms, i) {
+              html += (i ? '<div style="margin-top: 10px;">' : "<div>") + credLockedBarHTML(ms) + "</div>";
+            });
+            html += isSilver
+              ? '<p class="cred-lock-note"><strong>Gold and above carry a credit line</strong> — upgrade to start filling your bar. Every completed order moves it, and when it fills, your credit line unlocks at checkout.</p>' +
+                '<button class="btn btn-gold" type="button" data-nav="membership" style="margin-top: 12px;">Upgrade to Gold &amp; Up</button>'
+              : '<p class="cred-lock-note"><strong>Subscribe to increase your credit line.</strong> Join Gold or above and every completed order fills your tier’s bar — fill it and your credit line unlocks at checkout: order now, pay it back within ' + CREDIT_TERM_DAYS + " days.</p>" +
+                '<button class="btn btn-gold" type="button" data-nav="membership" style="margin-top: 12px;">See Memberships</button>';
           }
           var out = tabsOutstanding();
           if (pendRepay.length || out.count) {
@@ -2685,6 +2839,7 @@
           if (t.balanceApplied > 0) {
             html += '<div class="trow"><span>Order total</span><span>' + money(t.total) + "</span></div>";
             html += '<div class="trow"><span>Paid from account balance</span><span class="neg">−' + money(t.balanceApplied) + "</span></div>";
+            if (t.balanceFeeHeld > 0) html += '<div class="trow"><span>Welcome credit can’t pay membership fees — held back from the fee</span><span>' + money(t.balanceFeeHeld) + "</span></div>";
             var dueLabels = {
               card: "Due now — pay online by card",
               applepay: "Due now — pay with Apple Pay",
@@ -3650,9 +3805,15 @@
             truck = '<g data-truck-for="' + esc(o.num) + '" transform="translate(' + progPt.x.toFixed(1) + "," + progPt.y.toFixed(1) + ')">' + (reduced ? truckBadge() : '<g class="map-truck-bob">' + truckBadge() + "</g>") + "</g>";
           }
           var shimmer = isOut && !reduced && !completed ? '<path class="route-shimmer" pathLength="100" d="' + routeD + '" />' : "";
+          /* Live location is shown ONLY once the driver is en route
+             (out for delivery / shipped). Before that stage there is no
+             truck, no live ETA — just a plain note that live location
+             starts when the order is on its way. */
           var chip2 = completed
             ? '<div class="map-chip done"><span class="mc-dot"></span><span>Delivered · Order complete</span></div>'
-            : '<div class="map-chip"><span class="mc-dot"></span><span data-map-eta-for="' + esc(o.num) + '">' + esc(mapEtaLabel(o)) + "</span></div>";
+            : isOut
+            ? '<div class="map-chip"><span class="mc-dot"></span><span data-map-eta-for="' + esc(o.num) + '">' + esc(mapEtaLabel(o)) + "</span></div>"
+            : '<div class="map-chip done"><span class="mc-dot"></span><span>' + (info.isShip ? "Live tracking starts once your order ships" : "Live location starts once your driver is on the way") + "</span></div>";
           var originBar = '<div class="map-origin-bar"><span class="mc-dot"></span><span>Pickup origin · <strong>' + esc(origin.name) + "</strong>" + (origin.detail ? " — " + esc(origin.detail) : "") + "</span></div>";
           return '<div class="tracker-map ' + stageCls + (reduced ? " no-anim" : "") + '"><svg class="map-svg" viewBox="0 0 400 210" role="img" aria-label="' + (info.isShip ? "Shipping route map from " + esc(origin.name) + " to your ship-to address" : "Delivery route map from " + esc(origin.name) + " to your door") + '">' + mapStreetsSVG() +
             '<path class="route-track" pathLength="100" d="' + routeD + '" />' +
@@ -3692,9 +3853,12 @@
             shipPrompt = '<div class="tracker-callout"><strong>Shipping information needed.</strong><br />This order ships as soon as your shipping information is on file — add it now so nothing is delayed.<br /><button class="btn btn-gold" type="button" data-ship-info="1" style="margin-top: 10px; min-height: 44px; padding: 9px 16px;">Add Shipping Information</button></div>';
           }
           if (o.statusStage === "payment_pending") callout = '<div class="tracker-callout"><strong>Payment pending.</strong> This order is not marked paid yet — it moves to packing as soon as the business confirms your payment landed.</div>';
+          var enRoute = stage === "out" || stage === "shipped";
           var liveChip = completed
             ? '<span class="live-chip done"><span class="live-dot"></span>Completed</span>'
-            : '<span class="live-chip"><span class="live-dot"></span>Live</span>';
+            : enRoute
+            ? '<span class="live-chip"><span class="live-dot"></span>Live</span>'
+            : '<span class="live-chip done"><span class="live-dot"></span>Tracking</span>';
           return '<div class="tracker"><div class="tracker-head"><div class="tracker-live-row">' + liveChip + '</div>' +
             '<div class="tracker-headline">' + esc(info.headline) + '</div><p class="tracker-sub">' + esc(info.sub) + "</p></div>" + map +
             '<div class="tracker-steps">' + steps + fill + marker + "</div>" + callout + shipPrompt + bizControlsHTML(o, ctx) + "</div>";
@@ -3898,12 +4062,14 @@
               ? money(state.joinCharge.price) + "/month"
               : money(state.joinCharge.price) + " for the " + jm + "-month term, paid up front (" + money(termPerMonth(jt, jm)) + "/mo" + (termSave(jt, jm) > 0 ? " — you save " + money(termSave(jt, jm)) + " vs paying monthly" : "") + ")";
             var jTermTxt = " Your term runs from today — cancelling stops renewal, benefits run to the end of the paid term, and fees aren’t refunded mid-term.";
+            var jwAmt = welcomePreview(state.joinCharge.email, jt, jm, state.memberships[state.joinCharge.email] || null);
+            var jWel = jwAmt > 0 ? " And the moment this order is placed, <strong>" + wholeMoney(jwAmt) + " welcome credit</strong> lands in your account balance." : "";
             if (state.joinCharge.deferred) {
-              box.innerHTML = '<div class="mem-panel"><div class="mem-proof"><strong>' + esc(jt.name) + " membership added to this order</strong> — " + jFeeTxt + ", billed as its own line above. The instant-join discount is a once-per-12-months deal, so your member discount starts with your <strong>next</strong> order." + jTermTxt + "</div>" +
+              box.innerHTML = '<div class="mem-panel"><div class="mem-proof"><strong>' + esc(jt.name) + " membership added to this order</strong> — " + jFeeTxt + ", billed as its own line above. The instant-join discount is a once-per-12-months deal, so your member discount starts with your <strong>next</strong> order." + jTermTxt + jWel + "</div>" +
                 '<button class="btn btn-outline mem-join-btn" type="button" id="coMemRemove" style="margin-top: 10px;">Remove membership</button></div>';
             } else {
               var savedJ = memberSavingsNow();
-              box.innerHTML = '<div class="mem-panel"><div class="mem-proof"><strong>' + esc(jt.name) + " membership is on this order</strong>" + (savedJ > 0 ? " — you saved <strong>" + money(savedJ) + "</strong>" : " — your member perks apply") + (state.fulfillment === "delivery" && jt.freeDelivery ? ", delivery fee waived" : "") + (state.fulfillment === "shipping" && jt.freeShipping ? ", shipping waived" : "") + ". The membership (" + jFeeTxt + ") is its own line in your total." + jTermTxt + "</div>" +
+              box.innerHTML = '<div class="mem-panel"><div class="mem-proof"><strong>' + esc(jt.name) + " membership is on this order</strong>" + (savedJ > 0 ? " — you saved <strong>" + money(savedJ) + "</strong>" : " — your member perks apply") + (state.fulfillment === "delivery" && jt.freeDelivery ? ", delivery fee waived" : "") + (state.fulfillment === "shipping" && jt.freeShipping ? ", shipping waived" : "") + ". The membership (" + jFeeTxt + ") is its own line in your total." + jTermTxt + jWel + "</div>" +
                 '<button class="btn btn-outline mem-join-btn" type="button" id="coMemRemove" style="margin-top: 10px;">Remove membership</button></div>';
             }
             $("coMemRemove").addEventListener("click", function () { state.joinCharge = null; refreshCheckoutMoney(); toast("Membership removed from this order"); });
@@ -3935,7 +4101,8 @@
             if (state.fulfillment === "shipping" && tier.freeShipping) perks.push("free shipping");
             var fee = termTotal(tier, coMonths);
             var pays = savings > fee;
-            return { tier: tier, tt: { total: previewTotal }, savings: savings, perks: perks, pays: pays, fee: fee };
+            var wAmt = state.user ? welcomePreview(String(state.user.email).trim().toLowerCase(), tier, coMonths, memberRecord()) : welcomeGrantFor(tier, coMonths);
+            return { tier: tier, tt: { total: previewTotal }, savings: savings, perks: perks, pays: pays, fee: fee, welcome: wAmt };
           });
           var bestRow = rows.reduce(function (a, b) { return b.savings > a.savings ? b : a; }, rows[0]);
           var picker = '<div class="term-picker" role="group" aria-label="Membership term" style="margin-bottom: 12px;">' + MEM_TERMS.map(function (tm) {
@@ -3950,11 +4117,12 @@
             html += '<div class="mem-tier-row' + (r === bestRow && r.savings > 0 ? " best" : "") + '">' +
               '<div><div class="mt-name">' + esc(r.tier.name) + '</div><div class="mt-price">' + feeLine + " · " + Math.round(r.tier.pct * 100) + "% off orders" + (r.perks.length ? " + " + r.perks.join(" + ") : "") + "</div>" +
               (r.pays ? '<div class="mem-pays">' + esc(r.tier.name) + " pays for itself on this order — save " + money(r.savings) + ", membership is " + money(r.fee) + "</div>" : "") +
+              (r.welcome > 0 ? '<div class="mt-welcome">Join ' + esc(r.tier.name) + " — " + wholeMoney(r.welcome) + " lands in your balance instantly</div>" : "") +
               "</div>" +
               '<div class="mt-math"><div><span class="mt-was">' + money(base.total) + "</span><strong>" + money(r.tt.total) + '</strong></div><div class="mt-save">Save ' + money(Math.max(0, r.savings)) + "</div></div>" +
               '<button class="btn btn-gold mem-join-btn" type="button" data-join-tier="' + r.tier.id + '">Join ' + esc(r.tier.name) + "</button></div>";
           });
-          html += '<p class="mem-terms">Membership fee is charged up front for the whole term as its own line · Cancelling stops renewal — benefits run to the end of the paid term, and fees aren’t refunded mid-term · One membership per account, tied to your account email — orders must be placed from your account for the discount to apply · Discount is your tier’s percent off your cart total, on the product subtotal only — the only discount in the store, never stacks with other offers · Order minimums still apply.</p></div>';
+          html += '<p class="mem-terms">Membership fee is charged up front for the whole term as its own line · Cancelling stops renewal — benefits run to the end of the paid term, and fees aren’t refunded mid-term · One membership per account, tied to your account email — orders must be placed from your account for the discount to apply · Discount is your tier’s percent off your cart total, on the product subtotal only — the only discount in the store, never stacks with other offers · Order minimums still apply · Every join and paid renewal drops welcome credit into your account balance instantly — Silver $5 · Gold $10 · Platinum $20 · Diamond $35 on the monthly term, multiplied on longer terms — and welcome credit can’t pay membership fees, balance top-ups, or credit-line tabs.</p></div>';
           box.innerHTML = html;
           box.querySelectorAll("[data-co-term]").forEach(function (b) {
             b.addEventListener("click", function () { state.coTerm = parseInt(b.getAttribute("data-co-term"), 10) || 1; renderCoMember(); });
@@ -3985,10 +4153,15 @@
             instantUsedAt: prev ? prev.instantUsedAt : null,
             discountDeferred: deferred, cancelAtPeriodEnd: false
           };
-          renderMembershipView(); renderAcctMembership(); renderCart();
+          /* The membership payment just landed — the welcome grant drops
+             into the member's balance in the same moment (initial join,
+             continuous renewal, and tier switch alike; the anti-farming
+             rule inside decides cancel-and-rejoin cases). */
+          var wcGrant = grantWelcomeCredit(email, tier, state.memTerm || 1, prev);
+          renderMembershipView(); renderAcctMembership(); renderCart(); renderAcctBalance();
           toast(deferred
-            ? "Welcome back to " + tier.name + " — your discount applies from your next order"
-            : "Welcome to " + tier.name + " — your discount now applies automatically at checkout");
+            ? "Welcome back to " + tier.name + " — your discount applies from your next order" + (wcGrant > 0 ? ", and " + wholeMoney(wcGrant) + " welcome credit just landed in your balance" : "")
+            : "Welcome to " + tier.name + " — your discount now applies automatically at checkout" + (wcGrant > 0 ? ", and " + wholeMoney(wcGrant) + " welcome credit just landed in your balance" : ""));
         }
         function renderMembershipView() {
           var grid = $("memGrid");
@@ -4022,14 +4195,14 @@
             var isCurrent = !!(mem && mem.tierId === tier.id);
             var ttRows = MEM_TERMS.map(function (tm) {
               var sv = termSave(tier, tm.months);
-              return '<div class="tt-row' + (tm.months === months ? " sel" : "") + '"><span>' + (tm.months === 1 ? "Monthly" : tm.months + " months") + (tm.off > 0 ? ' <span class="tt-off">−' + Math.round(tm.off * 100) + "% fee</span>" : "") + (tm.months === 12 ? ' <span class="tt-best">Best deal</span>' : "") + '</span><span class="tt-nums">' + money(termTotal(tier, tm.months)) + " total · " + money(termPerMonth(tier, tm.months)) + "/mo" + (sv > 0 ? ' · <span class="tt-save">You save ' + money(sv) + "</span>" : "") + "</span></div>";
+              return '<div class="tt-row' + (tm.months === months ? " sel" : "") + '"><span>' + (tm.months === 1 ? "Monthly" : tm.months + " months") + (tm.off > 0 ? ' <span class="tt-off">−' + Math.round(tm.off * 100) + "% fee</span>" : "") + (tm.months === 12 ? ' <span class="tt-best">Best deal</span>' : "") + '</span><span class="tt-nums">' + money(termTotal(tier, tm.months)) + " total · " + money(termPerMonth(tier, tm.months)) + "/mo" + (sv > 0 ? ' · <span class="tt-save">You save ' + money(sv) + "</span>" : "") + ' · <span class="tt-save">+' + wholeMoney(welcomeGrantFor(tier, tm.months)) + " welcome credit</span></span></div>";
             }).join("");
             card.innerHTML =
               (tier.flag ? '<span class="mc-flag">' + esc(tier.flag) + "</span>" : "") +
               "<h3>" + esc(tier.name) + "</h3>" +
               '<div class="mc-price"><strong>' + money(total) + '</strong> <span class="mc-per">' + (months === 1 ? "/month" : "for " + months + " months — paid up front") + "</span></div>" +
               '<div class="mc-per">' + (months === 1 ? "Billed monthly. Pick a longer term above to cut the fee." : "Works out to " + money(termPerMonth(tier, months)) + "/month — you save " + money(termSave(tier, months)) + " vs paying monthly.") + " Your " + Math.round(tier.pct * 100) + "% off orders is the same on every term.</div>" +
-              "<ul>" + tier.perks.map(function (p) { return '<li><span class="ck">✓</span>' + esc(p) + "</li>"; }).join("") + "</ul>" +
+              "<ul>" + tier.perks.map(function (p) { return '<li><span class="ck">✓</span>' + esc(p) + "</li>"; }).join("") + '<li><span class="ck">✓</span>' + wholeMoney(welcomeGrantFor(tier, months)) + " welcome credit lands in your balance the moment you join — and again at every renewal</li></ul>" +
               '<div class="term-table" aria-label="Term prices for ' + esc(tier.name) + '">' + ttRows + "</div>" +
               (isCurrent
                 ? '<button class="btn btn-outline" type="button" disabled aria-disabled="true">Current plan</button>'
@@ -4046,7 +4219,7 @@
           var r = memberRecord();
           if (!r || r.status !== "active") {
             body.innerHTML = '<p style="font-size: 14.5px; color: var(--ink-soft); margin: 0 0 12px;">You’re not a member yet. Members save on every order — the discount applies automatically at checkout, and at checkout you’ll see exactly what each tier saves on your cart before you join.</p>' +
-              '<button class="btn btn-gold" type="button" id="acctMemPlans">See Membership Plans</button>';
+              '<button class="btn btn-gold" type="button" id="acctMemPlans">See Membership Plans</button>' + membershipBizBoxHTML();
             $("acctMemPlans").addEventListener("click", function () { goNav("membership"); });
             return;
           }
@@ -4060,13 +4233,14 @@
             Math.round(tier.pct * 100) + "% off the product subtotal at checkout" + (tier.freeDelivery ? " · Free delivery" : "") + (tier.freeShipping ? " · Free shipping" : "") +
             (r.discountDeferred ? "<br>Your discount applies from your next order." : "") +
             (r.cancelAtPeriodEnd ? "<br>You cancelled renewal — your benefits run to " + esc(r.periodEnd || "") + ", the end of your paid term. Membership fees aren’t refunded mid-term." : "<br>Renews " + esc(r.periodEnd || "") + " at the end of your term · Cancel anytime — cancelling stops renewal, benefits run to the end of the paid term, and fees aren’t refunded mid-term.") +
+            (r.cancelAtPeriodEnd ? "" : "<br>Stay subscribed and your next paid renewal drops another " + wholeMoney(welcomeGrantFor(tier, rm)) + " welcome credit into your balance the moment it lands.") +
             "</p></div>" +
             '<div style="display: flex; gap: 10px; flex-wrap: wrap;">' +
             '<button class="btn btn-outline" type="button" id="acctMemChange">Change Tier</button>' +
             (r.cancelAtPeriodEnd
               ? '<button class="btn btn-gold" type="button" id="acctMemKeep">Keep My Membership</button>'
               : '<button class="btn btn-outline" type="button" id="acctMemCancel">Cancel Membership</button>') +
-            "</div></div>";
+            "</div></div>" + membershipBizBoxHTML();
           $("acctMemChange").addEventListener("click", function () { goNav("membership"); });
           var keep = $("acctMemKeep");
           if (keep) keep.addEventListener("click", function () {
@@ -4218,6 +4392,7 @@
             var wSpend = walletRec(false);
             if (wSpend) {
               wSpend.balance = r2(wSpend.balance - t.balanceApplied);
+              if (t.balanceWelcomeUsed > 0) wSpend.welcomeRestricted = Math.max(0, r2((wSpend.welcomeRestricted || 0) - t.balanceWelcomeUsed));
               wSpend.ledger.unshift({ type: "spend", amount: -t.balanceApplied, when: nowStamp(), note: "Order " + order.num + (t.dueNow > 0 ? " — part payment, rest by " + payment.brand : " — paid in full from balance") });
             }
             renderAcctBalance();
@@ -4238,6 +4413,13 @@
             if (!jc.deferred) {
               var pkUsed = payKeyNow();
               if (pkUsed) state.instantPayKeys[pkUsed] = { email: jc.email, at: Date.now() };
+            }
+            /* The membership payment just landed — the welcome grant
+               drops into the member's balance in the same moment. */
+            var wcAmt = grantWelcomeCredit(jc.email, tierById(jc.tierId), jc.termMonths || 1, prevRec);
+            if (wcAmt > 0) {
+              order.memberNote = (order.memberNote ? order.memberNote + " " : "") + "Welcome credit: " + wholeMoney(wcAmt) + " just landed in your balance.";
+              renderAcctBalance();
             }
             state.joinCharge = null;
           } else {
@@ -4558,6 +4740,7 @@
           $("acctIn").hidden = true;
           $("acctTitle").textContent = "Join the route";
           renderMenuAcct();
+          renderCreditCard();
           renderCoPay();
           renderCart();
           if (state.view === "checkout") renderCheckout();
