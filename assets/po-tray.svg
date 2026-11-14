@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Gold rolling tray kit with grinder and storage jar">
+  <defs>
+    <linearGradient id="bg4" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffdf6"/>
+      <stop offset="1" stop-color="#f6ead0"/>
+    </linearGradient>
+    <linearGradient id="gold4" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e9c268"/>
+      <stop offset="0.5" stop-color="#c1902a"/>
+      <stop offset="1" stop-color="#96690f"/>
+    </linearGradient>
+    <linearGradient id="tray" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f3d98b"/>
+      <stop offset="1" stop-color="#c1902a"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg4)"/>
+  <circle cx="140" cy="105" r="85" fill="#efd9a0" opacity="0.35"/>
+  <circle cx="675" cy="90" r="65" fill="#efd9a0" opacity="0.3"/>
+  <ellipse cx="400" cy="508" rx="285" ry="26" fill="#d9c391" opacity="0.45"/>
+
+  <!-- storage jar behind tray -->
+  <g>
+    <path d="M528 190 Q528 172 546 172 L646 172 Q664 172 664 190 L668 300 Q668 324 644 324 L548 324 Q524 324 524 300 Z" fill="#ffffff" fill-opacity="0.75" stroke="#d9b96a" stroke-width="3"/>
+    <g fill="#7d9b4e">
+      <circle cx="566" cy="282" r="20"/>
+      <circle cx="604" cy="296" r="22"/>
+      <circle cx="636" cy="280" r="18"/>
+      <circle cx="586" cy="252" r="17"/>
+      <circle cx="622" cy="246" r="15"/>
+    </g>
+    <rect x="518" y="128" width="156" height="44" rx="12" fill="url(#gold4)"/>
+    <rect x="518" y="144" width="156" height="6" fill="#7c5410" opacity="0.35"/>
+    <rect x="540" y="196" width="14" height="100" rx="7" fill="#ffffff" opacity="0.6"/>
+  </g>
+
+  <!-- papers pack -->
+  <g transform="rotate(-8 196 300)">
+    <rect x="128" y="238" width="136" height="118" rx="12" fill="#ffffff" stroke="#d9b96a" stroke-width="3"/>
+    <rect x="128" y="238" width="136" height="40" rx="12" fill="url(#gold4)"/>
+    <path d="M158 316 Q196 292 234 316 Q196 332 158 316 Z" fill="#efd9a0"/>
+    <path d="M196 294 L196 330" stroke="#c1902a" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <!-- tray -->
+  <g>
+    <path d="M96 380 L704 380 Q736 380 730 414 L712 486 Q706 516 672 516 L128 516 Q94 516 88 486 L70 414 Q64 380 96 380 Z" fill="url(#tray)"/>
+    <path d="M118 402 L682 402 Q700 402 696 420 L684 472 Q680 492 656 492 L144 492 Q120 492 116 472 L104 420 Q100 402 118 402 Z" fill="#f8e7b8"/>
+    <path d="M118 402 L682 402 Q700 402 696 420 L692 438 L108 438 L104 420 Q100 402 118 402 Z" fill="#ffffff" opacity="0.35"/>
+  </g>
+
+  <!-- grinder on tray -->
+  <g>
+    <ellipse cx="252" cy="478" rx="72" ry="14" fill="#96690f" opacity="0.35"/>
+    <rect x="182" y="392" width="140" height="84" rx="16" fill="url(#gold4)"/>
+    <rect x="182" y="392" width="140" height="24" rx="12" fill="#7c5410" opacity="0.35"/>
+    <rect x="182" y="428" width="140" height="7" fill="#fff3d6" opacity="0.5"/>
+    <rect x="182" y="448" width="140" height="7" fill="#7c5410" opacity="0.3"/>
+    <rect x="198" y="398" width="12" height="66" rx="6" fill="#ffffff" opacity="0.35"/>
+    <g fill="#7c5410" opacity="0.55">
+      <circle cx="232" cy="404" r="3"/><circle cx="256" cy="404" r="3"/><circle cx="280" cy="404" r="3"/><circle cx="304" cy="404" r="3"/>
+    </g>
+  </g>
+
+  <!-- fresh pre-rolls resting on tray -->
+  <g transform="rotate(-6 520 452)" stroke="#d9b96a" stroke-width="2.5">
+    <path d="M398 438 L636 438 Q652 438 652 452 Q652 466 636 466 L398 466 Q382 466 384 452 Q382 438 398 438 Z" fill="#fffaf0"/>
+    <path d="M400 440 Q372 452 400 464 Q392 452 400 440 Z" fill="#f7ead2"/>
+    <rect x="600" y="438" width="18" height="28" fill="url(#gold4)" stroke="none"/>
+  </g>
+  <g transform="rotate(4 520 486)" stroke="#d9b96a" stroke-width="2.5">
+    <path d="M412 474 L640 474 Q656 474 656 487 Q656 500 640 500 L412 500 Q396 500 398 487 Q396 474 412 474 Z" fill="#fffaf0"/>
+    <path d="M638 476 Q666 487 638 498 Q646 487 638 476 Z" fill="#f7ead2"/>
+    <rect x="428" y="474" width="18" height="26" fill="url(#gold4)" stroke="none"/>
+  </g>
+</svg>

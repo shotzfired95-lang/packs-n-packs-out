@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Fresh pre-rolls in a white and gold pack">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffdf6"/>
+      <stop offset="1" stop-color="#f6ead0"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e9c268"/>
+      <stop offset="0.5" stop-color="#c1902a"/>
+      <stop offset="1" stop-color="#96690f"/>
+    </linearGradient>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fffaf0"/>
+      <stop offset="1" stop-color="#f3e3c2"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <circle cx="150" cy="110" r="90" fill="#efd9a0" opacity="0.35"/>
+  <circle cx="680" cy="90" r="70" fill="#efd9a0" opacity="0.3"/>
+  <circle cx="640" cy="480" r="110" fill="#efd9a0" opacity="0.25"/>
+  <ellipse cx="400" cy="512" rx="255" ry="26" fill="#d9c391" opacity="0.45"/>
+
+  <!-- leaf sprig left -->
+  <g fill="#7d9b4e">
+    <path d="M120 470 C 90 420, 88 372, 104 330 C 140 366, 152 416, 138 466 C 132 478, 126 478, 120 470 Z"/>
+    <path d="M150 486 C 128 442, 132 398, 156 362 C 182 404, 184 448, 166 484 C 160 492, 154 492, 150 486 Z" opacity="0.75"/>
+  </g>
+  <path d="M126 462 C 122 420, 124 382, 112 344" stroke="#5d7838" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+  <!-- leaf sprig right -->
+  <g fill="#7d9b4e">
+    <path d="M682 470 C 712 420, 714 372, 698 330 C 662 366, 650 416, 664 466 C 670 478, 676 478, 682 470 Z"/>
+    <path d="M652 486 C 674 442, 670 398, 646 362 C 620 404, 618 448, 636 484 C 642 492, 648 492, 652 486 Z" opacity="0.75"/>
+  </g>
+  <path d="M676 462 C 680 420, 678 382, 690 344" stroke="#5d7838" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+  <!-- back of pack -->
+  <rect x="252" y="150" width="296" height="120" rx="16" fill="#ffffff" stroke="#d9b96a" stroke-width="3"/>
+  <rect x="252" y="150" width="296" height="34" rx="16" fill="url(#gold)" opacity="0.9"/>
+
+  <!-- pre-rolls standing in pack -->
+  <g stroke="#d9b96a" stroke-width="2.5">
+    <g transform="rotate(-7 300 260)">
+      <path d="M284 268 L290 168 Q291 156 300 156 Q309 156 310 168 L316 268 Z" fill="url(#paper)"/>
+      <path d="M292 172 Q300 138 306 158 Q308 168 308 174 Z" fill="#f7ead2"/>
+      <rect x="285" y="238" width="30" height="14" fill="url(#gold)" stroke="none"/>
+    </g>
+    <g transform="rotate(-2.5 355 260)">
+      <path d="M339 268 L345 158 Q346 146 355 146 Q364 146 365 158 L371 268 Z" fill="url(#paper)"/>
+      <path d="M347 162 Q355 128 361 148 Q363 158 363 164 Z" fill="#f7ead2"/>
+      <rect x="340" y="238" width="30" height="14" fill="url(#gold)" stroke="none"/>
+    </g>
+    <g transform="rotate(2.5 410 260)">
+      <path d="M394 268 L400 158 Q401 146 410 146 Q419 146 420 158 L426 268 Z" fill="url(#paper)"/>
+      <path d="M402 162 Q410 128 416 148 Q418 158 418 164 Z" fill="#f7ead2"/>
+      <rect x="395" y="238" width="30" height="14" fill="url(#gold)" stroke="none"/>
+    </g>
+    <g transform="rotate(7 465 260)">
+      <path d="M449 268 L455 168 Q456 156 465 156 Q474 156 475 168 L481 268 Z" fill="url(#paper)"/>
+      <path d="M457 172 Q465 138 471 158 Q473 168 473 174 Z" fill="#f7ead2"/>
+      <rect x="450" y="238" width="30" height="14" fill="url(#gold)" stroke="none"/>
+    </g>
+  </g>
+
+  <!-- front of pack -->
+  <path d="M240 268 L560 268 L544 492 Q543 508 527 508 L273 508 Q257 508 256 492 Z" fill="#ffffff" stroke="#d9b96a" stroke-width="3"/>
+  <path d="M240 268 L560 268 L556 330 L244 330 Z" fill="url(#gold)"/>
+  <circle cx="400" cy="412" r="42" fill="none" stroke="url(#gold)" stroke-width="4"/>
+  <path d="M372 412 Q400 384 428 412 Q400 428 372 412 Z" fill="#efd9a0"/>
+  <path d="M400 388 L400 430" stroke="#c1902a" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- two fresh pre-rolls resting in front -->
+  <g transform="rotate(16 250 520)" stroke="#d9b96a" stroke-width="2.5">
+    <path d="M130 506 L356 506 Q372 506 372 520 Q372 534 356 534 L130 534 Q116 534 118 520 Q116 506 130 506 Z" fill="url(#paper)"/>
+    <path d="M132 508 Q104 520 132 532 Q124 520 132 508 Z" fill="#f7ead2"/>
+    <rect x="322" y="506" width="16" height="28" fill="url(#gold)" stroke="none"/>
+  </g>
+  <g transform="rotate(-13 560 522)" stroke="#d9b96a" stroke-width="2.5">
+    <path d="M446 508 L672 508 Q688 508 688 522 Q688 536 672 536 L446 536 Q430 536 432 522 Q430 508 446 508 Z" fill="url(#paper)"/>
+    <path d="M670 510 Q698 522 670 534 Q678 522 670 510 Z" fill="#f7ead2"/>
+    <rect x="462" y="508" width="16" height="28" fill="url(#gold)" stroke="none"/>
+  </g>
+</svg>
