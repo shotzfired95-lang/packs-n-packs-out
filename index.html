@@ -210,6 +210,47 @@
       .pay-launch { width: 100%; }
       .pay-sent { display: flex; gap: 11px; align-items: flex-start; background: color-mix(in srgb, var(--gold) 8%, var(--bg)); border: 1.5px solid var(--gold-pale); border-radius: 10px; padding: 12px 13px; font-size: 13.5px; line-height: 1.45; cursor: pointer; }
       .pay-sent input { width: 22px; height: 22px; min-height: 22px; accent-color: #96690f; flex: none; margin-top: 1px; cursor: pointer; }
+      /* ---------- Account balance (store-credit wallet) ---------- */
+      .bal-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+      .bal-amt { font-family: "Archivo", sans-serif; font-weight: 900; font-size: 36px; line-height: 1.05; color: var(--ink); }
+      .bal-sub { font-size: 13.5px; color: var(--ink-soft); margin-top: 4px; }
+      .bal-toggle { display: flex; gap: 11px; align-items: flex-start; width: 100%; text-align: left; background: var(--bg); border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 13px; font: inherit; color: var(--ink); cursor: pointer; }
+      .bal-toggle .bt-box { width: 22px; height: 22px; flex: none; border: 2px solid var(--gold); border-radius: 6px; margin-top: 1px; display: inline-flex; align-items: center; justify-content: center; font-weight: 900; color: var(--gold); font-size: 15px; line-height: 1; }
+      .bal-toggle[aria-pressed="true"] { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 9%, var(--bg)); box-shadow: inset 0 0 0 1px var(--gold); }
+      .bal-toggle .bt-name { font-family: "Archivo", sans-serif; font-weight: 800; font-size: 14.5px; display: block; }
+      .bal-toggle .bt-desc { font-size: 12.5px; color: var(--ink-soft); line-height: 1.35; display: block; margin-top: 1px; }
+      .bonus-table { border: 1px solid var(--gold-pale); border-radius: 10px; padding: 6px 13px; background: var(--bg-soft); }
+      .ledger-row { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+      .ledger-row:last-child { border-bottom: 0; }
+      .ledger-row .lr-what { color: var(--ink); }
+      .ledger-row .lr-what small { display: block; color: var(--ink-soft); font-size: 12.5px; margin-top: 1px; }
+      .ledger-row .lr-amt { font-family: "Archivo", sans-serif; font-weight: 800; white-space: nowrap; }
+      .ledger-row .lr-amt.pos { color: var(--gold); }
+      .topup-card { border: 1.5px solid var(--gold-pale); border-radius: 10px; padding: 12px 14px; display: grid; gap: 4px; background: var(--bg); }
+      .topup-card .tc-top { display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
+      .topup-card .tc-amt { font-family: "Archivo", sans-serif; font-weight: 800; font-size: 16px; }
+      .topup-card .tc-meta { font-size: 13px; color: var(--ink-soft); }
+      /* ---------- Member credit line (per-tier progress bars) ---------- */
+      .cred-card { border: 1.5px solid var(--gold-pale); border-radius: 12px; padding: 14px 15px; display: grid; gap: 8px; background: var(--bg); text-align: left; }
+      .cred-card.mini { padding: 11px 13px; gap: 6px; border-style: dashed; }
+      .cred-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+      .cred-tier-name { font-family: "Archivo", sans-serif; font-weight: 800; font-size: 15px; }
+      .cred-chip { font-family: "Archivo", sans-serif; font-weight: 800; font-size: 12px; padding: 4px 9px; border-radius: 6px; border: 1px solid var(--gold-pale); white-space: nowrap; }
+      .cred-state { font-family: "Archivo", sans-serif; font-weight: 900; font-size: 20px; line-height: 1.2; }
+      .cred-sub { font-size: 13.5px; color: var(--ink-soft); margin: 0; }
+      .cred-track { height: 14px; border-radius: 999px; background: var(--bg-soft); border: 1px solid var(--line); overflow: hidden; }
+      .cred-card.mini .cred-track { height: 9px; }
+      .cred-fill { height: 100%; border-radius: 999px; transition: width 0.5s ease; }
+      @media (prefers-reduced-motion: reduce) { .cred-fill { transition: none; } }
+      .cred-gold .cred-fill { background: linear-gradient(90deg, var(--gold), var(--gold-bright)); }
+      .cred-gold .cred-tier-name, .cred-gold .cred-state { color: var(--gold); }
+      .cred-gold .cred-chip { background: color-mix(in srgb, var(--gold) 13%, var(--bg)); color: var(--gold); }
+      .cred-platinum .cred-fill { background: linear-gradient(90deg, #98a2ad, #d9dee5); }
+      .cred-platinum .cred-tier-name, .cred-platinum .cred-state { color: #7d8894; }
+      .cred-platinum .cred-chip { background: #eef1f4; color: #66707b; border-color: #ccd3da; }
+      .cred-diamond .cred-fill { background: linear-gradient(90deg, #6fc7de, #d3f3fb); }
+      .cred-diamond .cred-tier-name, .cred-diamond .cred-state { color: #3d9db8; }
+      .cred-diamond .cred-chip { background: #e8f8fc; color: #2f7e96; border-color: #bfe6f0; }
       .pending-pill { display: inline-block; font-family: "Archivo", sans-serif; font-weight: 800; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; background: var(--ember); color: #fff; border-radius: 6px; padding: 4px 9px; vertical-align: 2px; }
       .pay-code { border: 2px dashed var(--gold-bright); border-radius: 12px; background: color-mix(in srgb, var(--gold) 7%, var(--bg)); padding: 12px 14px; text-align: center; display: grid; gap: 2px; }
       .pay-code .pc-label { font-family: "Archivo", sans-serif; font-weight: 700; font-size: 11.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-soft); }
@@ -1078,7 +1119,7 @@
               <div class="sec-head" style="margin-bottom: 20px;">
                 <div class="tag">Order Ahead</div>
                 <h2 id="coTitle">Checkout — Pickup</h2>
-                <p id="coIntro">Reserve your products now — pay by card, Apple Pay, Cash App, Chime, Current, or Bitcoin, or cash at the counter if you’re an approved member. Bring your ID — we check it on every pickup.</p>
+                <p id="coIntro">Reserve your products now — pay by card, Apple Pay, Cash App, Chime, Current, Bitcoin, or your account balance — or cash at the counter if you’re an approved member. Bring your ID — we check it on every pickup.</p>
                 <div class="gold-rule"></div>
               </div>
               <div class="co-grid">
@@ -1199,6 +1240,14 @@
                     <button class="btn btn-outline" type="button" id="signOutBtn">Sign Out</button>
                   </div>
                   <p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;" id="reorderNote"></p>
+                </div>
+                <div class="panel" style="margin-top: 18px;" id="acctBalancePanel">
+                  <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Account balance</h3>
+                  <div id="acctBalanceBody"></div>
+                </div>
+                <div class="panel" style="margin-top: 18px;" id="acctCreditPanel" hidden>
+                  <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Credit line</h3>
+                  <div id="acctCreditBody"></div>
                 </div>
                 <div class="panel" style="margin-top: 18px;">
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Your orders — live tracking</h3>
@@ -1555,7 +1604,10 @@
           shipInfo: null, shipDraft: { street: "", apt: "", city: "", state: "", zip: "" },
           payMethod: "card", pendingCode: null,
           tipChoice: "5", tipCustom: "", ticketSeq: 0, currentOrderNum: null,
-          memberships: {}, joinCharge: null, memTerm: 1, coTerm: 1, instantPayKeys: {}
+          memberships: {}, joinCharge: null, memTerm: 1, coTerm: 1, instantPayKeys: {},
+          balances: {}, topupSeq: 0, useBalance: true,
+          topupOpen: false, topupAmt: 100, topupCustom: "", topupMethod: "cashapp",
+          creditLines: {}, repayOpen: false, repayMethod: "cashapp"
         };
         function $(id) { return document.getElementById(id); }
         function money(n) { return "$" + n.toFixed(2); }
@@ -1989,6 +2041,16 @@
           t.memFeeTier = t.memFee > 0 ? (tierById(state.joinCharge.tierId) || {}).name || "" : "";
           t.memFeeTerm = t.memFee > 0 ? (state.joinCharge.termMonths || 1) : 1;
           t.total += t.memFee;
+          /* Account balance: the member discount figures the order total
+             first; the balance then pays what's owed. It applies at
+             checkout only, and only for a signed-in account holder. */
+          t.balanceAvail = state.user ? walletBalance() : 0;
+          t.balanceApplied = 0;
+          t.dueNow = t.total;
+          if (state.view === "checkout" && state.useBalance && state.payMethod !== "credit" && t.balanceAvail > 0 && t.total > 0) {
+            t.balanceApplied = Math.round(Math.min(t.balanceAvail, t.total) * 100) / 100;
+            t.dueNow = Math.round((t.total - t.balanceApplied) * 100) / 100;
+          }
           return t;
         }
         /* Churn guard: the instant checkout-join discount is once per 12 months
@@ -2032,6 +2094,562 @@
           });
           return best;
         }
+        /* ================= Account balance (prepaid store credit) =================
+           Customers load a balance with the store's existing payment options.
+           A top-up sits PENDING until the business approves it (the biz-box
+           below, mirroring how linked-payment orders wait for confirmation);
+           approval is what makes the credit spendable, and the load bonus is
+           credited at that same moment. Balance is store credit for this
+           store only — it never expires and cannot be cashed out. */
+        function r2(n) { return Math.round(n * 100) / 100; }
+        var BONUS_TIERS = [
+          { min: 500, pct: 0.10 },
+          { min: 250, pct: 0.08 },
+          { min: 100, pct: 0.05 }
+        ];
+        function bonusPctFor(amt) {
+          for (var i = 0; i < BONUS_TIERS.length; i++) if (amt >= BONUS_TIERS[i].min) return BONUS_TIERS[i].pct;
+          return 0;
+        }
+        function bonusFor(amt) { return r2(amt * bonusPctFor(amt)); }
+        function creditFor(amt) { return r2(amt + bonusFor(amt)); }
+        var TOPUP_PRESETS = [25, 50, 100, 250, 500];
+        function walletEmail() { return state.user && state.user.email ? String(state.user.email).trim().toLowerCase() : ""; }
+        function walletRec(create) {
+          var em = walletEmail();
+          if (!em) return null;
+          if (!state.balances[em] && create) state.balances[em] = { balance: 0, ledger: [], topups: [] };
+          return state.balances[em] || null;
+        }
+        function walletBalance() { var w = walletRec(false); return w ? w.balance : 0; }
+        function allPendingTopups() {
+          var out = [];
+          Object.keys(state.balances).forEach(function (em) {
+            state.balances[em].topups.forEach(function (tp) { if (tp.status === "pending") out.push(tp); });
+          });
+          return out;
+        }
+        function totalOutstanding() {
+          var n = 0;
+          Object.keys(state.balances).forEach(function (em) { n += state.balances[em].balance; });
+          return r2(n);
+        }
+        function topupAmountNow() {
+          if (state.topupCustom) { var v = parseFloat(state.topupCustom); if (isFinite(v) && v > 0) return r2(v); }
+          return state.topupAmt;
+        }
+        function tfSentConfirmHTML(appName, amt) {
+          return '<label class="pay-sent"><input type="checkbox" id="tfSentConfirm" /><span><strong>I’ve sent it.</strong> I paid ' + money(amt) + " in " + appName + ". My top-up stays <strong>PENDING</strong> until the business approves it — the credit becomes spendable only after approval.</span></label>";
+        }
+        function topupMethodBodyHTML(amt) {
+          var m = state.topupMethod;
+          if (m === "card") {
+            return '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Pay by card now — the charge runs right away, and the credit lands in your balance as <strong style="color: var(--ink);">pending</strong> until the business approves the top-up.</p>' +
+              '<label class="f" style="margin: 0;">Name on card<input type="text" id="tfCardName" autocomplete="cc-name" placeholder="Name as it appears on the card" /></label>' +
+              '<label class="f" style="margin: 0;">Card number<input type="text" id="tfCardNum" class="card-num" autocomplete="cc-number" inputmode="numeric" placeholder="1234 5678 9012 3456" /><span class="card-brand" id="tfCardBrand"></span></label>' +
+              '<div class="frow two">' +
+              '<label class="f" style="margin: 0;">Expiration<input type="text" id="tfCardExp" autocomplete="cc-exp" inputmode="numeric" placeholder="MM/YY" maxlength="5" /></label>' +
+              '<label class="f" style="margin: 0;">Security code (CVC)<input type="text" id="tfCardCvc" autocomplete="cc-csc" inputmode="numeric" placeholder="123" maxlength="4" /></label></div>' +
+              '<label class="f" style="margin: 0;">Billing ZIP code<input type="text" id="tfCardZip" autocomplete="postal-code" inputmode="numeric" placeholder="61605" maxlength="5" /></label>';
+          }
+          if (m === "applepay") {
+            return '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Send <strong style="color: var(--ink);">' + money(amt) + '</strong> with Apple Pay / Apple Cash to this phone number, then confirm below:</p>' +
+              '<div><span class="pay-handle">' + APPLEPAY_PHONE + "</span></div>" +
+              '<label class="f" style="margin: 0;">Your phone number <small>(the one you’re sending from)</small><input type="tel" id="tfSenderApple" placeholder="(309) 555-0123" /></label>' +
+              tfSentConfirmHTML("Apple Pay", amt);
+          }
+          if (m === "cashapp") {
+            return '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Tap the button to open the business’s Cash App pay page with <strong style="color: var(--ink);">' + money(amt) + '</strong> already filled in, and pay inside Cash App:</p>' +
+              '<a class="btn btn-gold pay-launch" id="tfLaunch" href="' + cashAppUrl(amt) + '" target="_blank" rel="noopener">Pay ' + money(amt) + ' with Cash App ↗</a>' +
+              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Paying another way? Send <strong style="color: var(--ink);">' + money(amt) + '</strong> to our $cashtag:</p>' +
+              '<div><span class="pay-handle">' + CASHAPP_TAG + "</span></div>" +
+              '<label class="f" style="margin: 0;">Your $cashtag <small>(the one you’re sending from)</small><input type="text" id="tfSenderTag" placeholder="$yourcashtag" /></label>' +
+              tfSentConfirmHTML("Cash App", amt);
+          }
+          if (m === "chime") {
+            return '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Tap the button to open the business’s Chime pay page and send <strong style="color: var(--ink);">' + money(amt) + '</strong> inside the official Chime app or site:</p>' +
+              '<a class="btn btn-gold pay-launch" href="' + CHIME_PAY_LINK + '" target="_blank" rel="noopener">Pay with Chime ↗</a>' +
+              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Or open Chime, tap <strong style="color: var(--ink);">Pay Anyone</strong>, and send to the business’s Chime sign-in name — or scan the QR code:</p>' +
+              '<div class="btc-qr-wrap"><span class="pay-qr-img"><img src="assets/chime-payment-qr.jpg" alt="Chime payment QR code for Packs N’ Packs Out — scan it with the Chime app to pay the business" /></span><div class="btc-qr-cap">Scan with the Chime app to pay</div></div>' +
+              '<div><span class="pay-handle">' + CHIME_NAME + "</span></div>" +
+              '<label class="f" style="margin: 0;">Your Chime sign-in name <small>(the one you’re sending from)</small><input type="text" id="tfSenderChime" placeholder="$yourchimesignin" /></label>' +
+              tfSentConfirmHTML("Chime", amt);
+          }
+          if (m === "current") {
+            return '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Tap the button to open the business’s profile in the Current app and send <strong style="color: var(--ink);">' + money(amt) + '</strong>:</p>' +
+              '<a class="btn btn-gold pay-launch" href="' + CURRENT_APP_LINK.replace("&", "&amp;") + '">Open in Current ↗</a>' +
+              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">On desktop, or if the app doesn’t open, scan the QR code or send to the business’s Current tag:</p>' +
+              '<div class="btc-qr-wrap"><span class="pay-qr-img"><img src="assets/current-payment-qr.jpg" alt="Current payment QR code for Packs N’ Packs Out — scan it with the Current app to pay the business" /></span><div class="btc-qr-cap">Scan with the Current app to pay</div></div>' +
+              '<div><span class="pay-handle">' + CURRENT_TAG + "</span></div>" +
+              '<label class="f" style="margin: 0;">Your Current tag or name <small>(the one you’re sending from)</small><input type="text" id="tfSenderCurrent" placeholder="$yourcurrenttag" /></label>' +
+              tfSentConfirmHTML("Current", amt);
+          }
+          var btcAmt = btcAmountFor(amt);
+          var btcUri = "bitcoin:" + BTC_WALLET + "?amount=" + btcAmt + "&label=" + encodeURIComponent("Packs N' Packs Out balance top-up");
+          return '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Tap the button to open your Bitcoin wallet with our address and the exact amount for this load — <strong style="color: var(--ink);">' + btcAmt + " BTC</strong> (" + money(amt) + ") — already filled in:</p>" +
+            '<a class="btn btn-gold pay-launch" href="' + btcUri.replace("&", "&amp;") + '">Pay ' + btcAmt + ' BTC in my wallet ↗</a>' +
+            '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Amount figured at $65,833.23 per BTC (rate snapshot, Nov 14, 2026) — your wallet shows the live rate before you send. Or scan the QR card or copy the address:</p>' +
+            '<div class="btc-qr-wrap"><span class="pay-qr-img btc-card-img"><img src="assets/bitcoin-payment-qr.jpg" alt="Bitcoin payment QR card for Packs N’ Packs Out — orange Current card with a Bitcoin QR code; scan it with your Bitcoin wallet app to pay the business" /></span><div class="btc-qr-cap">Scan the Bitcoin QR card with your wallet app to pay</div></div>' +
+            '<div class="btc-qr-wrap"><span class="btc-qr" id="tfBtcQr" role="img" aria-label="QR code for the Packs N\' Packs Out Bitcoin wallet, pre-filled with the BTC amount for this top-up"></span><div class="btc-qr-cap">Or scan this QR code — wallet address and ' + btcAmt + ' BTC pre-filled</div></div>' +
+            '<div><span class="pay-handle">' + BTC_WALLET + "</span></div>" +
+            '<label class="f" style="margin: 0;">Your Bitcoin transaction ID or sending address <small>(so we can match your payment)</small><input type="text" id="tfSenderBtc" placeholder="Transaction ID (txid)" /></label>' +
+            tfSentConfirmHTML("Bitcoin", amt);
+        }
+        function topupPreviewText(amt) {
+          var bonus = bonusFor(amt);
+          return "You pay " + money(amt) + " → you get " + money(creditFor(amt)) + " in credit" +
+            (bonus > 0 ? " — that includes a " + money(bonus) + " load bonus (+" + Math.round(bonusPctFor(amt) * 100) + "%)." : ".") +
+            " It sits as pending and becomes spendable when the business approves it.";
+        }
+        function renderAcctBalance() {
+          var body = $("acctBalanceBody");
+          if (!body) return;
+          if (!state.user) { body.innerHTML = ""; return; }
+          var w = walletRec(true);
+          var pend = w.topups.filter(function (tp) { return tp.status === "pending"; });
+          var pendCredit = pend.reduce(function (n, tp) { return n + tp.credit; }, 0);
+          var html =
+            '<div class="bal-head"><div><div class="bal-amt">' + money(w.balance) + '</div>' +
+            '<div class="bal-sub">Available store credit — at checkout, choose “Pay with balance” and it comes off your order first.</div></div>' +
+            '<button class="btn btn-gold" type="button" id="balAddBtn">' + (state.topupOpen ? "Close Add Funds" : "Add Funds") + "</button></div>";
+          if (pend.length) {
+            html += '<p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;">' + pend.length + (pend.length === 1 ? " top-up is" : " top-ups are") + " pending approval — " + money(pendCredit) + " in credit lands in your balance the moment the business approves.</p>";
+            pend.forEach(function (tp) {
+              html += '<div class="topup-card" style="margin-top: 10px;"><div class="tc-top"><span class="tc-amt">' + money(tp.credit) + ' credit</span><span class="pending-pill">Pending approval</span></div>' +
+                '<div class="tc-meta">' + money(tp.amount) + " load via " + esc(tp.brand) + (tp.bonus > 0 ? " + " + money(tp.bonus) + " bonus" : "") + " · " + esc(tp.when) + " — spendable as soon as the business approves it.</div></div>";
+            });
+          }
+          if (state.topupOpen) {
+            var amt = topupAmountNow();
+            html += '<div style="display: grid; gap: 12px; margin-top: 16px;">' +
+              '<p style="font-family: \'Archivo\', sans-serif; font-weight: 800; font-size: 15px; margin: 0;">Add funds</p>' +
+              '<div class="pay-picker" role="group" aria-label="Choose a load amount">' +
+              TOPUP_PRESETS.map(function (p) {
+                var b = bonusFor(p);
+                return '<button type="button" class="pay-opt" data-tf-amt="' + p + '" aria-pressed="' + (!state.topupCustom && state.topupAmt === p ? "true" : "false") + '"><span class="po-name">' + money(p) + '</span><span class="po-desc">' + (b > 0 ? "Get " + money(creditFor(p)) + " credit (+" + money(b) + " bonus)" : "Get " + money(p) + " credit") + "</span></button>";
+              }).join("") + "</div>" +
+              '<label class="f" style="margin: 0;">Or a custom amount ($)<input type="text" id="tfCustomAmt" inputmode="decimal" placeholder="e.g. 175" value="' + esc(state.topupCustom) + '" /></label>' +
+              '<p id="tfCreditPreview" style="font-size: 14px; color: var(--ink); margin: 0; font-weight: 600;">' + esc(topupPreviewText(amt)) + "</p>" +
+              '<div class="bonus-table" role="group" aria-label="Load bonuses">' +
+              '<div class="trow"><span>Load $100 or more</span><span><strong>+5% bonus</strong> — $100 becomes $105.00</span></div>' +
+              '<div class="trow"><span>Load $250 or more</span><span><strong>+8% bonus</strong> — $250 becomes $270.00</span></div>' +
+              '<div class="trow"><span>Load $500 or more</span><span><strong>+10% bonus</strong> — $500 becomes $550.00</span></div>' +
+              "</div>" +
+              '<div class="pay-picker" role="group" aria-label="Choose how to pay for the top-up">' +
+              PAY_METHODS.filter(function (mm) { return mm.id !== "cash"; }).map(function (mm) {
+                return '<button type="button" class="pay-opt" data-tf-pay="' + mm.id + '" aria-pressed="' + (state.topupMethod === mm.id ? "true" : "false") + '"><span class="po-name">' + mm.name + '</span><span class="po-desc">' + mm.desc + "</span></button>";
+              }).join("") + "</div>" +
+              '<div style="display: grid; gap: 12px;">' + topupMethodBodyHTML(amt) + "</div>" +
+              '<p class="pay-note">' + LOCK_SVG + "<span>The rules, plain: balance is store credit for Packs N’ Packs Out only. It never expires, and it can’t be cashed out or transferred. Top-ups show as pending and become spendable when the business approves them.</span></p>" +
+              '<div class="form-msg" id="tfMsg" role="status" aria-live="polite"></div>' +
+              '<button class="btn btn-gold" type="button" id="tfSubmit">Add ' + money(amt) + " to My Balance</button>" +
+              "</div>";
+          }
+          var allPend = allPendingTopups();
+          html += '<div class="biz-box"><span class="biz-title">Business controls — store side</span>' +
+            '<p>Total store-credit balance outstanding right now: <strong style="color: var(--ink);">' + money(totalOutstanding()) + '</strong> — every dollar of it is product owed to customers. Approving a top-up below is what makes that customer’s credit spendable.</p>' +
+            (allPend.length ? allPend.map(function (tp) {
+              return '<div class="topup-card"><div class="tc-top"><span class="tc-amt">' + money(tp.amount) + " load → " + money(tp.credit) + " credit" + (tp.bonus > 0 ? " (incl. " + money(tp.bonus) + " bonus)" : "") + '</span><span class="pending-pill">Pending</span></div>' +
+                '<div class="tc-meta">' + esc(tp.email) + " · " + esc(tp.brand) + (tp.sender ? " · from " + esc(tp.sender) : "") + " · " + esc(tp.when) + "</div>" +
+                '<button class="btn btn-espresso" type="button" data-topup-approve="' + esc(tp.email) + "|" + tp.id + '">Approve top-up — make it spendable</button></div>';
+            }).join("") : "<p>No top-ups are waiting on approval right now.</p>") + "</div>";
+          html += '<h4 style="font-size: 15px; font-weight: 800; margin: 18px 0 2px;">Balance history</h4>';
+          if (w.ledger.length) {
+            html += w.ledger.map(function (e) {
+              var label = e.type === "load" ? "Balance load" : e.type === "bonus" ? "Load bonus" : "Order payment";
+              return '<div class="ledger-row"><span class="lr-what">' + label + "<small>" + esc(e.note || "") + " · " + esc(e.when) + '</small></span><span class="lr-amt' + (e.amount >= 0 ? " pos" : "") + '">' + (e.amount >= 0 ? "+" : "−") + money(Math.abs(e.amount)) + "</span></div>";
+            }).join("");
+          } else {
+            html += '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 4px 0 0;">No balance activity yet — loads, bonuses, and order payments will show here.</p>';
+          }
+          body.innerHTML = html;
+          var addBtn = $("balAddBtn");
+          if (addBtn) addBtn.addEventListener("click", function () { state.topupOpen = !state.topupOpen; renderAcctBalance(); });
+          body.querySelectorAll("[data-tf-amt]").forEach(function (b) {
+            b.addEventListener("click", function () { state.topupAmt = parseFloat(b.getAttribute("data-tf-amt")) || 0; state.topupCustom = ""; renderAcctBalance(); });
+          });
+          body.querySelectorAll("[data-tf-pay]").forEach(function (b) {
+            b.addEventListener("click", function () { state.topupMethod = b.getAttribute("data-tf-pay"); renderAcctBalance(); });
+          });
+          body.querySelectorAll("[data-topup-approve]").forEach(function (b) {
+            b.addEventListener("click", function () {
+              var parts = b.getAttribute("data-topup-approve").split("|");
+              approveTopup(parts[0], parseInt(parts[1], 10));
+            });
+          });
+          var cust = $("tfCustomAmt");
+          if (cust) {
+            cust.addEventListener("input", function () {
+              state.topupCustom = this.value.replace(/[^0-9.]/g, "");
+              var a = topupAmountNow();
+              var pv = $("tfCreditPreview"); if (pv) pv.textContent = topupPreviewText(a);
+              var sb = $("tfSubmit"); if (sb) sb.textContent = "Add " + money(a) + " to My Balance";
+            });
+            cust.addEventListener("change", function () { renderAcctBalance(); });
+          }
+          var tNum = $("tfCardNum");
+          if (tNum) tNum.addEventListener("input", function () {
+            var d = cardDigits(this.value).slice(0, 19);
+            this.value = d.replace(/(\d{4})(?=\d)/g, "$1 ");
+            var br = $("tfCardBrand");
+            if (br) { var bn = cardBrand(d); br.textContent = bn ? bn + " ···· " + d.slice(-4) : ""; }
+          });
+          var tExp = $("tfCardExp");
+          if (tExp) tExp.addEventListener("input", function () {
+            var d = cardDigits(this.value).slice(0, 4);
+            this.value = d.length > 2 ? d.slice(0, 2) + "/" + d.slice(2) : d;
+          });
+          var tCvc = $("tfCardCvc");
+          if (tCvc) tCvc.addEventListener("input", function () { this.value = cardDigits(this.value).slice(0, 4); });
+          var tZip = $("tfCardZip");
+          if (tZip) tZip.addEventListener("input", function () { this.value = cardDigits(this.value).slice(0, 5); });
+          var tQr = $("tfBtcQr");
+          if (tQr) {
+            try {
+              var amtNow = topupAmountNow();
+              var uri = "bitcoin:" + BTC_WALLET + "?amount=" + btcAmountFor(amtNow) + "&label=" + encodeURIComponent("Packs N' Packs Out balance top-up");
+              var qr = qrcode(0, "M");
+              qr.addData(uri);
+              qr.make();
+              tQr.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 8, scalable: true });
+            } catch (e) { tQr.textContent = BTC_WALLET; }
+          }
+          var tSub = $("tfSubmit");
+          if (tSub) tSub.addEventListener("click", submitTopup);
+        }
+        function submitTopup() {
+          var msg = $("tfMsg");
+          function fail(t) { if (msg) { msg.className = "form-msg err"; msg.textContent = t; } }
+          if (!state.user) return;
+          var amt = topupAmountNow();
+          if (!isFinite(amt) || amt < 5) { fail("Loads start at $5.00 — pick a preset or enter a custom amount of $5 or more."); return; }
+          if (amt > 2000) { fail("Loads top out at $2,000 at a time — for a bigger load, run two top-ups."); return; }
+          var m = state.topupMethod, sender = "", brand = "";
+          function gv(id) { var el = $(id); return el ? el.value.trim() : ""; }
+          if (m === "card") {
+            var c = { name: gv("tfCardName"), num: cardDigits(gv("tfCardNum")), exp: gv("tfCardExp"), cvc: gv("tfCardCvc"), zip: gv("tfCardZip") };
+            c.brand = cardBrand(c.num);
+            var err = validateCard(c);
+            if (err) { fail(err); return; }
+            brand = c.brand || "Card";
+            sender = brand + " ···· " + c.num.slice(-4);
+          } else {
+            var conf = { applepay: ["tfSenderApple", "Apple Pay", "Add your phone number — the one you’re sending from with Apple Pay."],
+              cashapp: ["tfSenderTag", "Cash App", "Add your $cashtag — the one you’re sending from."],
+              chime: ["tfSenderChime", "Chime", "Add your Chime sign-in name — the one you’re sending from."],
+              current: ["tfSenderCurrent", "Current", "Add your Current tag or name — the one you’re sending from."],
+              bitcoin: ["tfSenderBtc", "Bitcoin", "Add your Bitcoin transaction ID (txid) or sending address — so we can match your Bitcoin payment to this top-up."] }[m];
+            sender = gv(conf[0]); brand = conf[1];
+            if (!sender) { fail(conf[2]); return; }
+            if (!($("tfSentConfirm") && $("tfSentConfirm").checked)) { fail("Send the payment first, then check “I’ve sent it” — your top-up stays pending until the business approves it."); return; }
+          }
+          var bonus = bonusFor(amt);
+          var tp = { id: ++state.topupSeq, email: walletEmail(), amount: amt, bonus: bonus, credit: creditFor(amt), method: m, brand: brand, sender: sender, status: "pending", when: nowStamp(), ts: Date.now() };
+          walletRec(true).topups.unshift(tp);
+          state.topupOpen = false;
+          renderAcctBalance();
+          toast("Top-up sent — " + money(tp.credit) + " in credit lands when the business approves it");
+        }
+        function approveTopup(email, id) {
+          var w = state.balances[email];
+          if (!w) return;
+          var tp = null;
+          w.topups.forEach(function (x) { if (x.id === id) tp = x; });
+          if (!tp || tp.status !== "pending") return;
+          tp.status = "approved";
+          tp.approvedWhen = nowStamp();
+          w.balance = r2(w.balance + tp.credit);
+          if (tp.bonus > 0) w.ledger.unshift({ type: "bonus", amount: tp.bonus, when: nowStamp(), note: "Load bonus (+" + Math.round(bonusPctFor(tp.amount) * 100) + "%) on a " + money(tp.amount) + " load" });
+          w.ledger.unshift({ type: "load", amount: tp.amount, when: nowStamp(), note: "Load via " + tp.brand });
+          renderAcctBalance();
+          if (state.view === "checkout") { renderCoPay(); var ct = $("coTotals"); if (ct) ct.innerHTML = totalsHTML(totals()); }
+          toast("Top-up approved — " + money(tp.credit) + " credit is live for " + email);
+        }
+
+        /* ================= Member credit line =================
+           Each tier has its OWN credit bar with its own milestone, line
+           amount, and styling: Gold $500 lifetime spend → $100 line,
+           Platinum $1,000 → $250, Diamond $2,500 → $500. Silver and
+           non-members get none. Lifetime spend is one number — the sum of
+           the account's completed order totals — and it carries across
+           tiers, never resets. "Pay with Credit" sends the order out now
+           and puts the amount + a 10% credit fee on the member's tab, due
+           in 30 days. One open tab at a time; a past-due tab freezes
+           credit (balance and regular payment keep working). Repayment
+           runs through the existing payment options and clears when the
+           business approves it, same as a balance top-up. Credit never
+           pays membership fees or balance top-ups. */
+        var CREDIT_MILESTONES = [
+          { tierId: "gold", spend: 500, line: 100 },
+          { tierId: "platinum", spend: 1000, line: 250 },
+          { tierId: "diamond", spend: 2500, line: 500 }
+        ];
+        var CREDIT_FEE_PCT = 0.10, CREDIT_TERM_DAYS = 30;
+        function tierRank(id) { return { silver: 1, gold: 2, platinum: 3, diamond: 4 }[id] || 0; }
+        function milestoneFor(tierId) { for (var i = 0; i < CREDIT_MILESTONES.length; i++) if (CREDIT_MILESTONES[i].tierId === tierId) return CREDIT_MILESTONES[i]; return null; }
+        function lifetimeSpend(email) {
+          if (!email) return 0;
+          return r2(state.history.reduce(function (n, o) { return n + (o.email === email && o.statusStage === "completed" ? (o.total || 0) : 0); }, 0));
+        }
+        function creditRec(create) {
+          var em = walletEmail();
+          if (!em) return null;
+          if (!state.creditLines[em] && create) state.creditLines[em] = { tab: null, history: [] };
+          return state.creditLines[em] || null;
+        }
+        function creditSummary() {
+          if (!state.user) return null;
+          var mem = activeMembership();
+          if (!mem) return null;
+          var tier = tierById(mem.tierId);
+          if (!tier || tierRank(tier.id) < tierRank("gold")) return null;
+          var email = walletEmail();
+          var spend = lifetimeSpend(email);
+          var line = 0;
+          CREDIT_MILESTONES.forEach(function (ms) {
+            if (spend >= ms.spend && tierRank(tier.id) >= tierRank(ms.tierId)) line = Math.max(line, ms.line);
+          });
+          var rec = creditRec(false);
+          var tab = rec ? rec.tab : null;
+          var overdue = !!(tab && tab.status === "open" && Date.now() > tab.dueAt);
+          var nextMs = null;
+          CREDIT_MILESTONES.forEach(function (ms) { if (tierRank(ms.tierId) === tierRank(tier.id) + 1) nextMs = ms; });
+          return { tier: tier, spend: spend, line: line, tab: tab, overdue: overdue, leadMs: milestoneFor(tier.id), nextMs: nextMs, rec: rec, email: email };
+        }
+        function allPendingRepayments() {
+          var out = [];
+          Object.keys(state.creditLines).forEach(function (em) {
+            var tb = state.creditLines[em].tab;
+            if (tb && tb.status === "repay_pending") out.push({ email: em, tab: tb });
+          });
+          return out;
+        }
+        function tabsOutstanding() {
+          var n = 0, count = 0;
+          Object.keys(state.creditLines).forEach(function (em) {
+            var tb = state.creditLines[em].tab;
+            if (tb) { n += tb.total; count++; }
+          });
+          return { total: r2(n), count: count };
+        }
+        function credBarHTML(ms, spend, mini, unlocked) {
+          var tier = tierById(ms.tierId);
+          var pct = Math.max(0, Math.min(100, spend / ms.spend * 100));
+          return '<div class="cred-card cred-' + ms.tierId + (mini ? " mini" : "") + '">' +
+            '<div class="cred-top"><span class="cred-tier-name">' + (mini ? "Next level — " : "") + esc(tier ? tier.name : ms.tierId) + ' credit line</span>' +
+            '<span class="cred-chip">' + money(ms.line) + " line · " + money(ms.spend) + " lifetime spend</span></div>" +
+            '<div class="cred-track"><div class="cred-fill" style="width: ' + pct.toFixed(1) + '%;"></div></div>' +
+            (mini
+              ? '<p class="cred-sub">' + (spend >= ms.spend
+                  ? "Your lifetime spend already passes " + money(ms.spend) + " — this " + money(ms.line) + " line unlocks when you move up to " + esc(tier ? tier.name : "") + "."
+                  : money(r2(ms.spend - spend)) + " of lifetime spend to go — with a " + esc(tier ? tier.name : "") + " membership, your line grows to " + money(ms.line) + ".") + "</p>"
+              : unlocked
+              ? '<div class="cred-state">Credit Line Unlocked — ' + money(ms.line) + ' available</div>' +
+                '<p class="cred-sub">Your lifetime spend passed ' + money(ms.spend) + " — your line is live at checkout with Pay with Credit. Orders go out now; the amount plus a 10% fee lands on your tab, due in " + CREDIT_TERM_DAYS + " days.</p>"
+              : '<div class="cred-state">' + money(r2(ms.spend - spend)) + ' to go</div>' +
+                '<p class="cred-sub">You’ve spent ' + money(spend) + " of " + money(ms.spend) + " — " + money(r2(ms.spend - spend)) + " to go unlocks your " + money(ms.line) + " credit line. Every completed order moves this bar.</p>") +
+            "</div>";
+        }
+        function rpSentConfirmHTML(appName, amt) {
+          return '<label class="pay-sent"><input type="checkbox" id="rpSentConfirm" /><span><strong>I’ve sent it.</strong> I paid ' + money(amt) + " in " + appName + ". My repayment stays <strong>PENDING</strong> until the business approves it — my tab clears only after approval.</span></label>";
+        }
+        function repayMethodBodyHTML(amt) {
+          var m = state.repayMethod;
+          if (m === "card") {
+            return '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Pay by card now — the charge runs right away, and your tab clears when the business approves this repayment.</p>' +
+              '<label class="f" style="margin: 0;">Name on card<input type="text" id="rpCardName" autocomplete="cc-name" placeholder="Name as it appears on the card" /></label>' +
+              '<label class="f" style="margin: 0;">Card number<input type="text" id="rpCardNum" class="card-num" autocomplete="cc-number" inputmode="numeric" placeholder="1234 5678 9012 3456" /><span class="card-brand" id="rpCardBrand"></span></label>' +
+              '<div class="frow two">' +
+              '<label class="f" style="margin: 0;">Expiration<input type="text" id="rpCardExp" autocomplete="cc-exp" inputmode="numeric" placeholder="MM/YY" maxlength="5" /></label>' +
+              '<label class="f" style="margin: 0;">Security code (CVC)<input type="text" id="rpCardCvc" autocomplete="cc-csc" inputmode="numeric" placeholder="123" maxlength="4" /></label></div>' +
+              '<label class="f" style="margin: 0;">Billing ZIP code<input type="text" id="rpCardZip" autocomplete="postal-code" inputmode="numeric" placeholder="61605" maxlength="5" /></label>';
+          }
+          if (m === "applepay") {
+            return '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Send <strong style="color: var(--ink);">' + money(amt) + '</strong> with Apple Pay / Apple Cash to this phone number, then confirm below:</p>' +
+              '<div><span class="pay-handle">' + APPLEPAY_PHONE + "</span></div>" +
+              '<label class="f" style="margin: 0;">Your phone number <small>(the one you’re sending from)</small><input type="tel" id="rpSenderApple" placeholder="(309) 555-0123" /></label>' +
+              rpSentConfirmHTML("Apple Pay", amt);
+          }
+          if (m === "cashapp") {
+            return '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Tap the button to open the business’s Cash App pay page with <strong style="color: var(--ink);">' + money(amt) + '</strong> already filled in, and pay inside Cash App:</p>' +
+              '<a class="btn btn-gold pay-launch" href="' + cashAppUrl(amt) + '" target="_blank" rel="noopener">Pay ' + money(amt) + ' with Cash App ↗</a>' +
+              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Paying another way? Send <strong style="color: var(--ink);">' + money(amt) + '</strong> to our $cashtag:</p>' +
+              '<div><span class="pay-handle">' + CASHAPP_TAG + "</span></div>" +
+              '<label class="f" style="margin: 0;">Your $cashtag <small>(the one you’re sending from)</small><input type="text" id="rpSenderTag" placeholder="$yourcashtag" /></label>' +
+              rpSentConfirmHTML("Cash App", amt);
+          }
+          if (m === "chime") {
+            return '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Tap the button to open the business’s Chime pay page and send <strong style="color: var(--ink);">' + money(amt) + '</strong> inside the official Chime app or site:</p>' +
+              '<a class="btn btn-gold pay-launch" href="' + CHIME_PAY_LINK + '" target="_blank" rel="noopener">Pay with Chime ↗</a>' +
+              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Or open Chime, tap <strong style="color: var(--ink);">Pay Anyone</strong>, and send to the business’s Chime sign-in name — or scan the QR code:</p>' +
+              '<div class="btc-qr-wrap"><span class="pay-qr-img"><img src="assets/chime-payment-qr.jpg" alt="Chime payment QR code for Packs N’ Packs Out — scan it with the Chime app to pay the business" /></span><div class="btc-qr-cap">Scan with the Chime app to pay</div></div>' +
+              '<div><span class="pay-handle">' + CHIME_NAME + "</span></div>" +
+              '<label class="f" style="margin: 0;">Your Chime sign-in name <small>(the one you’re sending from)</small><input type="text" id="rpSenderChime" placeholder="$yourchimesignin" /></label>' +
+              rpSentConfirmHTML("Chime", amt);
+          }
+          if (m === "current") {
+            return '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Tap the button to open the business’s profile in the Current app and send <strong style="color: var(--ink);">' + money(amt) + '</strong>:</p>' +
+              '<a class="btn btn-gold pay-launch" href="' + CURRENT_APP_LINK.replace("&", "&amp;") + '">Open in Current ↗</a>' +
+              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">On desktop, or if the app doesn’t open, scan the QR code or send to the business’s Current tag:</p>' +
+              '<div class="btc-qr-wrap"><span class="pay-qr-img"><img src="assets/current-payment-qr.jpg" alt="Current payment QR code for Packs N’ Packs Out — scan it with the Current app to pay the business" /></span><div class="btc-qr-cap">Scan with the Current app to pay</div></div>' +
+              '<div><span class="pay-handle">' + CURRENT_TAG + "</span></div>" +
+              '<label class="f" style="margin: 0;">Your Current tag or name <small>(the one you’re sending from)</small><input type="text" id="rpSenderCurrent" placeholder="$yourcurrenttag" /></label>' +
+              rpSentConfirmHTML("Current", amt);
+          }
+          var btcAmt = btcAmountFor(amt);
+          var btcUri = "bitcoin:" + BTC_WALLET + "?amount=" + btcAmt + "&label=" + encodeURIComponent("Packs N' Packs Out credit tab repayment");
+          return '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Tap the button to open your Bitcoin wallet with our address and the exact amount for this repayment — <strong style="color: var(--ink);">' + btcAmt + " BTC</strong> (" + money(amt) + ") — already filled in:</p>" +
+            '<a class="btn btn-gold pay-launch" href="' + btcUri.replace("&", "&amp;") + '">Pay ' + btcAmt + ' BTC in my wallet ↗</a>' +
+            '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Amount figured at $65,833.23 per BTC (rate snapshot, Nov 14, 2026) — your wallet shows the live rate before you send. Or scan the QR card or copy the address:</p>' +
+            '<div class="btc-qr-wrap"><span class="pay-qr-img btc-card-img"><img src="assets/bitcoin-payment-qr.jpg" alt="Bitcoin payment QR card for Packs N’ Packs Out — orange Current card with a Bitcoin QR code; scan it with your Bitcoin wallet app to pay the business" /></span><div class="btc-qr-cap">Scan the Bitcoin QR card with your wallet app to pay</div></div>' +
+            '<div class="btc-qr-wrap"><span class="btc-qr" id="rpBtcQr" role="img" aria-label="QR code for the Packs N\' Packs Out Bitcoin wallet, pre-filled with the BTC amount for this repayment"></span><div class="btc-qr-cap">Or scan this QR code — wallet address and ' + btcAmt + ' BTC pre-filled</div></div>' +
+            '<div><span class="pay-handle">' + BTC_WALLET + "</span></div>" +
+            '<label class="f" style="margin: 0;">Your Bitcoin transaction ID or sending address <small>(so we can match your payment)</small><input type="text" id="rpSenderBtc" placeholder="Transaction ID (txid)" /></label>' +
+            rpSentConfirmHTML("Bitcoin", amt);
+        }
+        function renderCreditCard() {
+          var panel = $("acctCreditPanel"), body = $("acctCreditBody");
+          if (!panel || !body) return;
+          var cs = creditSummary();
+          var pendRepay = allPendingRepayments();
+          if (!cs && !pendRepay.length) { panel.hidden = true; body.innerHTML = ""; return; }
+          panel.hidden = false;
+          var html = "";
+          if (cs) {
+            var leadUnlocked = cs.spend >= cs.leadMs.spend;
+            html += credBarHTML(cs.leadMs, cs.spend, false, leadUnlocked);
+            if (cs.line > 0 && !leadUnlocked) {
+              html += '<p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;">Good news — a <strong style="color: var(--ink);">' + money(cs.line) + '</strong> credit line is already unlocked on your account from a milestone you passed, and it’s available at checkout with Pay with Credit.</p>';
+            }
+            if (cs.nextMs) html += '<div style="margin-top: 10px;">' + credBarHTML(cs.nextMs, cs.spend, true, false) + "</div>";
+            var tab = cs.tab;
+            if (tab) {
+              var dueStr = fmtDate(new Date(tab.dueAt));
+              var pill = tab.status === "repay_pending"
+                ? '<span class="pending-pill">Repayment pending approval</span>'
+                : cs.overdue
+                ? '<span class="pending-pill">Past due — credit frozen</span>'
+                : '<span class="status-pill dark">Tab open</span>';
+              html += '<div class="topup-card" style="margin-top: 14px;"><div class="tc-top"><span class="tc-amt">Open tab — ' + money(tab.total) + ' due ' + esc(dueStr) + "</span>" + pill + "</div>" +
+                '<div class="tc-meta">Order ' + esc(tab.orderNum || "") + " · " + money(tab.principal) + " on credit + " + money(tab.fee) + " credit fee (10%) · opened " + esc(fmtDate(new Date(tab.placedAt))) + "</div>" +
+                (tab.status === "repay_pending"
+                  ? '<div class="tc-meta">Repayment sent via ' + esc(tab.repay ? tab.repay.brand : "") + " — your tab clears the moment the business approves it.</div>"
+                  : cs.overdue
+                  ? '<div class="tc-meta">This tab is past due, so Pay with Credit is frozen until it’s settled. Your account balance and regular checkout still work as normal.</div>'
+                  : '<div class="tc-meta">One open tab at a time — new credit opens up once this one is settled.</div>') +
+                "</div>";
+              if (tab.status === "open") {
+                html += '<button class="btn btn-gold" type="button" id="rpToggle" style="margin-top: 12px;">' + (state.repayOpen ? "Close Tab Payment" : "Pay My Tab — " + money(tab.total)) + "</button>";
+                if (state.repayOpen) {
+                  html += '<div style="display: grid; gap: 12px; margin-top: 12px;">' +
+                    '<div class="pay-picker" role="group" aria-label="Choose how to pay your tab">' +
+                    PAY_METHODS.filter(function (mm) { return mm.id !== "cash"; }).map(function (mm) {
+                      return '<button type="button" class="pay-opt" data-rp-pay="' + mm.id + '" aria-pressed="' + (state.repayMethod === mm.id ? "true" : "false") + '"><span class="po-name">' + mm.name + '</span><span class="po-desc">' + mm.desc + "</span></button>";
+                    }).join("") + "</div>" +
+                    '<div style="display: grid; gap: 12px;">' + repayMethodBodyHTML(tab.total) + "</div>" +
+                    '<div class="form-msg" id="rpMsg" role="status" aria-live="polite"></div>' +
+                    '<button class="btn btn-gold" type="button" id="rpSubmit">Send ' + money(tab.total) + " Repayment</button>" +
+                    "</div>";
+                }
+              }
+            }
+            if (cs.rec && cs.rec.history.length) {
+              html += '<h4 style="font-size: 15px; font-weight: 800; margin: 18px 0 2px;">Settled tabs</h4>' +
+                cs.rec.history.map(function (h) {
+                  return '<div class="ledger-row"><span class="lr-what">Credit tab — order ' + esc(h.orderNum || "") + "<small>Settled " + esc(h.when) + '</small></span><span class="lr-amt">' + money(h.total) + "</span></div>";
+                }).join("");
+            }
+          }
+          var out = tabsOutstanding();
+          if (pendRepay.length || out.count) {
+            html += '<div class="biz-box"><span class="biz-title">Business controls — store side</span>' +
+              '<p>Open credit tabs outstanding right now: <strong style="color: var(--ink);">' + money(out.total) + '</strong> across ' + out.count + (out.count === 1 ? " account" : " accounts") + ' — product out the door, owed back within ' + CREDIT_TERM_DAYS + ' days each. Approving a repayment below settles that tab and reopens the member’s credit.</p>' +
+              (pendRepay.length ? pendRepay.map(function (pr) {
+                return '<div class="topup-card"><div class="tc-top"><span class="tc-amt">' + money(pr.tab.total) + ' tab repayment</span><span class="pending-pill">Pending</span></div>' +
+                  '<div class="tc-meta">' + esc(pr.email) + " · order " + esc(pr.tab.orderNum || "") + " · " + esc(pr.tab.repay ? pr.tab.repay.brand : "") + (pr.tab.repay && pr.tab.repay.sender ? " · from " + esc(pr.tab.repay.sender) : "") + " · " + esc(pr.tab.repay ? pr.tab.repay.when : "") + "</div>" +
+                  '<button class="btn btn-espresso" type="button" data-repay-approve="' + esc(pr.email) + '">Approve repayment — settle the tab</button></div>';
+              }).join("") : "<p>No tab repayments are waiting on approval right now.</p>") + "</div>";
+          }
+          body.innerHTML = html;
+          var rpT = $("rpToggle");
+          if (rpT) rpT.addEventListener("click", function () { state.repayOpen = !state.repayOpen; renderCreditCard(); });
+          body.querySelectorAll("[data-rp-pay]").forEach(function (b) {
+            b.addEventListener("click", function () { state.repayMethod = b.getAttribute("data-rp-pay"); renderCreditCard(); });
+          });
+          body.querySelectorAll("[data-repay-approve]").forEach(function (b) {
+            b.addEventListener("click", function () { approveRepayment(b.getAttribute("data-repay-approve")); });
+          });
+          var rNum = $("rpCardNum");
+          if (rNum) rNum.addEventListener("input", function () {
+            var d = cardDigits(this.value).slice(0, 19);
+            this.value = d.replace(/(\d{4})(?=\d)/g, "$1 ");
+            var br = $("rpCardBrand");
+            if (br) { var bn = cardBrand(d); br.textContent = bn ? bn + " ···· " + d.slice(-4) : ""; }
+          });
+          var rExp = $("rpCardExp");
+          if (rExp) rExp.addEventListener("input", function () {
+            var d = cardDigits(this.value).slice(0, 4);
+            this.value = d.length > 2 ? d.slice(0, 2) + "/" + d.slice(2) : d;
+          });
+          var rCvc = $("rpCardCvc");
+          if (rCvc) rCvc.addEventListener("input", function () { this.value = cardDigits(this.value).slice(0, 4); });
+          var rZip = $("rpCardZip");
+          if (rZip) rZip.addEventListener("input", function () { this.value = cardDigits(this.value).slice(0, 5); });
+          var rQr = $("rpBtcQr");
+          if (rQr) {
+            try {
+              var tabNow = cs && cs.tab ? cs.tab.total : 0;
+              var uri = "bitcoin:" + BTC_WALLET + "?amount=" + btcAmountFor(tabNow) + "&label=" + encodeURIComponent("Packs N' Packs Out credit tab repayment");
+              var qr = qrcode(0, "M");
+              qr.addData(uri);
+              qr.make();
+              rQr.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 8, scalable: true });
+            } catch (e) { rQr.textContent = BTC_WALLET; }
+          }
+          var rSub = $("rpSubmit");
+          if (rSub) rSub.addEventListener("click", submitRepayment);
+        }
+        function submitRepayment() {
+          var msg = $("rpMsg");
+          function fail(t) { if (msg) { msg.className = "form-msg err"; msg.textContent = t; } }
+          var rec = creditRec(false);
+          if (!rec || !rec.tab || rec.tab.status !== "open") return;
+          var m = state.repayMethod, sender = "", brand = "";
+          function gv(id) { var el = $(id); return el ? el.value.trim() : ""; }
+          if (m === "card") {
+            var c = { name: gv("rpCardName"), num: cardDigits(gv("rpCardNum")), exp: gv("rpCardExp"), cvc: gv("rpCardCvc"), zip: gv("rpCardZip") };
+            c.brand = cardBrand(c.num);
+            var err = validateCard(c);
+            if (err) { fail(err); return; }
+            brand = c.brand || "Card";
+            sender = brand + " ···· " + c.num.slice(-4);
+          } else {
+            var conf = { applepay: ["rpSenderApple", "Apple Pay", "Add your phone number — the one you’re sending from with Apple Pay."],
+              cashapp: ["rpSenderTag", "Cash App", "Add your $cashtag — the one you’re sending from."],
+              chime: ["rpSenderChime", "Chime", "Add your Chime sign-in name — the one you’re sending from."],
+              current: ["rpSenderCurrent", "Current", "Add your Current tag or name — the one you’re sending from."],
+              bitcoin: ["rpSenderBtc", "Bitcoin", "Add your Bitcoin transaction ID (txid) or sending address — so we can match your Bitcoin payment to this repayment."] }[m];
+            sender = gv(conf[0]); brand = conf[1];
+            if (!sender) { fail(conf[2]); return; }
+            if (!($("rpSentConfirm") && $("rpSentConfirm").checked)) { fail("Send the payment first, then check “I’ve sent it” — your tab clears once the business approves the repayment."); return; }
+          }
+          rec.tab.status = "repay_pending";
+          rec.tab.repay = { method: m, brand: brand, sender: sender, amount: rec.tab.total, when: nowStamp() };
+          state.repayOpen = false;
+          renderCreditCard();
+          toast("Repayment sent — your tab clears when the business approves it");
+        }
+        function approveRepayment(email) {
+          var rec = state.creditLines[email];
+          if (!rec || !rec.tab || rec.tab.status !== "repay_pending") return;
+          var tab = rec.tab;
+          rec.history.unshift({ orderNum: tab.orderNum || "", total: tab.total, when: nowStamp() });
+          rec.tab = null;
+          renderCreditCard();
+          if (state.view === "checkout") renderCheckout();
+          toast("Tab settled — " + money(tab.total) + " repayment approved for " + email);
+        }
+
         function addToCart(p, size, qty) {
           if (!p || !size) return;
           var key = p.id + "|" + size.l;
@@ -2064,7 +2682,22 @@
           if (state.fulfillment === "delivery") {
             html += '<div class="trow"><span>' + tipLabelFor(state.tipChoice, state.tipCustom, t.tip || 0) + '</span><span>' + ((t.tip || 0) > 0 ? money(t.tip) : "—") + "</span></div>";
           }
-          html += '<div class="trow total"><span>' + totalLabel + "</span><span>" + money(t.total) + "</span></div>";
+          if (t.balanceApplied > 0) {
+            html += '<div class="trow"><span>Order total</span><span>' + money(t.total) + "</span></div>";
+            html += '<div class="trow"><span>Paid from account balance</span><span class="neg">−' + money(t.balanceApplied) + "</span></div>";
+            var dueLabels = {
+              card: "Due now — pay online by card",
+              applepay: "Due now — pay with Apple Pay",
+              cashapp: "Due now — pay by Cash App",
+              chime: "Due now — pay by Chime",
+              current: "Due now — pay by Current",
+              bitcoin: "Due now — pay by Bitcoin",
+              cash: state.fulfillment === "delivery" ? "Due now at your door (cash)" : state.fulfillment === "shipping" ? "Due now (cash)" : "Due now at pickup (cash)"
+            };
+            html += '<div class="trow total"><span>' + (t.dueNow > 0 ? (dueLabels[state.payMethod] || "Due now") : "Due now — covered by your balance") + "</span><span>" + money(t.dueNow) + "</span></div>";
+          } else {
+            html += '<div class="trow total"><span>' + totalLabel + "</span><span>" + money(t.total) + "</span></div>";
+          }
           return html;
         }
         function renderCart() {
@@ -2371,13 +3004,13 @@
           if (ct && ci) {
             if (state.fulfillment === "pickup") {
               ct.textContent = "Checkout — Pickup";
-              ci.textContent = "Reserve your products now — pay by card, Apple Pay, Cash App, Chime, Current, or Bitcoin, or cash at the counter if you’re an approved member. Bring your ID — we check it on every pickup.";
+              ci.textContent = "Reserve your products now — pay by card, Apple Pay, Cash App, Chime, Current, Bitcoin, or your account balance — or cash at the counter if you’re an approved member. Bring your ID — we check it on every pickup.";
             } else if (state.fulfillment === "delivery") {
               ct.textContent = "Checkout — Delivery";
-              ci.textContent = "Order now and we bring it to your door — pay right here at checkout by card, Apple Pay, Cash App, Chime, Current, or Bitcoin; approved members can choose cash on delivery. Have your ID ready; we check it on every delivery.";
+              ci.textContent = "Order now and we bring it to your door — pay right here at checkout by card, Apple Pay, Cash App, Chime, Current, Bitcoin, or your account balance; approved members can choose cash on delivery. Have your ID ready; we check it on every delivery.";
             } else {
               ct.textContent = "Checkout — Shipping";
-              ci.textContent = "Order now and we ship it to you — anywhere in the U.S. Pay right here at checkout by card, Apple Pay, Cash App, Chime, Current, or Bitcoin; approved members can choose cash. Flat " + money(SHIPPING_FEE) + " shipping, free on orders over " + money(SHIPPING_FREE_OVER) + ".";
+              ci.textContent = "Order now and we ship it to you — anywhere in the U.S. Pay right here at checkout by card, Apple Pay, Cash App, Chime, Current, Bitcoin, or your account balance; approved members can choose cash. Flat " + money(SHIPPING_FEE) + " shipping, free on orders over " + money(SHIPPING_FREE_OVER) + ".";
             }
           }
           renderCoTip();
@@ -2518,11 +3151,51 @@
           var method = state.payMethod;
           if (method === "cash" && !canCash) { state.payMethod = "card"; method = "card"; }
           var t = totals();
+          var due = t.dueNow != null ? t.dueNow : t.total;
+          var balApplied = t.balanceApplied || 0;
+          var balFull = balApplied > 0 && due <= 0;
+          var cs = creditSummary();
+          if (method === "credit" && !(cs && cs.line > 0 && !cs.tab && t.memFee <= 0 && due <= cs.line)) {
+            state.payMethod = "card"; method = "card";
+            t = totals(); due = t.dueNow != null ? t.dueNow : t.total; balApplied = t.balanceApplied || 0; balFull = balApplied > 0 && due <= 0;
+          }
           var isDelivery = state.fulfillment === "delivery";
           var isShip = state.fulfillment === "shipping";
-          var head =
-            '<div class="pb-head"><span class="pb-title">' + LOCK_SVG + "Payment</span>" +
-            '<span class="pay-badge">' + (isDelivery ? "Delivery" : isShip ? "Shipping" : "Pickup") + "</span></div>" +
+          var balBar = "";
+          if (state.user) {
+            if (t.balanceAvail > 0) {
+              balBar = '<button type="button" class="bal-toggle" id="coBalToggle" aria-pressed="' + (state.useBalance ? "true" : "false") + '"><span class="bt-box">' + (state.useBalance ? "✓" : "") + '</span><span><span class="bt-name">Pay with balance</span><span class="bt-desc">' + money(t.balanceAvail) + " available" + (balApplied > 0 ? (balFull ? " — it covers this order in full, nothing else due" : " — " + money(balApplied) + " comes off this order first; pay the rest below") : " — flip it on and your balance comes off this order first") + "</span></span></button>";
+            } else {
+              balBar = '<p class="pay-note">' + LOCK_SVG + "<span>Your account balance is $0.00 — load funds in My Account and you can pay with balance right here.</span></p>";
+            }
+          } else {
+            balBar = '<p class="pay-note">' + LOCK_SVG + "<span>Account balance: create a free account or sign in to load funds and pay with store credit.</span></p>";
+          }
+          if (method === "credit" && t.balanceAvail > 0) {
+            balBar = '<p class="pay-note">' + LOCK_SVG + "<span>Pay with Credit covers this whole order — your account balance stays in your account for next time.</span></p>";
+          }
+          var creditOpt = "";
+          if (cs && cs.line > 0) {
+            var cLock = null;
+            if (t.memFee > 0) cLock = "Can’t cover membership fees";
+            else if (cs.tab) cLock = cs.tab.status === "repay_pending" ? "Tab repayment pending approval" : "Settle your open tab first";
+            else if (due > cs.line) cLock = "Over your " + money(cs.line) + " line";
+            creditOpt = cLock
+              ? '<button type="button" class="pay-opt locked" disabled aria-disabled="true"><span class="po-name">' + LOCK_SVG + 'Pay with Credit</span><span class="po-desc">' + cLock + "</span></button>"
+              : '<button type="button" class="pay-opt" data-pay="credit" aria-pressed="' + (method === "credit" ? "true" : "false") + '"><span class="po-name">Pay with Credit</span><span class="po-desc">' + money(cs.line) + " line available · due in " + CREDIT_TERM_DAYS + " days</span></button>";
+          }
+          var creditBar = "";
+          if (cs) {
+            if (cs.tab) {
+              creditBar = '<p class="pay-note">' + LOCK_SVG + "<span>Credit tab: <strong>" + money(cs.tab.total) + "</strong> due " + fmtDate(new Date(cs.tab.dueAt)) + (cs.overdue ? " — <strong>past due</strong>, so credit is frozen until it’s settled. Your balance and regular payment still work." : " — new credit opens up once it’s settled.") + "</span></p>";
+            } else if (cs.line > 0) {
+              creditBar = '<p class="pay-note">' + LOCK_SVG + "<span>Your <strong>" + money(cs.line) + " credit line</strong> is unlocked — pick Pay with Credit below and this order goes out now, due in " + CREDIT_TERM_DAYS + " days (+10% credit fee).</span></p>";
+            } else if (cs.leadMs) {
+              var remainAfter = r2(cs.leadMs.spend - cs.spend - t.total);
+              creditBar = '<p class="pay-note">' + LOCK_SVG + "<span>This order moves you <strong>" + money(t.total) + "</strong> closer to your credit line — " + (remainAfter > 0 ? money(remainAfter) + " to go after it completes, and your " + money(cs.leadMs.line) + " line unlocks." : "it completes your " + money(cs.leadMs.spend) + " milestone, so your " + money(cs.leadMs.line) + " credit line unlocks once the order is completed.") + "</span></p>";
+            }
+          }
+          var pickerHTML =
             '<div class="pay-picker" role="group" aria-label="Choose a payment method">' +
             PAY_METHODS.map(function (m) {
               if (m.id === "cash" && !canCash) {
@@ -2530,10 +3203,17 @@
               }
               var d = m.desc || (m.id === "cash" ? (isDelivery ? "Pay the driver — code at handoff" : isShip ? "Cash — code required to ship" : "Pay at the counter — code at handoff") : (isDelivery ? "Pay the driver at your door" : "Pay at the counter"));
               return '<button type="button" class="pay-opt" data-pay="' + m.id + '" aria-pressed="' + (method === m.id ? "true" : "false") + '"><span class="po-name">' + m.name + '</span><span class="po-desc">' + d + "</span></button>";
-            }).join("") + "</div>" +
+            }).join("") + creditOpt + "</div>" +
             (canCash ? "" : '<p class="pay-note">' + LOCK_SVG + "<span>Cash is reserved for approved members — " + (state.user ? "your account isn’t on the approved list, so cash isn’t available on this order." : "sign in with an approved member account to unlock it.") + " Card, Apple Pay, Cash App, Chime, Current, and Bitcoin are open to everyone 21+.</span></p>");
+          var head =
+            '<div class="pb-head"><span class="pb-title">' + LOCK_SVG + "Payment</span>" +
+            '<span class="pay-badge">' + (isDelivery ? "Delivery" : isShip ? "Shipping" : "Pickup") + "</span></div>" + balBar + creditBar + (balFull ? "" : pickerHTML);
           var body = "";
-          if (method === "card") {
+          if (balFull) {
+            body =
+              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Your balance covers this order in full — <strong style="color: var(--ink);">' + money(balApplied) + '</strong> comes out of your account balance and nothing else is due. Payment is confirmed the moment you place the order — no pending verification.</p>' +
+              '<p class="pay-note">' + LOCK_SVG + "<span>Balance after this order: <strong>" + money(r2(t.balanceAvail - balApplied)) + "</strong>. Balance is store credit for this store only, and it never expires.</span></p>";
+          } else if (method === "card") {
             body =
               (isDelivery
                 ? '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Pay by card now and the driver just checks your ID at the door — nothing else due.</p>'
@@ -2549,59 +3229,71 @@
               '<p class="pay-note">' + LOCK_SVG + "<span>Secure card payment — Visa, Mastercard, American Express, and Discover accepted. Card details go only to our payment processor; your full card number is never stored on this site.</span></p>";
           } else if (method === "applepay") {
             body =
-              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Send <strong style="color: var(--ink);">' + money(t.total) + '</strong> with Apple Pay / Apple Cash to this phone number, then confirm below and place your order:</p>' +
+              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Send <strong style="color: var(--ink);">' + money(due) + '</strong> with Apple Pay / Apple Cash to this phone number, then confirm below and place your order:</p>' +
               '<div><span class="pay-handle">' + APPLEPAY_PHONE + '</span></div>' +
-              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;" id="coAppleNote">In Messages, start a new message to ' + APPLEPAY_PHONE + ', tap the Apple Pay button, enter ' + money(t.total) + ', and send with Face ID or Touch ID. Or in Wallet, tap Apple Cash, tap Send, and enter the number above.</p>' +
+              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;" id="coAppleNote">In Messages, start a new message to ' + APPLEPAY_PHONE + ', tap the Apple Pay button, enter ' + money(due) + ', and send with Face ID or Touch ID. Or in Wallet, tap Apple Cash, tap Send, and enter the number above.</p>' +
               '<label class="f" style="margin: 0;">Your phone number <small>(the one you’re sending from)</small><input type="tel" id="coSenderApple" placeholder="(309) 555-0123" /></label>' +
-              sentConfirmHTML("Apple Pay", t.total);
+              sentConfirmHTML("Apple Pay", due);
           } else if (method === "cashapp") {
             body =
-              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Tap the button to open the business’s Cash App pay page with <strong style="color: var(--ink);">' + money(t.total) + '</strong> already filled in, and pay inside Cash App:</p>' +
-              '<a class="btn btn-gold pay-launch" href="' + cashAppUrl(t.total) + '" target="_blank" rel="noopener">Pay ' + money(t.total) + ' with Cash App ↗</a>' +
-              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Paying another way? Send <strong style="color: var(--ink);">' + money(t.total) + '</strong> to our $cashtag:</p>' +
+              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Tap the button to open the business’s Cash App pay page with <strong style="color: var(--ink);">' + money(due) + '</strong> already filled in, and pay inside Cash App:</p>' +
+              '<a class="btn btn-gold pay-launch" href="' + cashAppUrl(due) + '" target="_blank" rel="noopener">Pay ' + money(due) + ' with Cash App ↗</a>' +
+              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Paying another way? Send <strong style="color: var(--ink);">' + money(due) + '</strong> to our $cashtag:</p>' +
               '<div><span class="pay-handle">' + CASHAPP_TAG + '</span></div>' +
               '<label class="f" style="margin: 0;">Your $cashtag <small>(the one you’re sending from)</small><input type="text" id="coSenderTag" placeholder="$yourcashtag" /></label>' +
-              sentConfirmHTML("Cash App", t.total);
+              sentConfirmHTML("Cash App", due);
           } else if (method === "chime") {
             body =
-              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Tap the button to open the business’s Chime pay page and send <strong style="color: var(--ink);">' + money(t.total) + '</strong> inside the official Chime app or site:</p>' +
+              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Tap the button to open the business’s Chime pay page and send <strong style="color: var(--ink);">' + money(due) + '</strong> inside the official Chime app or site:</p>' +
               '<a class="btn btn-gold pay-launch" href="' + CHIME_PAY_LINK + '" target="_blank" rel="noopener">Pay with Chime ↗</a>' +
               '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Or open Chime, tap <strong style="color: var(--ink);">Pay Anyone</strong>, and send to the business’s Chime sign-in name — or scan the QR code:</p>' +
               '<div class="btc-qr-wrap"><span class="pay-qr-img"><img src="assets/chime-payment-qr.jpg" alt="Chime payment QR code for Packs N’ Packs Out — scan it with the Chime app to pay the business" /></span><div class="btc-qr-cap">Scan with the Chime app to pay</div></div>' +
               '<div><span class="pay-handle">' + CHIME_NAME + '</span></div>' +
               '<label class="f" style="margin: 0;">Your Chime sign-in name <small>(the one you’re sending from)</small><input type="text" id="coSenderChime" placeholder="$yourchimesignin" /></label>' +
-              sentConfirmHTML("Chime", t.total);
+              sentConfirmHTML("Chime", due);
           } else if (method === "current") {
             body =
-              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Tap the button to open the business’s profile in the Current app and send <strong style="color: var(--ink);">' + money(t.total) + '</strong>:</p>' +
+              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Tap the button to open the business’s profile in the Current app and send <strong style="color: var(--ink);">' + money(due) + '</strong>:</p>' +
               '<a class="btn btn-gold pay-launch" href="' + CURRENT_APP_LINK.replace("&", "&amp;") + '">Open in Current ↗</a>' +
               '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">On desktop, or if the app doesn’t open, scan the QR code or send to the business’s Current tag:</p>' +
               '<div class="btc-qr-wrap"><span class="pay-qr-img"><img src="assets/current-payment-qr.jpg" alt="Current payment QR code for Packs N’ Packs Out — scan it with the Current app to pay the business" /></span><div class="btc-qr-cap">Scan with the Current app to pay</div></div>' +
               '<div><span class="pay-handle">' + CURRENT_TAG + '</span></div>' +
               '<label class="f" style="margin: 0;">Your Current tag or name <small>(the one you’re sending from)</small><input type="text" id="coSenderCurrent" placeholder="$yourcurrenttag" /></label>' +
-              sentConfirmHTML("Current", t.total);
+              sentConfirmHTML("Current", due);
           } else if (method === "bitcoin") {
-            var btcAmt = btcAmountFor(t.total);
+            var btcAmt = btcAmountFor(due);
             body =
-              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Tap the button to open your Bitcoin wallet with our address and the exact amount for this order — <strong style="color: var(--ink);">' + btcAmt + ' BTC</strong> (' + money(t.total) + ') — already filled in:</p>' +
-              '<a class="btn btn-gold pay-launch" href="' + bitcoinUri(t.total).replace("&", "&amp;") + '">Pay ' + btcAmt + ' BTC in my wallet ↗</a>' +
+              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Tap the button to open your Bitcoin wallet with our address and the exact amount for this order — <strong style="color: var(--ink);">' + btcAmt + ' BTC</strong> (' + money(due) + ') — already filled in:</p>' +
+              '<a class="btn btn-gold pay-launch" href="' + bitcoinUri(due).replace("&", "&amp;") + '">Pay ' + btcAmt + ' BTC in my wallet ↗</a>' +
               '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Amount figured at $65,833.23 per BTC (rate snapshot, Nov 14, 2026) — your wallet shows the live rate before you send. Or scan the QR card or copy the address:</p>' +
               '<div class="btc-qr-wrap"><span class="pay-qr-img btc-card-img"><img src="assets/bitcoin-payment-qr.jpg" alt="Bitcoin payment QR card for Packs N’ Packs Out — orange Current card with a Bitcoin QR code; scan it with your Bitcoin wallet app to pay the business" /></span><div class="btc-qr-cap">Scan the Bitcoin QR card with your wallet app to pay</div></div>' +
               '<div class="btc-qr-wrap"><span class="btc-qr" id="coBtcQr" role="img" aria-label="QR code for the Packs N\' Packs Out Bitcoin wallet, pre-filled with the BTC amount for this order"></span><div class="btc-qr-cap">Or scan this QR code — wallet address and ' + btcAmt + ' BTC pre-filled</div></div>' +
               '<div><span class="pay-handle">' + BTC_WALLET + '</span></div>' +
               '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">We confirm your payment on the blockchain before ' + (isDelivery ? "the driver heads out." : isShip ? "your order ships." : "we pack your order.") + "</p>" +
               '<label class="f" style="margin: 0;">Your Bitcoin transaction ID or sending address <small>(so we can match your payment)</small><input type="text" id="coSenderBtc" placeholder="Transaction ID (txid)" /></label>' +
-              sentConfirmHTML("Bitcoin", t.total);
+              sentConfirmHTML("Bitcoin", due);
+          } else if (method === "credit") {
+            var cFee = r2(due * CREDIT_FEE_PCT), cTot = r2(due + cFee);
+            body =
+              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Your order goes out now — <strong style="color: var(--ink);">' + money(due) + '</strong> lands on your credit tab, plus the 10% credit fee of <strong style="color: var(--ink);">' + money(cFee) + '</strong>. You’ll owe <strong style="color: var(--ink);">' + money(cTot) + '</strong> by <strong style="color: var(--ink);">' + fmtDate(new Date(Date.now() + CREDIT_TERM_DAYS * 24 * 3600 * 1000)) + '</strong>.</p>' +
+              '<p class="pay-note">' + LOCK_SVG + "<span>One open tab at a time — new credit waits until this one is settled. Pay the tab from My Account with card, Apple Pay, Cash App, Chime, Current, or Bitcoin; it clears when the business approves your repayment. If a tab goes past due, credit freezes until it’s settled — your balance and regular checkout keep working.</span></p>";
           } else {
             body =
               '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Approved member — cash is unlocked on your account. Placing this order puts a <strong style="color: var(--ink);">Cash Acceptance Code</strong> on your confirmation. Have that code ready at ' + (isDelivery ? "delivery" : isShip ? "shipment release" : "pickup") + " — it gets entered to approve and complete the cash transaction.</p>" +
               (isDelivery
-                ? '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Cash on delivery — pay the driver <strong style="color: var(--ink);">' + money(t.total) + '</strong> when your order arrives, and give the driver your Cash Acceptance Code. Have your photo ID (21+) ready too.</p>'
+                ? '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Cash on delivery — pay the driver <strong style="color: var(--ink);">' + money(due) + '</strong> when your order arrives, and give the driver your Cash Acceptance Code. Have your photo ID (21+) ready too.</p>'
                 : isShip
-                ? '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Cash — the business confirms your cash payment of <strong style="color: var(--ink);">' + money(t.total) + '</strong> and enters your Cash Acceptance Code, then your order ships.</p>'
+                ? '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Cash — the business confirms your cash payment of <strong style="color: var(--ink);">' + money(due) + '</strong> and enters your Cash Acceptance Code, then your order ships.</p>'
                 : '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Nothing due now — pay cash at the counter when you pick up, and give the counter your Cash Acceptance Code to complete the transaction.</p>');
           }
           box.innerHTML = head + body;
+          var balTgl = $("coBalToggle");
+          if (balTgl) balTgl.addEventListener("click", function () {
+            state.useBalance = !state.useBalance;
+            renderCoPay();
+            renderCart();
+            if (state.view === "checkout") { $("coTotals").innerHTML = totalsHTML(totals()); }
+          });
           box.querySelectorAll("[data-pay]").forEach(function (b) {
             b.addEventListener("click", function () {
               state.payMethod = b.getAttribute("data-pay");
@@ -2619,7 +3311,7 @@
           if (btcQr) {
             try {
               var qr = qrcode(0, "M");
-              qr.addData(bitcoinUri(t.total));
+              qr.addData(bitcoinUri(due));
               qr.make();
               btcQr.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 8, scalable: true });
             } catch (e) {
@@ -2647,16 +3339,17 @@
           var zipEl = $("coCardZip");
           if (zipEl) zipEl.addEventListener("input", function () { this.value = cardDigits(this.value).slice(0, 5); });
           var submitLabels = {
-            card: isDelivery ? "Pay " + money(t.total) + " & Place Delivery Order" : isShip ? "Pay " + money(t.total) + " & Place Shipping Order" : "Pay " + money(t.total) + " & Place Order",
+            card: isDelivery ? "Pay " + money(due) + " & Place Delivery Order" : isShip ? "Pay " + money(due) + " & Place Shipping Order" : "Pay " + money(due) + " & Place Order",
             applepay: "Place Order — Pay by Apple Pay",
             cashapp: "Place Order — Pay by Cash App",
             chime: "Place Order — Pay by Chime",
             current: "Place Order — Pay by Current",
             bitcoin: "Place Order — Pay by Bitcoin",
+            credit: "Place Order — Pay with Credit",
             cash: isDelivery ? "Place Delivery Order — Cash on Delivery" : isShip ? "Place Shipping Order — Cash" : "Place Order — Cash at Pickup"
           };
           var submit = $("coSubmit");
-          if (submit) submit.textContent = submitLabels[method] || submitLabels.card;
+          if (submit) submit.textContent = balFull ? "Pay " + money(balApplied) + " from Balance & Place Order" : (submitLabels[method] || submitLabels.card);
           var noteTexts = {
             card: isDelivery ? "Delivery paid online by card — the driver only checks your ID." : isShip ? "Your card is charged online when you place this order, and your order ships once it’s packed." : "Your card is charged online when you place this order.",
             applepay: "Apple Pay — send to " + APPLEPAY_PHONE + ", then confirm you’ve sent it above. Order stays PENDING until receipt is confirmed.",
@@ -2664,10 +3357,11 @@
             chime: "Chime — pay on the business’s Chime page, then confirm you’ve sent it above. Order stays PENDING until receipt is confirmed.",
             current: "Current — pay from the business’s Current profile, then confirm you’ve sent it above. Order stays PENDING until receipt is confirmed.",
             bitcoin: "Bitcoin — pay from your wallet, then confirm you’ve sent it above. Order stays PENDING until the payment is confirmed on the blockchain.",
-            cash: "Approved members only — your Cash Acceptance Code is on your confirmation and is entered at handoff to complete the cash payment."
+            cash: "Approved members only — your Cash Acceptance Code is on your confirmation and is entered at handoff to complete the cash payment.",
+            credit: "Pay with Credit — your order goes out now; the amount plus a 10% credit fee lands on your tab, due in " + CREDIT_TERM_DAYS + " days."
           };
           var note = $("coNote");
-          if (note) note.innerHTML = "Market: <strong>" + esc(state.market || "Illinois") + "</strong> · " + (noteTexts[method] || noteTexts.card);
+          if (note) note.innerHTML = "Market: <strong>" + esc(state.market || "Illinois") + "</strong> · " + (balFull ? "Covered in full by your account balance — payment confirms instantly when you place the order." : (noteTexts[method] || noteTexts.card));
         }
 
         /* ================= Order tracker ================= */
@@ -2730,7 +3424,7 @@
             if (o.payment) { o.payment.pending = false; o.payment.status = "Payment confirmed — " + (o.payment.brand || ""); }
           } else if (act === "start_packing") { o.statusStage = "processing"; }
           else if (act === "mark_final") { o.statusStage = isDel ? "out" : isShip ? "shipped" : "ready"; }
-          else if (act === "complete") { o.statusStage = "completed"; if (o.payment && o.payment.method !== "cash") o.payment.status = o.payment.method === "card" ? "Paid online" : "Payment confirmed — " + (o.payment.brand || ""); }
+          else if (act === "complete") { o.statusStage = "completed"; if (o.payment && o.payment.method !== "cash" && o.payment.method !== "credit") o.payment.status = o.payment.method === "card" ? "Paid online" : "Payment confirmed — " + (o.payment.brand || ""); }
           refreshOrderViews(o);
           toast("Order " + o.num + " — " + trackerInfo(o).headline);
         }
@@ -2760,6 +3454,11 @@
           if (o.fulfillment && o.fulfillment.method === "shipping") html += '<div class="trow"><span>Shipping</span><span>' + (b.fee > 0 ? money(b.fee) : "FREE") + "</span></div>";
           html += '<div class="trow"><span>Estimated tax</span><span>' + money(b.tax) + "</span></div>";
           if (o.fulfillment && o.fulfillment.method === "delivery") html += '<div class="trow"><span>' + esc(o.tipLabel || "Driver tip") + '</span><span>' + ((b.tip || 0) > 0 ? money(b.tip) : "—") + "</span></div>";
+          if (b.balancePaid > 0) {
+            html += '<div class="trow"><span>Paid from account balance</span><span class="neg">−' + money(b.balancePaid) + "</span></div>";
+            if ((b.dueNow || 0) > 0) html += '<div class="trow"><span>Remainder — ' + esc(o.payment ? o.payment.brand : "") + '</span><span>' + money(b.dueNow) + "</span></div>";
+          }
+          if (b.creditTotal > 0) html += '<div class="trow"><span>On credit tab (incl. 10% fee) — due in ' + CREDIT_TERM_DAYS + ' days</span><span>' + money(b.creditTotal) + "</span></div>";
           html += '<div class="trow total"><span>Total</span><span>' + money(o.total) + "</span></div>";
           return html;
         }
@@ -3057,6 +3756,7 @@
         setInterval(tickTrackers, 1000);
         function refreshOrderViews(o) {
           renderHistory();
+          renderCreditCard();
           if (state.currentOrderNum === o.num && state.view === "confirm") renderConfirm(o);
         }
 
@@ -3435,9 +4135,19 @@
             ful.originName = hbS ? hbS.name : "";
             ful.originDetail = hbS ? hbS.detail : "";
           }
+          /* Balance split is figured on the final totals — settle the churn
+             guard first so a deferred join discount is already reflected in
+             the amount the balance is measured against. */
+          if (state.joinCharge && !state.joinCharge.deferred && instantJoinBlocked()) state.joinCharge.deferred = true;
+          var tB = totals();
+          var balFull = tB.balanceApplied > 0 && tB.dueNow <= 0;
           var payment;
           var pm = state.payMethod;
-          if (pm === "card") {
+          if (balFull) {
+            /* Balance covers the whole order: payment is confirmed instantly,
+               with no pending verification step. */
+            payment = { method: "balance", status: "Paid with account balance", brand: "Account balance", last4: "", balancePaid: tB.balanceApplied, pending: false };
+          } else if (pm === "card") {
             var card = readCard();
             var cardErr = validateCard(card);
             if (cardErr) { msg.className = "form-msg err"; msg.textContent = cardErr; return; }
@@ -3467,10 +4177,22 @@
             if (!senderBtc) { msg.className = "form-msg err"; msg.textContent = "Add your Bitcoin transaction ID (txid) or sending address — so we can match your Bitcoin payment to this order."; return; }
             if (!($("coSentConfirm") && $("coSentConfirm").checked)) { msg.className = "form-msg err"; msg.textContent = "Send the Bitcoin from your wallet first, then check “I’ve sent it” — your order stays pending until the payment is confirmed."; return; }
             payment = { method: "bitcoin", status: "Pending verification — Bitcoin", brand: "Bitcoin", last4: "", sender: senderBtc, pending: true };
+          } else if (pm === "credit") {
+            var cs2 = creditSummary();
+            if (!cs2 || cs2.line <= 0) { msg.className = "form-msg err"; msg.textContent = "Pay with Credit isn’t unlocked on your account yet — it unlocks at your tier’s lifetime-spend milestone."; return; }
+            if (cs2.tab) { msg.className = "form-msg err"; msg.textContent = "You already have an open credit tab — settle it from My Account before using credit again."; return; }
+            if (tB.memFee > 0) { msg.className = "form-msg err"; msg.textContent = "Credit can’t pay membership fees — remove the membership from this order, or choose another payment method."; return; }
+            if (tB.dueNow > cs2.line) { msg.className = "form-msg err"; msg.textContent = "This order comes to " + money(tB.dueNow) + " — over your " + money(cs2.line) + " credit line."; return; }
+            var cFee2 = r2(tB.dueNow * CREDIT_FEE_PCT);
+            var cTot2 = r2(tB.dueNow + cFee2);
+            var cRec = creditRec(true);
+            cRec.tab = { orderNum: "", principal: tB.dueNow, fee: cFee2, total: cTot2, placedAt: Date.now(), dueAt: Date.now() + CREDIT_TERM_DAYS * 24 * 3600 * 1000, status: "open", repay: null };
+            payment = { method: "credit", status: "On credit tab — " + money(cTot2) + " due " + fmtDate(new Date(cRec.tab.dueAt)), brand: "Packs Credit", last4: "", creditPrincipal: tB.dueNow, creditFee: cFee2, creditTotal: cTot2, pending: false };
           } else {
             if (!cashApproved()) { msg.className = "form-msg err"; msg.textContent = "Cash is for approved members only — sign in with an approved member account, or choose another payment method."; return; }
             payment = { method: "cash", status: state.fulfillment === "delivery" ? "Cash on delivery — code required at handoff" : state.fulfillment === "shipping" ? "Cash — code required to release shipment" : "Cash at pickup — code required at handoff", brand: "Cash", last4: "", cashCode: "CASH-" + Math.floor(100000 + Math.random() * 900000), cashDone: false };
           }
+          if (!balFull && tB.balanceApplied > 0) payment.balancePaid = tB.balanceApplied;
           /* Churn guard, re-checked with the final payment method: if this email or
              payment method already used the instant join discount in the last
              12 months, the join still goes through but the discount starts next order. */
@@ -3479,19 +4201,32 @@
           var jc = state.joinCharge && state.user && state.joinCharge.email === String(state.user.email).trim().toLowerCase() ? state.joinCharge : null;
           var order = {
             num: state.pendingCode || ("PNPO-" + Math.floor(10000 + Math.random() * 90000)),
-            name: name, phone: phone, time: time, market: state.market || "Illinois",
+            name: name, phone: phone, email: state.user ? String(state.user.email).trim().toLowerCase() : "", time: time, market: state.market || "Illinois",
             fulfillment: ful, payment: payment,
             items: cartEntries().map(function (e) { return { id: e.product.id, name: e.product.name, size: e.size.l, qty: e.qty, price: e.size.p }; }),
             total: t.total,
-            breakdown: { sub: t.sub, disc: t.disc, discKind: t.discKind || null, memTier: t.discKind === "member" ? t.tierName : "", memFee: t.memFee || 0, memFeeTier: t.memFeeTier || "", memFeeTerm: t.memFeeTerm || 1, fee: t.fee, tax: t.tax, tip: t.tip || 0 },
+            breakdown: { sub: t.sub, disc: t.disc, discKind: t.discKind || null, memTier: t.discKind === "member" ? t.tierName : "", memFee: t.memFee || 0, memFeeTier: t.memFeeTier || "", memFeeTerm: t.memFeeTerm || 1, fee: t.fee, tax: t.tax, tip: t.tip || 0, balancePaid: t.balanceApplied || 0, dueNow: t.dueNow != null ? t.dueNow : t.total, creditFee: payment.creditFee || 0, creditTotal: payment.creditTotal || 0 },
             memberNote: jc ? ((tierById(jc.tierId) || {}).name || "") + " membership started with this order — " + (jc.deferred ? "your member discount applies from your next order." : "your member discount was applied to this order.") + ((jc.termMonths || 1) > 1 ? " " + (jc.termMonths || 1) + "-month term — " + money(jc.price) + " charged up front (" + money(termPerMonth(tierById(jc.tierId), jc.termMonths || 1)) + "/mo; you save " + money(termSave(tierById(jc.tierId), jc.termMonths || 1)) + " vs paying monthly). Cancelling stops renewal — benefits run to the end of the paid term and fees aren’t refunded mid-term." : " Billed monthly as its own line · Cancel anytime in My Account.") : "",
             tip: t.tip || 0, tipLabel: state.fulfillment === "delivery" ? tipLabelFor(state.tipChoice, state.tipCustom, t.tip || 0) : "Driver tip",
-            statusStage: payment.pending ? "payment_pending" : "placed",
+            statusStage: payment.pending ? "payment_pending" : (payment.method === "balance" ? "payment_confirmed" : "placed"),
             placedAt: Date.now(), stageAt: Date.now(),
             when: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
           };
           state.currentOrderNum = order.num;
           state.history.unshift(order);
+          if (t.balanceApplied > 0) {
+            var wSpend = walletRec(false);
+            if (wSpend) {
+              wSpend.balance = r2(wSpend.balance - t.balanceApplied);
+              wSpend.ledger.unshift({ type: "spend", amount: -t.balanceApplied, when: nowStamp(), note: "Order " + order.num + (t.dueNow > 0 ? " — part payment, rest by " + payment.brand : " — paid in full from balance") });
+            }
+            renderAcctBalance();
+          }
+          if (payment.method === "credit") {
+            var cRec3 = creditRec(false);
+            if (cRec3 && cRec3.tab && !cRec3.tab.orderNum) cRec3.tab.orderNum = order.num;
+          }
+          renderCreditCard();
           if (jc) {
             var prevRec = state.memberships[jc.email] || null;
             state.memberships[jc.email] = {
@@ -3747,6 +4482,8 @@
           renderHistory();
           renderAcctShip();
           renderAcctMembership();
+          renderAcctBalance();
+          renderCreditCard();
           renderMenuAcct();
           renderCoPay();
           toast(approved ? "Signed in — approved member, cash is unlocked" : "Signed in — welcome to the route");
@@ -3775,7 +4512,7 @@
               : "Pickup at: " + esc((o.fulfillment && o.fulfillment.location) || "") + (o.fulfillment && o.fulfillment.detail ? " — " + esc(o.fulfillment.detail) : "") + " · " + esc(o.time) + '<span style="display: block; margin-top: 8px;">' + dirBtnHTML(pickupDirAddr(o), "Get Directions", "small") + "</span>";
             d.innerHTML =
               '<div class="order-card-head"><span class="oc-num">' + esc(o.num) + '</span>' + statusPillHTML(o) + "</div>" +
-              '<div class="oc-meta" style="font-size:13px; color: var(--ink-soft); margin-top:4px;">' + esc(o.when) + " · " + o.items.reduce(function (n, i) { return n + i.qty; }, 0) + " items · " + esc(o.payment ? o.payment.status : "") + (o.payment && o.payment.last4 ? " (" + esc(o.payment.brand || "Card") + " ···· " + esc(o.payment.last4) + ")" : "") + "</div>" +
+              '<div class="oc-meta" style="font-size:13px; color: var(--ink-soft); margin-top:4px;">' + esc(o.when) + " · " + o.items.reduce(function (n, i) { return n + i.qty; }, 0) + " items · " + esc(o.payment ? o.payment.status : "") + (o.payment && o.payment.last4 ? " (" + esc(o.payment.brand || "Card") + " ···· " + esc(o.payment.last4) + ")" : "") + (o.payment && o.payment.balancePaid ? " · " + money(o.payment.balancePaid) + " from account balance" : "") + "</div>" +
               trackerHTML(o, "history") +
               '<div style="margin-top: 14px;">' + itemsHtml + receiptBreakdownHTML(o) + "</div>" +
               '<p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;">' + whereHtml + "</p>" +
