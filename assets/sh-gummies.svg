@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Jar of golden honey gummies">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffdf6"/>
+      <stop offset="1" stop-color="#f6ead0"/>
+    </linearGradient>
+    <linearGradient id="gold3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e9c268"/>
+      <stop offset="0.5" stop-color="#c1902a"/>
+      <stop offset="1" stop-color="#96690f"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.85"/>
+      <stop offset="0.5" stop-color="#fdf3da" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.8"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg3)"/>
+  <circle cx="130" cy="105" r="85" fill="#efd9a0" opacity="0.35"/>
+  <circle cx="685" cy="95" r="65" fill="#efd9a0" opacity="0.3"/>
+  <ellipse cx="400" cy="512" rx="250" ry="25" fill="#d9c391" opacity="0.45"/>
+
+  <!-- honey dipper -->
+  <g transform="rotate(24 610 300)">
+    <rect x="602" y="120" width="14" height="150" rx="7" fill="#c1902a"/>
+    <g fill="#e0a92e">
+      <ellipse cx="609" cy="300" rx="34" ry="20"/>
+      <ellipse cx="609" cy="326" rx="38" ry="20"/>
+      <ellipse cx="609" cy="352" rx="32" ry="18"/>
+      <ellipse cx="609" cy="376" rx="22" ry="14"/>
+    </g>
+    <path d="M600 388 Q609 420 618 388 Q614 404 609 404 Q604 404 600 388 Z" fill="#e0a92e"/>
+  </g>
+
+  <!-- jar -->
+  <g>
+    <path d="M252 236 Q252 214 274 214 L526 214 Q548 214 548 236 L556 470 Q556 506 520 506 L280 506 Q244 506 244 470 Z" fill="url(#glass)" stroke="#d9b96a" stroke-width="3"/>
+    <!-- gummies inside -->
+    <g>
+      <circle cx="310" cy="440" r="34" fill="#f2b13c"/>
+      <circle cx="372" cy="462" r="36" fill="#e8873a"/>
+      <circle cx="438" cy="446" r="34" fill="#f6c453"/>
+      <circle cx="494" cy="464" r="30" fill="#ee9f45"/>
+      <circle cx="338" cy="392" r="32" fill="#f6c453"/>
+      <circle cx="404" cy="402" r="34" fill="#f2b13c"/>
+      <circle cx="470" cy="388" r="30" fill="#e8873a"/>
+      <circle cx="368" cy="338" r="30" fill="#ee9f45"/>
+      <circle cx="434" cy="330" r="28" fill="#f6c453"/>
+      <circle cx="312" cy="300" r="24" fill="#f2b13c"/>
+      <circle cx="486" cy="306" r="22" fill="#f2b13c"/>
+    </g>
+    <g fill="#ffffff" opacity="0.55">
+      <circle cx="298" cy="428" r="6"/><circle cx="360" cy="450" r="5"/><circle cx="428" cy="434" r="6"/>
+      <circle cx="330" cy="382" r="5"/><circle cx="396" cy="390" r="6"/><circle cx="462" cy="378" r="5"/>
+      <circle cx="360" cy="328" r="5"/><circle cx="426" cy="320" r="5"/>
+    </g>
+    <path d="M252 236 Q252 214 274 214 L526 214 Q548 214 548 236 L556 470 Q556 506 520 506 L280 506 Q244 506 244 470 Z" fill="none" stroke="#ffffff" stroke-width="10" opacity="0.35"/>
+    <rect x="268" y="240" width="20" height="220" rx="10" fill="#ffffff" opacity="0.55"/>
+    <!-- lid -->
+    <rect x="238" y="158" width="324" height="58" rx="16" fill="url(#gold3)"/>
+    <rect x="238" y="176" width="324" height="8" fill="#7c5410" opacity="0.35"/>
+    <rect x="238" y="196" width="324" height="8" fill="#fff3d6" opacity="0.4"/>
+  </g>
+
+  <!-- gummies in front -->
+  <g>
+    <circle cx="212" cy="486" r="28" fill="#f2b13c"/>
+    <circle cx="262" cy="500" r="24" fill="#e8873a"/>
+    <circle cx="566" cy="492" r="26" fill="#f6c453"/>
+    <circle cx="612" cy="502" r="21" fill="#ee9f45"/>
+    <g fill="#ffffff" opacity="0.6">
+      <circle cx="204" cy="478" r="5"/><circle cx="256" cy="494" r="4"/><circle cx="558" cy="484" r="5"/><circle cx="606" cy="496" r="4"/>
+    </g>
+  </g>
+
+  <!-- leaf garnish -->
+  <g fill="#7d9b4e">
+    <path d="M138 452 C 116 414, 118 376, 138 344 C 162 380, 164 420, 150 450 C 146 458, 141 458, 138 452 Z"/>
+  </g>
+</svg>
