@@ -601,6 +601,44 @@
       .thread-msg .tm-when { font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--ink-soft); margin-left: 6px; }
       .ticket-reply { display: grid; gap: 9px; margin-top: 14px; }
       .ticket-reply textarea { min-height: 64px; }
+
+      /* ---------- Membership ---------- */
+      .mem-note { border: 1px solid var(--gold-pale); background: color-mix(in srgb, var(--gold) 7%, var(--surface)); border-radius: 10px; padding: 10px 13px; font-size: 13.5px; margin-bottom: 12px; }
+      .mem-note strong { color: var(--gold); }
+      .mem-note button { background: none; border: 0; padding: 0; font: inherit; font-weight: 700; color: var(--gold); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+      .mem-panel { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 16px; }
+      .mem-panel h4 { font-family: "Archivo", sans-serif; font-size: 17px; font-weight: 900; margin: 0 0 4px; }
+      .mem-panel .mem-sub { font-size: 13.5px; color: var(--ink-soft); margin: 0 0 12px; }
+      .mem-proof { border: 1px solid var(--gold-pale); background: color-mix(in srgb, var(--gold) 8%, var(--surface)); border-radius: 10px; padding: 12px 14px; font-size: 14.5px; }
+      .mem-proof strong { color: var(--gold); }
+      .mem-tier-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid var(--line); border-radius: 10px; padding: 11px 13px; margin-top: 9px; background: var(--surface); flex-wrap: wrap; }
+      .mem-tier-row.best { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+      .mem-tier-row .mt-name { font-family: "Archivo", sans-serif; font-weight: 900; font-size: 15.5px; }
+      .mem-tier-row .mt-price { font-size: 12.5px; color: var(--ink-soft); }
+      .mem-tier-row .mt-math { text-align: right; font-size: 13.5px; }
+      .mem-tier-row .mt-math .mt-save { font-weight: 800; color: var(--gold); }
+      .mem-tier-row .mt-math .mt-was { color: var(--ink-soft); text-decoration: line-through; margin-right: 6px; }
+      .mem-join-btn { min-height: 42px; padding: 9px 16px; font-size: 14px; }
+      .mem-pays { font-size: 13px; font-weight: 700; color: var(--gold); margin-top: 6px; }
+      .mem-terms { font-size: 12.5px; color: var(--ink-soft); margin-top: 12px; }
+      .mem-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 8px; }
+      @media (max-width: 1020px) { .mem-grid { grid-template-columns: repeat(2, 1fr); } }
+      @media (max-width: 560px) { .mem-grid { grid-template-columns: 1fr; } }
+      .mem-card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 22px 20px; display: flex; flex-direction: column; }
+      .mem-card.hot { border-color: var(--gold); box-shadow: 0 14px 30px rgba(150, 105, 15, 0.16); }
+      .mem-card .mc-flag { align-self: flex-start; font-family: "Archivo", sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase; color: #2a1d08; background: var(--gold-grad); border-radius: 999px; padding: 4px 10px; margin-bottom: 12px; }
+      .mem-card h3 { font-family: "Archivo", sans-serif; font-size: 22px; font-weight: 900; margin: 0; }
+      .mem-card .mc-price { margin-top: 8px; font-size: 15px; }
+      .mem-card .mc-price strong { font-family: "Archivo", sans-serif; font-size: 30px; font-weight: 900; }
+      .mem-card .mc-per { color: var(--ink-soft); font-size: 13px; }
+      .mem-card ul { list-style: none; margin: 16px 0 20px; padding: 0; display: grid; gap: 9px; font-size: 14.5px; }
+      .mem-card ul .ck { color: var(--gold); font-weight: 900; margin-right: 8px; }
+      .mem-card .btn { margin-top: auto; width: 100%; }
+      .mem-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+      .mem-toggle button { background: var(--surface); border: 0; font: inherit; font-weight: 700; font-size: 14px; padding: 10px 18px; cursor: pointer; color: var(--ink-soft); min-height: 44px; }
+      .mem-toggle button[aria-pressed="true"] { background: var(--gold-grad); color: #2a1d08; }
+      .mem-status { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+      .mem-pill { display: inline-block; font-family: "Archivo", sans-serif; font-size: 11.5px; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; border: 1px solid var(--gold); color: var(--gold); border-radius: 999px; padding: 3px 10px; margin-left: 8px; vertical-align: middle; }
     </style>
   </head>
   <body>
@@ -714,6 +752,7 @@
               <button type="button" data-nav="shop" data-cat="Concentrates">Concentrates <span class="arr">→</span></button>
               <button type="button" data-nav="shop" data-cat="Edibles">Edibles <span class="arr">→</span></button>
               <button type="button" data-nav="wholesale">Buy Wholesale <span class="arr">→</span></button>
+              <button type="button" data-nav="membership">Membership <span class="arr">→</span></button>
               <button type="button" data-nav="faq">FAQ <span class="arr">→</span></button>
             </nav>
             <div class="acct-card" id="menuAcct"></div>
@@ -756,9 +795,9 @@
                 <div class="ddet">All brands, all week</div>
               </button>
               <button class="deal" type="button" data-shop="Edibles">
-                <div class="dpct gold-text">10% OFF</div>
-                <div class="dname">First Pickup Order</div>
-                <div class="ddet">Auto-applied on orders $100+</div>
+                <div class="dpct gold-text">ORDER AHEAD</div>
+                <div class="dname">Pickup Orders</div>
+                <div class="ddet">Order now, pick up at your time</div>
               </button>
               <button class="deal" type="button" data-shop="Pre-Rolls">
                 <div class="dpct gold-text">BOGO 50%</div>
@@ -893,6 +932,26 @@
                   <div class="who">First-time customer — Illinois</div>
                 </div>
               </div>
+            </div>
+          </section>
+
+          <!-- Membership band -->
+          <section style="padding-top: 0;">
+            <div class="wrap">
+              <div class="sec-head">
+                <div class="tag">Membership</div>
+                <h2>Members save on <span class="gold-text">every run</span></h2>
+                <p style="color: var(--ink-soft); max-width: 640px;">Join a tier and your discount applies automatically at checkout — no codes, no games. At checkout you’ll see exactly what each tier would save on your actual cart before you decide.</p>
+                <div class="gold-rule"></div>
+              </div>
+              <div class="mem-grid" style="margin-bottom: 20px;">
+                <div class="mem-card"><h3>Silver</h3><div class="mc-price"><strong>$9.99</strong> <span class="mc-per">/month</span></div><ul><li><span class="ck">✓</span>5% off every order</li></ul></div>
+                <div class="mem-card"><h3>Gold</h3><div class="mc-price"><strong>$19.99</strong> <span class="mc-per">/month</span></div><ul><li><span class="ck">✓</span>10% off every order</li><li><span class="ck">✓</span>Free delivery</li></ul></div>
+                <div class="mem-card"><h3>Platinum</h3><div class="mc-price"><strong>$34.99</strong> <span class="mc-per">/month</span></div><ul><li><span class="ck">✓</span>15% off every order</li><li><span class="ck">✓</span>Free delivery &amp; free shipping</li></ul></div>
+                <div class="mem-card"><h3>Diamond</h3><div class="mc-price"><strong>$59.99</strong> <span class="mc-per">/month</span></div><ul><li><span class="ck">✓</span>15% off every order</li><li><span class="ck">✓</span>Free delivery &amp; free shipping</li><li><span class="ck">✓</span>First access to exclusive drops</li><li><span class="ck">✓</span>Priority pickup</li></ul></div>
+              </div>
+              <button class="btn btn-gold" type="button" data-nav="membership">See Membership Plans</button>
+              <p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 12px;">Yearly option on every tier — pay for 10 months, get 12. Cancel anytime.</p>
             </div>
           </section>
 
@@ -1044,6 +1103,7 @@
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 10px;">Your order</h3>
                   <div id="coSummary"></div>
                   <div id="coTotals" style="margin-top: 12px;"></div>
+                  <div id="coMemberPanel"></div>
                 </div>
               </div>
             </div>
@@ -1132,6 +1192,10 @@
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Your orders — live tracking</h3>
                   <p style="font-size: 13.5px; color: var(--ink-soft); margin-bottom: 6px;">Every order’s tracker lives here — come back any time to see where it stands. The gold “Business controls” box on each order is the store side: advancing the status there is what moves the customer’s tracker.</p>
                   <div id="orderHistory"></div>
+                </div>
+                <div class="panel" style="margin-top: 18px;" id="acctMemberPanel">
+                  <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Membership</h3>
+                  <div id="acctMemberBody"></div>
                 </div>
                 <div class="panel" style="margin-top: 18px;" id="shipAcctPanel">
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Shipping information</h3>
@@ -1246,6 +1310,31 @@
             </div>
           </section>
         </div>
+
+        <!-- ============ MEMBERSHIP VIEW ============ -->
+        <div id="viewMembership" hidden>
+          <section style="padding-top: 30px;">
+            <div class="wrap">
+              <button class="back-link" type="button" data-nav="home">← Back to home</button>
+              <div class="sec-head" style="margin-bottom: 20px;">
+                <div class="tag">Membership</div>
+                <h2>Pick your tier — <span class="gold-text">save on every order</span></h2>
+                <p style="color: var(--ink-soft); max-width: 660px;">Your member discount is your tier’s percent off your cart total — 5% for Silver, 10% for Gold, 15% for Platinum, 15% for Diamond — applied automatically to the product subtotal at checkout while your membership is active. It is the only discount in the store and never stacks with any other offer. One membership per account, tied to your account email.</p>
+                <div class="gold-rule"></div>
+              </div>
+              <div id="memViewStatus"></div>
+              <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 6px;">
+                <span class="mem-toggle" role="group" aria-label="Billing period">
+                  <button type="button" id="memPerMonthly" aria-pressed="true">Monthly</button>
+                  <button type="button" id="memPerYearly" aria-pressed="false">Yearly — pay 10, get 12</button>
+                </span>
+                <span style="font-size: 13.5px; color: var(--ink-soft);">Cancel anytime — cancelling stops renewal and your discount runs to the end of the paid period.</span>
+              </div>
+              <div class="mem-grid" id="memGrid"></div>
+              <p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 18px;">Membership fees are billed as their own line. Perks waive delivery and shipping fees only — order minimums still apply. Joining at checkout applies your discount to that order instantly; that instant-join discount is a once-per-12-months deal per account and payment method.</p>
+            </div>
+          </section>
+        </div>
       </main>
 
       <footer>
@@ -1264,6 +1353,7 @@
             <button type="button" data-nav="home">Home</button>
             <button type="button" data-shop="all">Shop All</button>
             <button type="button" data-nav="wholesale">Buy Wholesale</button>
+            <button type="button" data-nav="membership">Membership</button>
             <button type="button" data-nav="account">My Account</button>
             <button type="button" data-nav="faq">FAQ</button>
           </nav>
@@ -1294,6 +1384,7 @@
       </div>
       <div class="drawer-items" id="drawerItems"></div>
       <div class="drawer-foot" id="drawerFoot">
+        <div class="mem-note" id="drawerMemberNote" hidden></div>
         <div id="drawerTotals"></div>
         <button class="btn btn-gold" type="button" id="checkoutBtn">Checkout — Order Ahead</button>
         <p class="drawer-note">Card · Apple Pay · Cash App · Chime · Current · Bitcoin · Cash (approved members only) — pay your way at checkout · ID checked on every order · Taxes estimated, finalized on your receipt</p>
@@ -1454,7 +1545,8 @@
           addr: { street: "", apt: "", city: "" },
           shipInfo: null, shipDraft: { street: "", apt: "", city: "", state: "", zip: "" },
           payMethod: "card", pendingCode: null,
-          tipChoice: "5", tipCustom: "", ticketSeq: 0, currentOrderNum: null
+          tipChoice: "5", tipCustom: "", ticketSeq: 0, currentOrderNum: null,
+          memberships: {}, joinCharge: null, memPeriod: "monthly", instantPayKeys: {}
         };
         function $(id) { return document.getElementById(id); }
         function money(n) { return "$" + n.toFixed(2); }
@@ -1650,7 +1742,7 @@
         }
 
         /* ================= Views & navigation ================= */
-        var VIEWS = { home: "viewHome", shop: "viewShop", checkout: "viewCheckout", confirm: "viewConfirm", account: "viewAccount", wholesale: "viewWholesale" };
+        var VIEWS = { home: "viewHome", shop: "viewShop", checkout: "viewCheckout", confirm: "viewConfirm", account: "viewAccount", wholesale: "viewWholesale", membership: "viewMembership" };
         function showView(v) {
           state.view = v;
           Object.keys(VIEWS).forEach(function (k) { $(VIEWS[k]).hidden = k !== v; });
@@ -1662,6 +1754,7 @@
           if (target === "home") { showView("home"); }
           else if (target === "account") { showView("account"); }
           else if (target === "wholesale") { showView("wholesale"); }
+          else if (target === "membership") { showView("membership"); renderMembershipView(); }
           else if (target === "faq") { showView("home"); setTimeout(function () { $("faqSection").scrollIntoView({ behavior: "smooth" }); }, 60); }
         }
         document.addEventListener("click", function (ev) {
@@ -1789,14 +1882,129 @@
           if (choice === "custom") return "Driver tip (custom)";
           return "Driver tip";
         }
-        function totals() {
-          var sub = cartSubtotal();
-          var disc = sub >= 100 ? sub * 0.10 : 0;
-          var fee = state.fulfillment === "delivery" ? ((sub - disc) >= DELIVERY_FREE_OVER ? 0 : DELIVERY_FEE)
-            : state.fulfillment === "shipping" ? ((sub - disc) >= SHIPPING_FREE_OVER ? 0 : SHIPPING_FEE) : 0;
+        /* ================= Membership ================= */
+        var MEMBERSHIP_TIERS = [
+          { id: "silver", name: "Silver", price: 9.99, pct: 0.05, freeDelivery: false, freeShipping: false, perks: ["5% off every order"] },
+          { id: "gold", name: "Gold", price: 19.99, pct: 0.10, freeDelivery: true, freeShipping: false, perks: ["10% off every order", "Free delivery"], flag: "Most popular" },
+          { id: "platinum", name: "Platinum", price: 34.99, pct: 0.15, freeDelivery: true, freeShipping: true, perks: ["15% off every order", "Free delivery", "Free shipping"] },
+          { id: "diamond", name: "Diamond", price: 59.99, pct: 0.15, freeDelivery: true, freeShipping: true, perks: ["15% off every order", "Free delivery", "Free shipping", "First access to exclusive drops", "Priority pickup"], flag: "Top tier" }
+        ];
+        var MEM_INSTANT_WINDOW = 365 * 24 * 60 * 60 * 1000;
+        function tierById(id) { for (var i = 0; i < MEMBERSHIP_TIERS.length; i++) if (MEMBERSHIP_TIERS[i].id === id) return MEMBERSHIP_TIERS[i]; return null; }
+        function tierPrice(tier, period) { return period === "yearly" ? Math.round(tier.price * 10 * 100) / 100 : tier.price; }
+        function memberRecord() {
+          if (!state.user || !state.user.email) return null;
+          return state.memberships[String(state.user.email).trim().toLowerCase()] || null;
+        }
+        function activeMembership() {
+          var r = memberRecord();
+          return r && r.status === "active" ? r : null;
+        }
+        /* Tier whose perks apply right now: a live membership (unless its discount is
+           deferred to the next order), or a checkout join that isn't deferred. */
+        function effectiveTier() {
+          if (state.joinCharge && state.user && state.joinCharge.email === String(state.user.email).trim().toLowerCase() && !state.joinCharge.deferred) return tierById(state.joinCharge.tierId);
+          var r = activeMembership();
+          if (r && !r.discountDeferred) return tierById(r.tierId);
+          return null;
+        }
+        /* Member discount: the tier's flat percent off the cart's product
+           subtotal as a whole — no per-item cap, no per-item math. */
+        function memberDiscountFor(tier) {
+          if (!tier) return 0;
+          var sub = 0;
+          cartEntries().forEach(function (e) { sub += e.size.p * e.qty; });
+          return Math.round(sub * tier.pct * 100) / 100;
+        }
+        /* Preview math for the membership upsell — each tier's OWN benefit
+           against this cart. Membership is the only discount in the store,
+           so a tier's preview savings are always its percent × the product
+           subtotal, plus the delivery/shipping fee it waives that this cart
+           would otherwise pay, and its preview total is the customer's
+           current total minus those savings. */
+        function tierPreviewSavings(sub, tier) {
+          if (!tier || !sub) return 0;
+          var disc = Math.round(sub * tier.pct * 100) / 100;
+          var base = calcTotals(sub, null);
+          var feeSave = 0;
+          if (state.fulfillment === "delivery" && tier.freeDelivery && base.fee > 0) feeSave = base.fee;
+          else if (state.fulfillment === "shipping" && tier.freeShipping && base.fee > 0) feeSave = base.fee;
+          return Math.round((disc + feeSave) * 100) / 100;
+        }
+        function tierPreviewTotal(sub, tier) {
+          var base = calcTotals(sub, null);
+          return Math.round((base.total - tierPreviewSavings(sub, tier)) * 100) / 100;
+        }
+        function calcTotals(sub, tier) {
+          /* The only discount in the store is the membership discount:
+             members get their tier's percent off the product subtotal,
+             non-members get no discount. No standing promo applies. */
+          var memDisc = memberDiscountFor(tier);
+          var disc = memDisc;
+          var kind = disc > 0 ? "member" : null;
+          var fee = 0, feeWaived = false;
+          if (state.fulfillment === "delivery") {
+            fee = (sub - disc) >= DELIVERY_FREE_OVER ? 0 : DELIVERY_FEE;
+            if (tier && tier.freeDelivery && fee > 0) { fee = 0; feeWaived = true; }
+          } else if (state.fulfillment === "shipping") {
+            fee = (sub - disc) >= SHIPPING_FREE_OVER ? 0 : SHIPPING_FEE;
+            if (tier && tier.freeShipping && fee > 0) { fee = 0; feeWaived = true; }
+          }
           var tax = (sub - disc) * 0.10;
           var tip = state.fulfillment === "delivery" ? tipFor(sub - disc, state.tipChoice, state.tipCustom) : 0;
-          return { sub: sub, disc: disc, fee: fee, tax: tax, tip: tip, total: sub - disc + fee + tax + tip };
+          return { sub: sub, disc: disc, discKind: kind, memDisc: memDisc, fee: fee, feeWaived: feeWaived, tax: tax, tip: tip, total: sub - disc + fee + tax + tip };
+        }
+        function totals() {
+          var t = calcTotals(cartSubtotal(), effectiveTier());
+          var tier = effectiveTier();
+          t.tierName = tier ? tier.name : "";
+          t.tierPct = tier ? Math.round(tier.pct * 100) : 0;
+          t.memFee = state.joinCharge && state.user && state.joinCharge.email === String(state.user.email).trim().toLowerCase() ? state.joinCharge.price : 0;
+          t.memFeeTier = t.memFee > 0 ? (tierById(state.joinCharge.tierId) || {}).name || "" : "";
+          t.memFeePeriod = t.memFee > 0 ? state.joinCharge.period : "monthly";
+          t.total += t.memFee;
+          return t;
+        }
+        /* Churn guard: the instant checkout-join discount is once per 12 months
+           per account email and per payment method. */
+        function payKeyNow() {
+          var pm = state.payMethod;
+          if (pm === "card") { var el = $("coCardNum"); var d = el ? cardDigits(el.value) : ""; return d.length >= 4 ? "card:" + d.slice(-4) : "card:"; }
+          if (pm === "cashapp") { var t1 = $("coSenderTag"); return "cashapp:" + (t1 ? t1.value.trim().toLowerCase() : ""); }
+          if (pm === "chime") { var t2 = $("coSenderChime"); return "chime:" + (t2 ? t2.value.trim().toLowerCase() : ""); }
+          if (pm === "current") { var t3 = $("coSenderCurrent"); return "current:" + (t3 ? t3.value.trim().toLowerCase() : ""); }
+          if (pm === "applepay") { var t4 = $("coSenderApple"); return "applepay:" + (t4 ? t4.value.replace(/\D/g, "") : ""); }
+          if (pm === "bitcoin") { var t5 = $("coSenderBtc"); return "bitcoin:" + (t5 ? t5.value.trim().toLowerCase() : ""); }
+          return pm + ":";
+        }
+        function instantJoinBlocked() {
+          var now = Date.now();
+          var r = memberRecord();
+          if (r && r.instantUsedAt && now - r.instantUsedAt < MEM_INSTANT_WINDOW && r.status !== "active") return true;
+          var pk = payKeyNow();
+          var hit = pk && pk.length > (state.payMethod.length + 1) ? state.instantPayKeys[pk] : null;
+          if (hit && now - hit.at < MEM_INSTANT_WINDOW) {
+            var myEmail = state.user ? String(state.user.email).trim().toLowerCase() : "";
+            if (hit.email !== myEmail) return true;
+            if (r && r.instantUsedAt && now - r.instantUsedAt < MEM_INSTANT_WINDOW && r.status !== "active") return true;
+          }
+          return false;
+        }
+        function memberSavingsNow() {
+          var sub = cartSubtotal();
+          var tier = effectiveTier();
+          if (!tier) return 0;
+          return Math.max(0, Math.round((calcTotals(sub, null).total - calcTotals(sub, tier).total) * 100) / 100);
+        }
+        function bestTierSavings(sub) {
+          var base = calcTotals(sub, null).total;
+          var best = null;
+          MEMBERSHIP_TIERS.forEach(function (tier) {
+            var s = tierPreviewSavings(sub, tier);
+            var previewTotal = Math.round((base - s) * 100) / 100;
+            if (!best || s > best.savings) best = { tier: tier, savings: s, total: previewTotal };
+          });
+          return best;
         }
         function addToCart(p, size, qty) {
           if (!p || !size) return;
@@ -1808,13 +2016,14 @@
         function totalsHTML(t, idPrefix) {
           var html =
             '<div class="trow"><span>Subtotal</span><span>' + money(t.sub) + "</span></div>";
-          if (t.disc > 0) html += '<div class="trow"><span>Order-ahead savings (10%)</span><span class="neg">−' + money(t.disc) + "</span></div>";
+          if (t.disc > 0) html += '<div class="trow"><span>' + esc(t.tierName || "Member") + " membership savings (" + (t.tierPct || 0) + '%)</span><span class="neg">−' + money(t.disc) + "</span></div>";
           if (state.fulfillment === "delivery") {
-            html += '<div class="trow"><span>Delivery fee</span><span>' + (t.fee > 0 ? money(t.fee) : "FREE") + "</span></div>";
+            html += '<div class="trow"><span>Delivery fee</span><span>' + (t.fee > 0 ? money(t.fee) : (t.feeWaived ? "FREE — member perk" : "FREE")) + "</span></div>";
           }
           if (state.fulfillment === "shipping") {
-            html += '<div class="trow"><span>Shipping</span><span>' + (t.fee > 0 ? money(t.fee) : "FREE") + "</span></div>";
+            html += '<div class="trow"><span>Shipping</span><span>' + (t.fee > 0 ? money(t.fee) : (t.feeWaived ? "FREE — member perk" : "FREE")) + "</span></div>";
           }
+          if (t.memFee > 0) html += '<div class="trow"><span>' + esc(t.memFeeTier) + " membership — first " + (t.memFeePeriod === "yearly" ? "year" : "month") + '</span><span>' + money(t.memFee) + "</span></div>";
           var totalLabels = {
             card: "Total — pay online by card",
             applepay: "Total — pay with Apple Pay",
@@ -1878,7 +2087,36 @@
             });
             $("drawerTotals").innerHTML = totalsHTML(totals());
           }
+          renderDrawerMemberNote();
           updateCartBar();
+        }
+        function renderDrawerMemberNote() {
+          var el = $("drawerMemberNote");
+          if (!el) return;
+          var sub = cartSubtotal();
+          if (!sub) { el.hidden = true; el.innerHTML = ""; return; }
+          el.hidden = false;
+          var mem = activeMembership();
+          var jcOk = !!(state.joinCharge && state.user && state.joinCharge.email === String(state.user.email).trim().toLowerCase());
+          if (mem || jcOk) {
+            var tier = effectiveTier();
+            var saved = memberSavingsNow();
+            if (tier && saved > 0) el.innerHTML = "Your <strong>" + esc(tier.name) + " membership</strong> is saving you <strong>" + money(saved) + "</strong> on this cart.";
+            else if (tier) el.innerHTML = "Your <strong>" + esc(tier.name) + " membership</strong> is on this cart — perks apply at checkout.";
+            else {
+              var nm = mem ? (tierById(mem.tierId) || {}).name : (state.joinCharge ? (tierById(state.joinCharge.tierId) || {}).name : "");
+              el.innerHTML = "Your <strong>" + esc(nm || "membership") + " membership</strong> is active — the member discount applies from your next order.";
+            }
+          } else {
+            var best = bestTierSavings(sub);
+            if (best && best.savings > 0) el.innerHTML = "Members would save <strong>" + money(best.savings) + "</strong> on this cart. <button type=\"button\" id=\"drawerMemBtn\">See the math</button>";
+            else el.innerHTML = "Members save on every order. <button type=\"button\" id=\"drawerMemBtn\">See the plans</button>";
+            var b = $("drawerMemBtn");
+            if (b) b.addEventListener("click", function () {
+              if (cartCount()) { closeDrawer(); showView("checkout"); renderCheckout(); }
+              else { closeDrawer(); goNav("membership"); }
+            });
+          }
         }
         function updateCartBar() {
           var bar = $("cartBar");
@@ -2143,6 +2381,7 @@
               state.tipChoice = b.getAttribute("data-tip");
               renderCoTip(); renderCoPay(); renderCart();
               $("coTotals").innerHTML = totalsHTML(totals());
+              renderCoMember();
             });
           });
           var ci = $("coTipCustom");
@@ -2150,6 +2389,7 @@
             state.tipCustom = this.value.replace(/[^0-9.]/g, "");
             renderCoPay(); renderCart();
             $("coTotals").innerHTML = totalsHTML(totals());
+            renderCoMember();
             var strong = box.querySelector("p strong");
             if (strong) strong.textContent = (totals().tip || 0) > 0 ? money(totals().tip) : "No tip";
           });
@@ -2488,7 +2728,8 @@
           var b = o.breakdown;
           if (!b) return '<div class="trow total" style="margin-top: 10px;"><span>Total</span><span>' + money(o.total) + "</span></div>";
           var html = '<div class="trow"><span>Subtotal</span><span>' + money(b.sub) + "</span></div>";
-          if (b.disc > 0) html += '<div class="trow"><span>Order-ahead savings (10%)</span><span class="neg">−' + money(b.disc) + "</span></div>";
+          if (b.disc > 0) html += '<div class="trow"><span>' + esc(b.memTier || "Member") + ' membership savings</span><span class="neg">−' + money(b.disc) + "</span></div>";
+          if (b.memFee > 0) html += '<div class="trow"><span>' + esc(b.memFeeTier || "Membership") + " membership — first " + (b.memFeePeriod === "yearly" ? "year" : "month") + '</span><span>' + money(b.memFee) + "</span></div>";
           if (o.fulfillment && o.fulfillment.method === "delivery") html += '<div class="trow"><span>Delivery fee</span><span>' + (b.fee > 0 ? money(b.fee) : "FREE") + "</span></div>";
           if (o.fulfillment && o.fulfillment.method === "shipping") html += '<div class="trow"><span>Shipping</span><span>' + (b.fee > 0 ? money(b.fee) : "FREE") + "</span></div>";
           html += '<div class="trow"><span>Estimated tax</span><span>' + money(b.tax) + "</span></div>";
@@ -2895,7 +3136,201 @@
           if (!entries.length) box.innerHTML = "<p style='color: var(--ink-soft);'>Your cart is empty — add something from the menu first.</p>";
           $("coTotals").innerHTML = totalsHTML(totals());
           renderCoFul();
+          renderCoMember();
         }
+        function refreshCheckoutMoney() {
+          renderCart();
+          if (state.view === "checkout") renderCheckout();
+        }
+        function joinAtCheckout(tier) {
+          if (!state.user) {
+            toast("Memberships are tied to an account — create one or sign in first");
+            showView("account"); setAcctTab("create");
+            return;
+          }
+          var email = String(state.user.email).trim().toLowerCase();
+          var blocked = instantJoinBlocked();
+          state.joinCharge = { tierId: tier.id, period: "monthly", price: tier.price, email: email, deferred: blocked };
+          refreshCheckoutMoney();
+          toast(blocked
+            ? tier.name + " membership added — it starts today, and the discount applies from your next order"
+            : tier.name + " membership added — your discount is on this order");
+        }
+        function renderCoMember() {
+          var box = $("coMemberPanel");
+          if (!box) return;
+          var sub = cartSubtotal();
+          if (!sub) { box.innerHTML = ""; return; }
+          var base = calcTotals(sub, null);
+          var mem = activeMembership();
+          /* Already a member (or joining with this order): proof, not pitch */
+          if (state.joinCharge && state.user && state.joinCharge.email === String(state.user.email).trim().toLowerCase()) {
+            var jt = tierById(state.joinCharge.tierId);
+            if (state.joinCharge.deferred) {
+              box.innerHTML = '<div class="mem-panel"><div class="mem-proof"><strong>' + esc(jt.name) + " membership added to this order</strong> — " + money(state.joinCharge.price) + "/month, billed as its own line above. The instant-join discount is a once-per-12-months deal, so your member discount starts with your <strong>next</strong> order. Cancel anytime.</div>" +
+                '<button class="btn btn-outline mem-join-btn" type="button" id="coMemRemove" style="margin-top: 10px;">Remove membership</button></div>';
+            } else {
+              var savedJ = memberSavingsNow();
+              box.innerHTML = '<div class="mem-panel"><div class="mem-proof"><strong>' + esc(jt.name) + " membership is on this order</strong>" + (savedJ > 0 ? " — you saved <strong>" + money(savedJ) + "</strong>" : " — your member perks apply") + (state.fulfillment === "delivery" && jt.freeDelivery ? ", delivery fee waived" : "") + (state.fulfillment === "shipping" && jt.freeShipping ? ", shipping waived" : "") + ". The " + money(state.joinCharge.price) + "/month membership is its own line in your total. Billed monthly · Cancel anytime.</div>" +
+                '<button class="btn btn-outline mem-join-btn" type="button" id="coMemRemove" style="margin-top: 10px;">Remove membership</button></div>';
+            }
+            $("coMemRemove").addEventListener("click", function () { state.joinCharge = null; refreshCheckoutMoney(); toast("Membership removed from this order"); });
+            return;
+          }
+          if (mem) {
+            var mt = tierById(mem.tierId);
+            var saved = memberSavingsNow();
+            var proof = mem.discountDeferred
+              ? "Your <strong>" + esc(mt.name) + " membership</strong> is active — your member discount starts with your next order."
+              : saved > 0
+                ? "Your <strong>" + esc(mt.name) + " membership</strong> saved you <strong>" + money(saved) + "</strong> on this order."
+                : "Your <strong>" + esc(mt.name) + " membership</strong> is active on this order.";
+            box.innerHTML = '<div class="mem-panel"><div class="mem-proof">' + proof + '</div>' +
+              '<p class="mem-terms">' + esc(mt.name) + " · " + money(tierPrice(mt, mem.period)) + (mem.period === "yearly" ? "/year" : "/month") + (mem.cancelAtPeriodEnd ? " · Cancels " + esc(mem.periodEnd || "") + " — discount runs to then" : " · Renews " + esc(mem.periodEnd || "")) + ' · <button type="button" id="coMemAcct" style="background:none;border:0;padding:0;font:inherit;font-weight:700;color:var(--gold);text-decoration:underline;text-underline-offset:3px;cursor:pointer;">Manage in My Account</button></p></div>';
+            $("coMemAcct").addEventListener("click", function () { showView("account"); });
+            return;
+          }
+          /* The upsell: real math on this cart, per tier — each tier's own
+             percent × the product subtotal (plus any fee it waives). */
+          var rows = MEMBERSHIP_TIERS.map(function (tier) {
+            var savings = tierPreviewSavings(sub, tier);
+            var previewTotal = tierPreviewTotal(sub, tier);
+            var perks = [];
+            if (state.fulfillment === "delivery" && tier.freeDelivery) perks.push("free delivery");
+            if (state.fulfillment === "shipping" && tier.freeShipping) perks.push("free shipping");
+            var pays = savings > tier.price;
+            return { tier: tier, tt: { total: previewTotal }, savings: savings, perks: perks, pays: pays };
+          });
+          var bestRow = rows.reduce(function (a, b) { return b.savings > a.savings ? b : a; }, rows[0]);
+          var html = '<div class="mem-panel"><h4>Members save more</h4>' +
+            '<p class="mem-sub">Your total today is <strong>' + money(base.total) + "</strong>. Tap a tier to join and apply its discount to <strong>this</strong> order instantly.</p>";
+          rows.forEach(function (r) {
+            html += '<div class="mem-tier-row' + (r === bestRow && r.savings > 0 ? " best" : "") + '">' +
+              '<div><div class="mt-name">' + esc(r.tier.name) + '</div><div class="mt-price">' + money(r.tier.price) + "/mo · " + Math.round(r.tier.pct * 100) + "% off" + (r.perks.length ? " + " + r.perks.join(" + ") : "") + "</div>" +
+              (r.pays ? '<div class="mem-pays">' + esc(r.tier.name) + " pays for itself on this order — save " + money(r.savings) + ", membership is " + money(r.tier.price) + "</div>" : "") +
+              "</div>" +
+              '<div class="mt-math"><div><span class="mt-was">' + money(base.total) + "</span><strong>" + money(r.tt.total) + '</strong></div><div class="mt-save">Save ' + money(Math.max(0, r.savings)) + "</div></div>" +
+              '<button class="btn btn-gold mem-join-btn" type="button" data-join-tier="' + r.tier.id + '">Join ' + esc(r.tier.name) + "</button></div>";
+          });
+          html += '<p class="mem-terms">Billed monthly as its own line · Cancel anytime · One membership per account, tied to your account email — orders must be placed from your account for the discount to apply · Discount is your tier’s percent off your cart total, on the product subtotal only — the only discount in the store, never stacks with other offers · Order minimums still apply.</p></div>';
+          box.innerHTML = html;
+          box.querySelectorAll("[data-join-tier]").forEach(function (b) {
+            b.addEventListener("click", function () { joinAtCheckout(tierById(b.getAttribute("data-join-tier"))); });
+          });
+        }
+        /* ================= Membership page & account ================= */
+        function fmtDate(d) { return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }); }
+        function periodEndDate(period, from) {
+          var d = new Date(from || Date.now());
+          d.setMonth(d.getMonth() + (period === "yearly" ? 12 : 1));
+          return d;
+        }
+        function joinFromPage(tier) {
+          if (!state.user) {
+            toast("Memberships are tied to an account — create one or sign in first");
+            showView("account"); setAcctTab("create");
+            return;
+          }
+          var email = String(state.user.email).trim().toLowerCase();
+          var prev = state.memberships[email] || null;
+          var deferred = !!(prev && prev.instantUsedAt && Date.now() - prev.instantUsedAt < MEM_INSTANT_WINDOW && prev.status === "cancelled");
+          state.memberships[email] = {
+            tierId: tier.id, period: state.memPeriod, status: "active",
+            since: fmtDate(new Date()), periodEnd: fmtDate(periodEndDate(state.memPeriod)),
+            instantUsedAt: prev ? prev.instantUsedAt : null,
+            discountDeferred: deferred, cancelAtPeriodEnd: false
+          };
+          renderMembershipView(); renderAcctMembership(); renderCart();
+          toast(deferred
+            ? "Welcome back to " + tier.name + " — your discount applies from your next order"
+            : "Welcome to " + tier.name + " — your discount now applies automatically at checkout");
+        }
+        function renderMembershipView() {
+          var grid = $("memGrid");
+          if (!grid) return;
+          $("memPerMonthly").setAttribute("aria-pressed", state.memPeriod === "monthly" ? "true" : "false");
+          $("memPerYearly").setAttribute("aria-pressed", state.memPeriod === "yearly" ? "true" : "false");
+          var mem = activeMembership();
+          var st = $("memViewStatus");
+          if (!state.user) {
+            st.innerHTML = '<div class="mem-note">Memberships are tied to an account — <button type="button" id="memGoAcct">create a free account or sign in</button> to join. One membership per account; the discount applies to orders placed from your own account.</div>';
+            $("memGoAcct").addEventListener("click", function () { showView("account"); setAcctTab("create"); });
+          } else if (mem) {
+            var mt = tierById(mem.tierId);
+            st.innerHTML = '<div class="mem-proof" style="margin-bottom: 16px;">You’re a <strong>' + esc(mt.name) + " member</strong> — " + Math.round(mt.pct * 100) + "% off applies automatically at checkout." + (mem.discountDeferred ? " Your discount starts with your next order." : "") + (mem.cancelAtPeriodEnd ? " Your membership cancels " + esc(mem.periodEnd || "") + " and the discount runs until then." : "") + "</div>";
+          } else {
+            st.innerHTML = "";
+          }
+          grid.innerHTML = "";
+          MEMBERSHIP_TIERS.forEach(function (tier) {
+            var card = document.createElement("div");
+            card.className = "mem-card" + (tier.flag ? " hot" : "");
+            var price = tierPrice(tier, state.memPeriod);
+            var isCurrent = !!(mem && mem.tierId === tier.id);
+            card.innerHTML =
+              (tier.flag ? '<span class="mc-flag">' + esc(tier.flag) + "</span>" : "") +
+              "<h3>" + esc(tier.name) + "</h3>" +
+              '<div class="mc-price"><strong>' + money(price) + '</strong> <span class="mc-per">/' + (state.memPeriod === "yearly" ? "year" : "month") + "</span></div>" +
+              (state.memPeriod === "yearly" ? '<div class="mc-per">Pay for 10 months, get 12 — two months on us.</div>' : '<div class="mc-per">Or go yearly: ' + money(tierPrice(tier, "yearly")) + "/yr — pay for 10, get 12.</div>") +
+              "<ul>" + tier.perks.map(function (p) { return '<li><span class="ck">✓</span>' + esc(p) + "</li>"; }).join("") + "</ul>" +
+              (isCurrent
+                ? '<button class="btn btn-outline" type="button" disabled aria-disabled="true">Current plan</button>'
+                : '<button class="btn btn-gold" type="button" data-join-page="' + tier.id + '">' + (mem ? "Switch to " : "Join ") + esc(tier.name) + "</button>");
+            grid.appendChild(card);
+          });
+          grid.querySelectorAll("[data-join-page]").forEach(function (b) {
+            b.addEventListener("click", function () { joinFromPage(tierById(b.getAttribute("data-join-page"))); });
+          });
+        }
+        $("memPerMonthly").addEventListener("click", function () { state.memPeriod = "monthly"; renderMembershipView(); });
+        $("memPerYearly").addEventListener("click", function () { state.memPeriod = "yearly"; renderMembershipView(); });
+        function renderAcctMembership() {
+          var body = $("acctMemberBody");
+          if (!body) return;
+          var r = memberRecord();
+          if (!r || r.status !== "active") {
+            body.innerHTML = '<p style="font-size: 14.5px; color: var(--ink-soft); margin: 0 0 12px;">You’re not a member yet. Members save on every order — the discount applies automatically at checkout, and at checkout you’ll see exactly what each tier saves on your cart before you join.</p>' +
+              '<button class="btn btn-gold" type="button" id="acctMemPlans">See Membership Plans</button>';
+            $("acctMemPlans").addEventListener("click", function () { goNav("membership"); });
+            return;
+          }
+          var tier = tierById(r.tierId);
+          var price = tierPrice(tier, r.period);
+          body.innerHTML =
+            '<div class="mem-status"><div>' +
+            '<span style="font-family: \'Archivo\', sans-serif; font-weight: 900; font-size: 19px;">' + esc(tier.name) + '</span><span class="mem-pill">' + (r.cancelAtPeriodEnd ? "Cancels " + esc(r.periodEnd || "") : "Active") + "</span>" +
+            '<p style="font-size: 14px; color: var(--ink-soft); margin-top: 6px;">' + money(price) + (r.period === "yearly" ? "/year" : "/month") + " · Member since " + esc(r.since || "") + "<br>" +
+            Math.round(tier.pct * 100) + "% off the product subtotal at checkout" + (tier.freeDelivery ? " · Free delivery" : "") + (tier.freeShipping ? " · Free shipping" : "") +
+            (r.discountDeferred ? "<br>Your discount applies from your next order." : "") +
+            (r.cancelAtPeriodEnd ? "<br>Cancelling stops renewal — your discount runs to " + esc(r.periodEnd || "") + ", the end of the paid period." : "<br>Renews " + esc(r.periodEnd || "") + " · Cancel anytime.") +
+            "</p></div>" +
+            '<div style="display: flex; gap: 10px; flex-wrap: wrap;">' +
+            '<button class="btn btn-outline" type="button" id="acctMemChange">Change Tier</button>' +
+            (r.cancelAtPeriodEnd
+              ? '<button class="btn btn-gold" type="button" id="acctMemKeep">Keep My Membership</button>'
+              : '<button class="btn btn-outline" type="button" id="acctMemCancel">Cancel Membership</button>') +
+            "</div></div>";
+          $("acctMemChange").addEventListener("click", function () { goNav("membership"); });
+          var keep = $("acctMemKeep");
+          if (keep) keep.addEventListener("click", function () {
+            r.cancelAtPeriodEnd = false;
+            renderAcctMembership(); renderMembershipView(); renderCart();
+            toast("Membership kept — it will renew as usual");
+          });
+          var cancel = $("acctMemCancel");
+          if (cancel) cancel.addEventListener("click", function () {
+            if (cancel.getAttribute("data-armed") !== "1") {
+              cancel.setAttribute("data-armed", "1");
+              cancel.textContent = "Tap again to confirm — discount runs to " + (r.periodEnd || "period end");
+              return;
+            }
+            r.cancelAtPeriodEnd = true;
+            renderAcctMembership(); renderMembershipView(); renderCart();
+            if (state.view === "checkout") renderCheckout();
+            toast("Membership will cancel " + (r.periodEnd || "at period end") + " — discount runs until then");
+          });
+        }
+
         $("coBack").addEventListener("click", function () { showView("home"); });
         $("coForm").addEventListener("submit", function (ev) {
           ev.preventDefault();
@@ -2979,14 +3414,20 @@
             if (!cashApproved()) { msg.className = "form-msg err"; msg.textContent = "Cash is for approved members only — sign in with an approved member account, or choose another payment method."; return; }
             payment = { method: "cash", status: state.fulfillment === "delivery" ? "Cash on delivery — code required at handoff" : state.fulfillment === "shipping" ? "Cash — code required to release shipment" : "Cash at pickup — code required at handoff", brand: "Cash", last4: "", cashCode: "CASH-" + Math.floor(100000 + Math.random() * 900000), cashDone: false };
           }
+          /* Churn guard, re-checked with the final payment method: if this email or
+             payment method already used the instant join discount in the last
+             12 months, the join still goes through but the discount starts next order. */
+          if (state.joinCharge && !state.joinCharge.deferred && instantJoinBlocked()) state.joinCharge.deferred = true;
           var t = totals();
+          var jc = state.joinCharge && state.user && state.joinCharge.email === String(state.user.email).trim().toLowerCase() ? state.joinCharge : null;
           var order = {
             num: state.pendingCode || ("PNPO-" + Math.floor(10000 + Math.random() * 90000)),
             name: name, phone: phone, time: time, market: state.market || "Illinois",
             fulfillment: ful, payment: payment,
             items: cartEntries().map(function (e) { return { id: e.product.id, name: e.product.name, size: e.size.l, qty: e.qty, price: e.size.p }; }),
             total: t.total,
-            breakdown: { sub: t.sub, disc: t.disc, fee: t.fee, tax: t.tax, tip: t.tip || 0 },
+            breakdown: { sub: t.sub, disc: t.disc, discKind: t.discKind || null, memTier: t.discKind === "member" ? t.tierName : "", memFee: t.memFee || 0, memFeeTier: t.memFeeTier || "", memFeePeriod: t.memFeePeriod || "monthly", fee: t.fee, tax: t.tax, tip: t.tip || 0 },
+            memberNote: jc ? ((tierById(jc.tierId) || {}).name || "") + " membership started with this order — " + (jc.deferred ? "your member discount applies from your next order." : "your member discount was applied to this order.") + " Billed monthly as its own line · Cancel anytime in My Account." : "",
             tip: t.tip || 0, tipLabel: state.fulfillment === "delivery" ? tipLabelFor(state.tipChoice, state.tipCustom, t.tip || 0) : "Driver tip",
             statusStage: payment.pending ? "payment_pending" : "placed",
             placedAt: Date.now(), stageAt: Date.now(),
@@ -2994,6 +3435,23 @@
           };
           state.currentOrderNum = order.num;
           state.history.unshift(order);
+          if (jc) {
+            var prevRec = state.memberships[jc.email] || null;
+            state.memberships[jc.email] = {
+              tierId: jc.tierId, period: jc.period, status: "active",
+              since: fmtDate(new Date()), periodEnd: fmtDate(periodEndDate(jc.period)),
+              instantUsedAt: jc.deferred ? (prevRec ? prevRec.instantUsedAt : null) : Date.now(),
+              discountDeferred: false, cancelAtPeriodEnd: false
+            };
+            if (!jc.deferred) {
+              var pkUsed = payKeyNow();
+              if (pkUsed) state.instantPayKeys[pkUsed] = { email: jc.email, at: Date.now() };
+            }
+            state.joinCharge = null;
+          } else {
+            var recNow = memberRecord();
+            if (recNow && recNow.discountDeferred) recNow.discountDeferred = false;
+          }
           state.pendingCode = null;
           state.cart = {};
           renderCart();
@@ -3057,6 +3515,7 @@
             completedHead + lines +
             '<div style="margin-top: 10px;">' + receiptBreakdownHTML(o) + "</div>" +
             '<p style="font-size: 13px; color: var(--ink-soft); margin-top: 6px;">' + totalLabel + ": " + money(o.total) + (o.tip ? " (includes " + money(o.tip) + " driver tip)" : "") + "</p>" +
+            (o.memberNote ? '<p style="font-size: 13.5px; color: var(--gold); font-weight: 600; margin-top: 8px;">' + esc(o.memberNote) + "</p>" : "") +
             "<p style='margin-top: 12px; font-size: 14.5px; color: var(--ink-soft);'>" + fulLine + "</p>";
           renderCashComplete(o);
           renderShipInfoForm(o);
@@ -3220,6 +3679,7 @@
         $("tabCreate").addEventListener("click", function () { setAcctTab("create"); });
         $("tabLogin").addEventListener("click", function () { setAcctTab("login"); });
         function signIn(name, email) {
+          if (state.joinCharge && state.joinCharge.email !== String(email || "").trim().toLowerCase()) state.joinCharge = null;
           var approved = CASH_APPROVED_EMAILS.indexOf(String(email || "").trim().toLowerCase()) >= 0;
           state.user = { name: name, email: email, cashApproved: approved };
           $("acctOut").hidden = true;
@@ -3229,6 +3689,7 @@
           $("acctMeta").textContent = email + " · Shopping the " + (state.market || "Illinois") + " market" + (approved ? " · Approved member — cash payment is unlocked on your account" : " · Cash payment is reserved for approved members");
           renderHistory();
           renderAcctShip();
+          renderAcctMembership();
           renderMenuAcct();
           renderCoPay();
           toast(approved ? "Signed in — approved member, cash is unlocked" : "Signed in — welcome to the route");
@@ -3297,12 +3758,15 @@
         });
         $("signOutBtn").addEventListener("click", function () {
           state.user = null;
+          state.joinCharge = null;
           if (state.payMethod === "cash") state.payMethod = "card";
           $("acctOut").hidden = false;
           $("acctIn").hidden = true;
           $("acctTitle").textContent = "Join the route";
           renderMenuAcct();
           renderCoPay();
+          renderCart();
+          if (state.view === "checkout") renderCheckout();
           toast("Signed out — see you next run");
         });
         $("reorderBtn").addEventListener("click", function () {
