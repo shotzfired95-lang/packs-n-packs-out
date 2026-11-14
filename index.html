@@ -637,6 +637,18 @@
       .mem-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
       .mem-toggle button { background: var(--surface); border: 0; font: inherit; font-weight: 700; font-size: 14px; padding: 10px 18px; cursor: pointer; color: var(--ink-soft); min-height: 44px; }
       .mem-toggle button[aria-pressed="true"] { background: var(--gold-grad); color: #2a1d08; }
+      .term-picker { display: flex; flex-wrap: wrap; gap: 8px; }
+      .term-opt { font-family: "Archivo", sans-serif; font-weight: 700; font-size: 13.5px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 9px 15px; cursor: pointer; min-height: 42px; display: inline-flex; align-items: center; gap: 7px; }
+      .term-opt[aria-pressed="true"] { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 10%, var(--surface)); box-shadow: inset 0 0 0 1px var(--gold); }
+      .term-opt .to-off { color: var(--gold); font-weight: 800; }
+      .term-opt .to-best { font-size: 10.5px; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; background: var(--gold-grad); color: #2a1d08; border-radius: 999px; padding: 2px 8px; }
+      .term-table { display: grid; gap: 4px; margin: 0 0 18px; }
+      .tt-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; font-size: 12.5px; padding: 7px 10px; border-radius: 8px; border: 1px solid transparent; }
+      .tt-row.sel { border-color: var(--gold-pale); background: color-mix(in srgb, var(--gold) 8%, var(--surface)); font-weight: 600; }
+      .tt-row .tt-off { color: var(--gold); font-weight: 700; }
+      .tt-row .tt-best { font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold); }
+      .tt-row .tt-nums { text-align: right; }
+      .tt-row .tt-save { color: var(--gold); font-weight: 800; }
       .mem-status { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
       .mem-pill { display: inline-block; font-family: "Archivo", sans-serif; font-size: 11.5px; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; border: 1px solid var(--gold); color: var(--gold); border-radius: 999px; padding: 3px 10px; margin-left: 8px; vertical-align: middle; }
     </style>
@@ -951,7 +963,7 @@
                 <div class="mem-card"><h3>Diamond</h3><div class="mc-price"><strong>$59.99</strong> <span class="mc-per">/month</span></div><ul><li><span class="ck">✓</span>15% off every order</li><li><span class="ck">✓</span>Free delivery &amp; free shipping</li><li><span class="ck">✓</span>First access to exclusive drops</li><li><span class="ck">✓</span>Priority pickup</li></ul></div>
               </div>
               <button class="btn btn-gold" type="button" data-nav="membership">See Membership Plans</button>
-              <p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 12px;">Yearly option on every tier — pay for 10 months, get 12. Cancel anytime.</p>
+              <p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 12px;">Pay ahead and save on the fee: 3 months takes 5% off, 6 months 10% off, 9 months 15% off, 12 months 20% off — charged up front for the term. Your tier’s percent off orders never changes.</p>
             </div>
           </section>
 
@@ -1323,15 +1335,12 @@
                 <div class="gold-rule"></div>
               </div>
               <div id="memViewStatus"></div>
-              <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 6px;">
-                <span class="mem-toggle" role="group" aria-label="Billing period">
-                  <button type="button" id="memPerMonthly" aria-pressed="true">Monthly</button>
-                  <button type="button" id="memPerYearly" aria-pressed="false">Yearly — pay 10, get 12</button>
-                </span>
-                <span style="font-size: 13.5px; color: var(--ink-soft);">Cancel anytime — cancelling stops renewal and your discount runs to the end of the paid period.</span>
+              <div style="margin-bottom: 6px;">
+                <div class="term-picker" id="memTermPicker" role="group" aria-label="Membership term"></div>
+                <p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;">Pick a term — the longer the term, the bigger the cut off the membership fee, charged once up front for the whole term. The term discount is on the fee only: your tier’s percent off your orders is the same on every term. Cancelling stops renewal; benefits run to the end of the paid term and fees aren’t refunded mid-term.</p>
               </div>
               <div class="mem-grid" id="memGrid"></div>
-              <p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 18px;">Membership fees are billed as their own line. Perks waive delivery and shipping fees only — order minimums still apply. Joining at checkout applies your discount to that order instantly; that instant-join discount is a once-per-12-months deal per account and payment method.</p>
+              <p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 18px;">Membership fees are billed as their own line, charged up front for the term you pick. Perks waive delivery and shipping fees only — order minimums still apply. Joining at checkout applies your discount to that order instantly; that instant-join discount is a once-per-12-months deal per account and payment method. No mid-term refunds — cancelling stops the next renewal and your benefits run to the end of the term you paid for.</p>
             </div>
           </section>
         </div>
@@ -1546,7 +1555,7 @@
           shipInfo: null, shipDraft: { street: "", apt: "", city: "", state: "", zip: "" },
           payMethod: "card", pendingCode: null,
           tipChoice: "5", tipCustom: "", ticketSeq: 0, currentOrderNum: null,
-          memberships: {}, joinCharge: null, memPeriod: "monthly", instantPayKeys: {}
+          memberships: {}, joinCharge: null, memTerm: 1, coTerm: 1, instantPayKeys: {}
         };
         function $(id) { return document.getElementById(id); }
         function money(n) { return "$" + n.toFixed(2); }
@@ -1891,7 +1900,24 @@
         ];
         var MEM_INSTANT_WINDOW = 365 * 24 * 60 * 60 * 1000;
         function tierById(id) { for (var i = 0; i < MEMBERSHIP_TIERS.length; i++) if (MEMBERSHIP_TIERS[i].id === id) return MEMBERSHIP_TIERS[i]; return null; }
-        function tierPrice(tier, period) { return period === "yearly" ? Math.round(tier.price * 10 * 100) / 100 : tier.price; }
+        /* Term ladder: the discount is on the membership FEE only, charged up
+           front for the whole term. It never changes the tier's order
+           discount percent. Monthly = full price; 3 mo −5%, 6 mo −10%,
+           9 mo −15%, 12 mo −20% (best deal). */
+        var MEM_TERMS = [
+          { months: 1, off: 0 },
+          { months: 3, off: 0.05 },
+          { months: 6, off: 0.10 },
+          { months: 9, off: 0.15 },
+          { months: 12, off: 0.20 }
+        ];
+        function termByMonths(m) { for (var i = 0; i < MEM_TERMS.length; i++) if (MEM_TERMS[i].months === m) return MEM_TERMS[i]; return MEM_TERMS[0]; }
+        function termTotal(tier, months) { var t = termByMonths(months || 1); return Math.round(tier.price * t.months * (1 - t.off) * 100) / 100; }
+        function termPerMonth(tier, months) { var t = termByMonths(months || 1); return Math.round(termTotal(tier, t.months) / t.months * 100) / 100; }
+        function termSave(tier, months) { var t = termByMonths(months || 1); return Math.round((tier.price * t.months - termTotal(tier, t.months)) * 100) / 100; }
+        function termName(months) { return (months || 1) === 1 ? "Monthly" : (months || 1) + "-month term"; }
+        function termFeeLabel(months) { return (months || 1) === 1 ? "first month" : (months || 1) + "-month term, paid up front"; }
+        function recTermMonths(r) { return r && r.termMonths ? r.termMonths : (r && r.period === "yearly" ? 12 : 1); }
         function memberRecord() {
           if (!state.user || !state.user.email) return null;
           return state.memberships[String(state.user.email).trim().toLowerCase()] || null;
@@ -1961,7 +1987,7 @@
           t.tierPct = tier ? Math.round(tier.pct * 100) : 0;
           t.memFee = state.joinCharge && state.user && state.joinCharge.email === String(state.user.email).trim().toLowerCase() ? state.joinCharge.price : 0;
           t.memFeeTier = t.memFee > 0 ? (tierById(state.joinCharge.tierId) || {}).name || "" : "";
-          t.memFeePeriod = t.memFee > 0 ? state.joinCharge.period : "monthly";
+          t.memFeeTerm = t.memFee > 0 ? (state.joinCharge.termMonths || 1) : 1;
           t.total += t.memFee;
           return t;
         }
@@ -2023,7 +2049,7 @@
           if (state.fulfillment === "shipping") {
             html += '<div class="trow"><span>Shipping</span><span>' + (t.fee > 0 ? money(t.fee) : (t.feeWaived ? "FREE — member perk" : "FREE")) + "</span></div>";
           }
-          if (t.memFee > 0) html += '<div class="trow"><span>' + esc(t.memFeeTier) + " membership — first " + (t.memFeePeriod === "yearly" ? "year" : "month") + '</span><span>' + money(t.memFee) + "</span></div>";
+          if (t.memFee > 0) html += '<div class="trow"><span>' + esc(t.memFeeTier) + " membership — " + termFeeLabel(t.memFeeTerm) + '</span><span>' + money(t.memFee) + "</span></div>";
           var totalLabels = {
             card: "Total — pay online by card",
             applepay: "Total — pay with Apple Pay",
@@ -2729,7 +2755,7 @@
           if (!b) return '<div class="trow total" style="margin-top: 10px;"><span>Total</span><span>' + money(o.total) + "</span></div>";
           var html = '<div class="trow"><span>Subtotal</span><span>' + money(b.sub) + "</span></div>";
           if (b.disc > 0) html += '<div class="trow"><span>' + esc(b.memTier || "Member") + ' membership savings</span><span class="neg">−' + money(b.disc) + "</span></div>";
-          if (b.memFee > 0) html += '<div class="trow"><span>' + esc(b.memFeeTier || "Membership") + " membership — first " + (b.memFeePeriod === "yearly" ? "year" : "month") + '</span><span>' + money(b.memFee) + "</span></div>";
+          if (b.memFee > 0) html += '<div class="trow"><span>' + esc(b.memFeeTier || "Membership") + " membership — " + termFeeLabel(b.memFeeTerm || (b.memFeePeriod === "yearly" ? 12 : 1)) + '</span><span>' + money(b.memFee) + "</span></div>";
           if (o.fulfillment && o.fulfillment.method === "delivery") html += '<div class="trow"><span>Delivery fee</span><span>' + (b.fee > 0 ? money(b.fee) : "FREE") + "</span></div>";
           if (o.fulfillment && o.fulfillment.method === "shipping") html += '<div class="trow"><span>Shipping</span><span>' + (b.fee > 0 ? money(b.fee) : "FREE") + "</span></div>";
           html += '<div class="trow"><span>Estimated tax</span><span>' + money(b.tax) + "</span></div>";
@@ -3150,7 +3176,8 @@
           }
           var email = String(state.user.email).trim().toLowerCase();
           var blocked = instantJoinBlocked();
-          state.joinCharge = { tierId: tier.id, period: "monthly", price: tier.price, email: email, deferred: blocked };
+          var months = state.coTerm || 1;
+          state.joinCharge = { tierId: tier.id, termMonths: months, price: termTotal(tier, months), email: email, deferred: blocked };
           refreshCheckoutMoney();
           toast(blocked
             ? tier.name + " membership added — it starts today, and the discount applies from your next order"
@@ -3166,12 +3193,17 @@
           /* Already a member (or joining with this order): proof, not pitch */
           if (state.joinCharge && state.user && state.joinCharge.email === String(state.user.email).trim().toLowerCase()) {
             var jt = tierById(state.joinCharge.tierId);
+            var jm = state.joinCharge.termMonths || 1;
+            var jFeeTxt = jm === 1
+              ? money(state.joinCharge.price) + "/month"
+              : money(state.joinCharge.price) + " for the " + jm + "-month term, paid up front (" + money(termPerMonth(jt, jm)) + "/mo" + (termSave(jt, jm) > 0 ? " — you save " + money(termSave(jt, jm)) + " vs paying monthly" : "") + ")";
+            var jTermTxt = " Your term runs from today — cancelling stops renewal, benefits run to the end of the paid term, and fees aren’t refunded mid-term.";
             if (state.joinCharge.deferred) {
-              box.innerHTML = '<div class="mem-panel"><div class="mem-proof"><strong>' + esc(jt.name) + " membership added to this order</strong> — " + money(state.joinCharge.price) + "/month, billed as its own line above. The instant-join discount is a once-per-12-months deal, so your member discount starts with your <strong>next</strong> order. Cancel anytime.</div>" +
+              box.innerHTML = '<div class="mem-panel"><div class="mem-proof"><strong>' + esc(jt.name) + " membership added to this order</strong> — " + jFeeTxt + ", billed as its own line above. The instant-join discount is a once-per-12-months deal, so your member discount starts with your <strong>next</strong> order." + jTermTxt + "</div>" +
                 '<button class="btn btn-outline mem-join-btn" type="button" id="coMemRemove" style="margin-top: 10px;">Remove membership</button></div>';
             } else {
               var savedJ = memberSavingsNow();
-              box.innerHTML = '<div class="mem-panel"><div class="mem-proof"><strong>' + esc(jt.name) + " membership is on this order</strong>" + (savedJ > 0 ? " — you saved <strong>" + money(savedJ) + "</strong>" : " — your member perks apply") + (state.fulfillment === "delivery" && jt.freeDelivery ? ", delivery fee waived" : "") + (state.fulfillment === "shipping" && jt.freeShipping ? ", shipping waived" : "") + ". The " + money(state.joinCharge.price) + "/month membership is its own line in your total. Billed monthly · Cancel anytime.</div>" +
+              box.innerHTML = '<div class="mem-panel"><div class="mem-proof"><strong>' + esc(jt.name) + " membership is on this order</strong>" + (savedJ > 0 ? " — you saved <strong>" + money(savedJ) + "</strong>" : " — your member perks apply") + (state.fulfillment === "delivery" && jt.freeDelivery ? ", delivery fee waived" : "") + (state.fulfillment === "shipping" && jt.freeShipping ? ", shipping waived" : "") + ". The membership (" + jFeeTxt + ") is its own line in your total." + jTermTxt + "</div>" +
                 '<button class="btn btn-outline mem-join-btn" type="button" id="coMemRemove" style="margin-top: 10px;">Remove membership</button></div>';
             }
             $("coMemRemove").addEventListener("click", function () { state.joinCharge = null; refreshCheckoutMoney(); toast("Membership removed from this order"); });
@@ -3186,43 +3218,56 @@
                 ? "Your <strong>" + esc(mt.name) + " membership</strong> saved you <strong>" + money(saved) + "</strong> on this order."
                 : "Your <strong>" + esc(mt.name) + " membership</strong> is active on this order.";
             box.innerHTML = '<div class="mem-panel"><div class="mem-proof">' + proof + '</div>' +
-              '<p class="mem-terms">' + esc(mt.name) + " · " + money(tierPrice(mt, mem.period)) + (mem.period === "yearly" ? "/year" : "/month") + (mem.cancelAtPeriodEnd ? " · Cancels " + esc(mem.periodEnd || "") + " — discount runs to then" : " · Renews " + esc(mem.periodEnd || "")) + ' · <button type="button" id="coMemAcct" style="background:none;border:0;padding:0;font:inherit;font-weight:700;color:var(--gold);text-decoration:underline;text-underline-offset:3px;cursor:pointer;">Manage in My Account</button></p></div>';
+              '<p class="mem-terms">' + esc(mt.name) + " · " + termName(recTermMonths(mem)) + " · " + money(termTotal(mt, recTermMonths(mem))) + (recTermMonths(mem) === 1 ? "/month" : " paid up front (" + money(termPerMonth(mt, recTermMonths(mem))) + "/mo)") + (mem.cancelAtPeriodEnd ? " · Cancels " + esc(mem.periodEnd || "") + " — benefits run to the end of the paid term" : " · Renews " + esc(mem.periodEnd || "") + " at term end") + ' · <button type="button" id="coMemAcct" style="background:none;border:0;padding:0;font:inherit;font-weight:700;color:var(--gold);text-decoration:underline;text-underline-offset:3px;cursor:pointer;">Manage in My Account</button></p></div>';
             $("coMemAcct").addEventListener("click", function () { showView("account"); });
             return;
           }
           /* The upsell: real math on this cart, per tier — each tier's own
-             percent × the product subtotal (plus any fee it waives). */
+             percent × the product subtotal (plus any fee it waives), with a
+             term picker: longer terms cut the membership fee (fee only —
+             the tier's order percent never changes). */
+          var coMonths = state.coTerm || 1;
           var rows = MEMBERSHIP_TIERS.map(function (tier) {
             var savings = tierPreviewSavings(sub, tier);
             var previewTotal = tierPreviewTotal(sub, tier);
             var perks = [];
             if (state.fulfillment === "delivery" && tier.freeDelivery) perks.push("free delivery");
             if (state.fulfillment === "shipping" && tier.freeShipping) perks.push("free shipping");
-            var pays = savings > tier.price;
-            return { tier: tier, tt: { total: previewTotal }, savings: savings, perks: perks, pays: pays };
+            var fee = termTotal(tier, coMonths);
+            var pays = savings > fee;
+            return { tier: tier, tt: { total: previewTotal }, savings: savings, perks: perks, pays: pays, fee: fee };
           });
           var bestRow = rows.reduce(function (a, b) { return b.savings > a.savings ? b : a; }, rows[0]);
+          var picker = '<div class="term-picker" role="group" aria-label="Membership term" style="margin-bottom: 12px;">' + MEM_TERMS.map(function (tm) {
+            return '<button type="button" class="term-opt" data-co-term="' + tm.months + '" aria-pressed="' + (tm.months === coMonths ? "true" : "false") + '">' + (tm.months === 1 ? "Monthly" : tm.months + " months") + (tm.off > 0 ? ' <span class="to-off">−' + Math.round(tm.off * 100) + "%</span>" : "") + (tm.months === 12 ? ' <span class="to-best">Best deal</span>' : "") + "</button>";
+          }).join("") + "</div>";
           var html = '<div class="mem-panel"><h4>Members save more</h4>' +
-            '<p class="mem-sub">Your total today is <strong>' + money(base.total) + "</strong>. Tap a tier to join and apply its discount to <strong>this</strong> order instantly.</p>";
+            '<p class="mem-sub">Your total today is <strong>' + money(base.total) + "</strong>. Pick a term, tap a tier to join, and its discount applies to <strong>this</strong> order instantly. Longer terms cost less per month — the term discount is on the membership fee only; your tier’s percent off orders never changes.</p>" + picker;
           rows.forEach(function (r) {
+            var feeLine = coMonths === 1
+              ? money(r.tier.price) + "/mo"
+              : money(r.fee) + " for " + coMonths + " months · " + money(termPerMonth(r.tier, coMonths)) + "/mo · You save " + money(termSave(r.tier, coMonths)) + " vs monthly";
             html += '<div class="mem-tier-row' + (r === bestRow && r.savings > 0 ? " best" : "") + '">' +
-              '<div><div class="mt-name">' + esc(r.tier.name) + '</div><div class="mt-price">' + money(r.tier.price) + "/mo · " + Math.round(r.tier.pct * 100) + "% off" + (r.perks.length ? " + " + r.perks.join(" + ") : "") + "</div>" +
-              (r.pays ? '<div class="mem-pays">' + esc(r.tier.name) + " pays for itself on this order — save " + money(r.savings) + ", membership is " + money(r.tier.price) + "</div>" : "") +
+              '<div><div class="mt-name">' + esc(r.tier.name) + '</div><div class="mt-price">' + feeLine + " · " + Math.round(r.tier.pct * 100) + "% off orders" + (r.perks.length ? " + " + r.perks.join(" + ") : "") + "</div>" +
+              (r.pays ? '<div class="mem-pays">' + esc(r.tier.name) + " pays for itself on this order — save " + money(r.savings) + ", membership is " + money(r.fee) + "</div>" : "") +
               "</div>" +
               '<div class="mt-math"><div><span class="mt-was">' + money(base.total) + "</span><strong>" + money(r.tt.total) + '</strong></div><div class="mt-save">Save ' + money(Math.max(0, r.savings)) + "</div></div>" +
               '<button class="btn btn-gold mem-join-btn" type="button" data-join-tier="' + r.tier.id + '">Join ' + esc(r.tier.name) + "</button></div>";
           });
-          html += '<p class="mem-terms">Billed monthly as its own line · Cancel anytime · One membership per account, tied to your account email — orders must be placed from your account for the discount to apply · Discount is your tier’s percent off your cart total, on the product subtotal only — the only discount in the store, never stacks with other offers · Order minimums still apply.</p></div>';
+          html += '<p class="mem-terms">Membership fee is charged up front for the whole term as its own line · Cancelling stops renewal — benefits run to the end of the paid term, and fees aren’t refunded mid-term · One membership per account, tied to your account email — orders must be placed from your account for the discount to apply · Discount is your tier’s percent off your cart total, on the product subtotal only — the only discount in the store, never stacks with other offers · Order minimums still apply.</p></div>';
           box.innerHTML = html;
+          box.querySelectorAll("[data-co-term]").forEach(function (b) {
+            b.addEventListener("click", function () { state.coTerm = parseInt(b.getAttribute("data-co-term"), 10) || 1; renderCoMember(); });
+          });
           box.querySelectorAll("[data-join-tier]").forEach(function (b) {
             b.addEventListener("click", function () { joinAtCheckout(tierById(b.getAttribute("data-join-tier"))); });
           });
         }
         /* ================= Membership page & account ================= */
         function fmtDate(d) { return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }); }
-        function periodEndDate(period, from) {
+        function periodEndDate(months, from) {
           var d = new Date(from || Date.now());
-          d.setMonth(d.getMonth() + (period === "yearly" ? 12 : 1));
+          d.setMonth(d.getMonth() + (months || 1));
           return d;
         }
         function joinFromPage(tier) {
@@ -3235,8 +3280,8 @@
           var prev = state.memberships[email] || null;
           var deferred = !!(prev && prev.instantUsedAt && Date.now() - prev.instantUsedAt < MEM_INSTANT_WINDOW && prev.status === "cancelled");
           state.memberships[email] = {
-            tierId: tier.id, period: state.memPeriod, status: "active",
-            since: fmtDate(new Date()), periodEnd: fmtDate(periodEndDate(state.memPeriod)),
+            tierId: tier.id, termMonths: state.memTerm || 1, status: "active",
+            since: fmtDate(new Date()), periodEnd: fmtDate(periodEndDate(state.memTerm || 1)),
             instantUsedAt: prev ? prev.instantUsedAt : null,
             discountDeferred: deferred, cancelAtPeriodEnd: false
           };
@@ -3248,8 +3293,16 @@
         function renderMembershipView() {
           var grid = $("memGrid");
           if (!grid) return;
-          $("memPerMonthly").setAttribute("aria-pressed", state.memPeriod === "monthly" ? "true" : "false");
-          $("memPerYearly").setAttribute("aria-pressed", state.memPeriod === "yearly" ? "true" : "false");
+          var months = state.memTerm || 1;
+          var picker = $("memTermPicker");
+          if (picker) {
+            picker.innerHTML = MEM_TERMS.map(function (tm) {
+              return '<button type="button" class="term-opt" data-mem-term="' + tm.months + '" aria-pressed="' + (tm.months === months ? "true" : "false") + '">' + (tm.months === 1 ? "Monthly" : tm.months + " months") + (tm.off > 0 ? ' <span class="to-off">−' + Math.round(tm.off * 100) + "%</span>" : "") + (tm.months === 12 ? ' <span class="to-best">Best deal</span>' : "") + "</button>";
+            }).join("");
+            picker.querySelectorAll("[data-mem-term]").forEach(function (b) {
+              b.addEventListener("click", function () { state.memTerm = parseInt(b.getAttribute("data-mem-term"), 10) || 1; renderMembershipView(); });
+            });
+          }
           var mem = activeMembership();
           var st = $("memViewStatus");
           if (!state.user) {
@@ -3257,7 +3310,7 @@
             $("memGoAcct").addEventListener("click", function () { showView("account"); setAcctTab("create"); });
           } else if (mem) {
             var mt = tierById(mem.tierId);
-            st.innerHTML = '<div class="mem-proof" style="margin-bottom: 16px;">You’re a <strong>' + esc(mt.name) + " member</strong> — " + Math.round(mt.pct * 100) + "% off applies automatically at checkout." + (mem.discountDeferred ? " Your discount starts with your next order." : "") + (mem.cancelAtPeriodEnd ? " Your membership cancels " + esc(mem.periodEnd || "") + " and the discount runs until then." : "") + "</div>";
+            st.innerHTML = '<div class="mem-proof" style="margin-bottom: 16px;">You’re a <strong>' + esc(mt.name) + " member</strong> — " + Math.round(mt.pct * 100) + "% off applies automatically at checkout. Term: <strong>" + esc(termName(recTermMonths(mem))) + "</strong>." + (mem.discountDeferred ? " Your discount starts with your next order." : "") + (mem.cancelAtPeriodEnd ? " You cancelled renewal — your benefits run to " + esc(mem.periodEnd || "") + ", the end of your paid term. Fees aren’t refunded mid-term." : " Renews " + esc(mem.periodEnd || "") + " at the end of your term.") + "</div>";
           } else {
             st.innerHTML = "";
           }
@@ -3265,25 +3318,28 @@
           MEMBERSHIP_TIERS.forEach(function (tier) {
             var card = document.createElement("div");
             card.className = "mem-card" + (tier.flag ? " hot" : "");
-            var price = tierPrice(tier, state.memPeriod);
+            var total = termTotal(tier, months);
             var isCurrent = !!(mem && mem.tierId === tier.id);
+            var ttRows = MEM_TERMS.map(function (tm) {
+              var sv = termSave(tier, tm.months);
+              return '<div class="tt-row' + (tm.months === months ? " sel" : "") + '"><span>' + (tm.months === 1 ? "Monthly" : tm.months + " months") + (tm.off > 0 ? ' <span class="tt-off">−' + Math.round(tm.off * 100) + "% fee</span>" : "") + (tm.months === 12 ? ' <span class="tt-best">Best deal</span>' : "") + '</span><span class="tt-nums">' + money(termTotal(tier, tm.months)) + " total · " + money(termPerMonth(tier, tm.months)) + "/mo" + (sv > 0 ? ' · <span class="tt-save">You save ' + money(sv) + "</span>" : "") + "</span></div>";
+            }).join("");
             card.innerHTML =
               (tier.flag ? '<span class="mc-flag">' + esc(tier.flag) + "</span>" : "") +
               "<h3>" + esc(tier.name) + "</h3>" +
-              '<div class="mc-price"><strong>' + money(price) + '</strong> <span class="mc-per">/' + (state.memPeriod === "yearly" ? "year" : "month") + "</span></div>" +
-              (state.memPeriod === "yearly" ? '<div class="mc-per">Pay for 10 months, get 12 — two months on us.</div>' : '<div class="mc-per">Or go yearly: ' + money(tierPrice(tier, "yearly")) + "/yr — pay for 10, get 12.</div>") +
+              '<div class="mc-price"><strong>' + money(total) + '</strong> <span class="mc-per">' + (months === 1 ? "/month" : "for " + months + " months — paid up front") + "</span></div>" +
+              '<div class="mc-per">' + (months === 1 ? "Billed monthly. Pick a longer term above to cut the fee." : "Works out to " + money(termPerMonth(tier, months)) + "/month — you save " + money(termSave(tier, months)) + " vs paying monthly.") + " Your " + Math.round(tier.pct * 100) + "% off orders is the same on every term.</div>" +
               "<ul>" + tier.perks.map(function (p) { return '<li><span class="ck">✓</span>' + esc(p) + "</li>"; }).join("") + "</ul>" +
+              '<div class="term-table" aria-label="Term prices for ' + esc(tier.name) + '">' + ttRows + "</div>" +
               (isCurrent
                 ? '<button class="btn btn-outline" type="button" disabled aria-disabled="true">Current plan</button>'
-                : '<button class="btn btn-gold" type="button" data-join-page="' + tier.id + '">' + (mem ? "Switch to " : "Join ") + esc(tier.name) + "</button>");
+                : '<button class="btn btn-gold" type="button" data-join-page="' + tier.id + '">' + (mem ? "Switch to " : "Join ") + esc(tier.name) + (months === 1 ? "" : " — " + months + " mo") + "</button>");
             grid.appendChild(card);
           });
           grid.querySelectorAll("[data-join-page]").forEach(function (b) {
             b.addEventListener("click", function () { joinFromPage(tierById(b.getAttribute("data-join-page"))); });
           });
         }
-        $("memPerMonthly").addEventListener("click", function () { state.memPeriod = "monthly"; renderMembershipView(); });
-        $("memPerYearly").addEventListener("click", function () { state.memPeriod = "yearly"; renderMembershipView(); });
         function renderAcctMembership() {
           var body = $("acctMemberBody");
           if (!body) return;
@@ -3295,14 +3351,15 @@
             return;
           }
           var tier = tierById(r.tierId);
-          var price = tierPrice(tier, r.period);
+          var rm = recTermMonths(r);
+          var price = termTotal(tier, rm);
           body.innerHTML =
             '<div class="mem-status"><div>' +
             '<span style="font-family: \'Archivo\', sans-serif; font-weight: 900; font-size: 19px;">' + esc(tier.name) + '</span><span class="mem-pill">' + (r.cancelAtPeriodEnd ? "Cancels " + esc(r.periodEnd || "") : "Active") + "</span>" +
-            '<p style="font-size: 14px; color: var(--ink-soft); margin-top: 6px;">' + money(price) + (r.period === "yearly" ? "/year" : "/month") + " · Member since " + esc(r.since || "") + "<br>" +
+            '<p style="font-size: 14px; color: var(--ink-soft); margin-top: 6px;">' + esc(termName(rm)) + " · " + money(price) + (rm === 1 ? "/month" : " paid up front (" + money(termPerMonth(tier, rm)) + "/mo" + (termSave(tier, rm) > 0 ? " — saved " + money(termSave(tier, rm)) + " vs paying monthly" : "") + ")") + " · Member since " + esc(r.since || "") + "<br>" +
             Math.round(tier.pct * 100) + "% off the product subtotal at checkout" + (tier.freeDelivery ? " · Free delivery" : "") + (tier.freeShipping ? " · Free shipping" : "") +
             (r.discountDeferred ? "<br>Your discount applies from your next order." : "") +
-            (r.cancelAtPeriodEnd ? "<br>Cancelling stops renewal — your discount runs to " + esc(r.periodEnd || "") + ", the end of the paid period." : "<br>Renews " + esc(r.periodEnd || "") + " · Cancel anytime.") +
+            (r.cancelAtPeriodEnd ? "<br>You cancelled renewal — your benefits run to " + esc(r.periodEnd || "") + ", the end of your paid term. Membership fees aren’t refunded mid-term." : "<br>Renews " + esc(r.periodEnd || "") + " at the end of your term · Cancel anytime — cancelling stops renewal, benefits run to the end of the paid term, and fees aren’t refunded mid-term.") +
             "</p></div>" +
             '<div style="display: flex; gap: 10px; flex-wrap: wrap;">' +
             '<button class="btn btn-outline" type="button" id="acctMemChange">Change Tier</button>' +
@@ -3426,8 +3483,8 @@
             fulfillment: ful, payment: payment,
             items: cartEntries().map(function (e) { return { id: e.product.id, name: e.product.name, size: e.size.l, qty: e.qty, price: e.size.p }; }),
             total: t.total,
-            breakdown: { sub: t.sub, disc: t.disc, discKind: t.discKind || null, memTier: t.discKind === "member" ? t.tierName : "", memFee: t.memFee || 0, memFeeTier: t.memFeeTier || "", memFeePeriod: t.memFeePeriod || "monthly", fee: t.fee, tax: t.tax, tip: t.tip || 0 },
-            memberNote: jc ? ((tierById(jc.tierId) || {}).name || "") + " membership started with this order — " + (jc.deferred ? "your member discount applies from your next order." : "your member discount was applied to this order.") + " Billed monthly as its own line · Cancel anytime in My Account." : "",
+            breakdown: { sub: t.sub, disc: t.disc, discKind: t.discKind || null, memTier: t.discKind === "member" ? t.tierName : "", memFee: t.memFee || 0, memFeeTier: t.memFeeTier || "", memFeeTerm: t.memFeeTerm || 1, fee: t.fee, tax: t.tax, tip: t.tip || 0 },
+            memberNote: jc ? ((tierById(jc.tierId) || {}).name || "") + " membership started with this order — " + (jc.deferred ? "your member discount applies from your next order." : "your member discount was applied to this order.") + ((jc.termMonths || 1) > 1 ? " " + (jc.termMonths || 1) + "-month term — " + money(jc.price) + " charged up front (" + money(termPerMonth(tierById(jc.tierId), jc.termMonths || 1)) + "/mo; you save " + money(termSave(tierById(jc.tierId), jc.termMonths || 1)) + " vs paying monthly). Cancelling stops renewal — benefits run to the end of the paid term and fees aren’t refunded mid-term." : " Billed monthly as its own line · Cancel anytime in My Account.") : "",
             tip: t.tip || 0, tipLabel: state.fulfillment === "delivery" ? tipLabelFor(state.tipChoice, state.tipCustom, t.tip || 0) : "Driver tip",
             statusStage: payment.pending ? "payment_pending" : "placed",
             placedAt: Date.now(), stageAt: Date.now(),
@@ -3438,8 +3495,8 @@
           if (jc) {
             var prevRec = state.memberships[jc.email] || null;
             state.memberships[jc.email] = {
-              tierId: jc.tierId, period: jc.period, status: "active",
-              since: fmtDate(new Date()), periodEnd: fmtDate(periodEndDate(jc.period)),
+              tierId: jc.tierId, termMonths: jc.termMonths || 1, status: "active",
+              since: fmtDate(new Date()), periodEnd: fmtDate(periodEndDate(jc.termMonths || 1)),
               instantUsedAt: jc.deferred ? (prevRec ? prevRec.instantUsedAt : null) : Date.now(),
               discountDeferred: false, cancelAtPeriodEnd: false
             };
