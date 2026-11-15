@@ -1510,6 +1510,11 @@
                   <div class="benefit"><h3>Account perks</h3><p>Member pricing drops and early word on new releases.</p></div>
                   <div class="benefit"><h3>First in line</h3><p>Limited lots are announced to accounts before they hit the shelf.</p></div>
                 </div>
+                <div class="panel" style="margin-top: 18px;" id="guestOrdersPanel" hidden>
+                  <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Your orders — live tracking</h3>
+                  <p style="font-size: 13.5px; color: var(--ink-soft); margin-bottom: 6px;">Every order’s tracker lives here — come back any time to see where it stands. Your tracker updates on its own as our team works your order, step by step.</p>
+                  <div id="guestOrderHistory"></div>
+                </div>
                 <div class="tabs" role="group" aria-label="Account options">
                   <button type="button" id="tabCreate" aria-pressed="true">Create Account</button>
                   <button type="button" id="tabLogin" aria-pressed="false">Log In</button>
@@ -6391,19 +6396,37 @@
         }
         function renderHistory() {
           var box = $("orderHistory");
-          if (!box) return;
+          var gPanel = $("guestOrdersPanel");
+          var gBox = $("guestOrderHistory");
+          if (!box && !gBox) return;
           refreshTicketOrderOptions();
+          /* The on-device history belongs to whoever holds the device:
+             guests get the same live tracker cards in their own panel,
+             so an order placed without an account is never stranded.
+             The guest panel only appears once an order exists — a
+             guest with no saved orders keeps the plain sign-up view. */
+          if (gPanel) gPanel.hidden = !state.history.length;
           if (!state.history.length) {
-            box.innerHTML = "<p style='color: var(--ink-soft); font-size: 15px;'>No orders on this device yet — place an order and its live tracker will live right here, waiting for you whenever you come back.</p>";
+            if (box) box.innerHTML = "<p style='color: var(--ink-soft); font-size: 15px;'>No orders on this device yet — place an order and its live tracker will live right here, waiting for you whenever you come back.</p>";
+            if (gBox) gBox.innerHTML = "";
             var rn = $("reorderNote"); if (rn) rn.textContent = "Place your first order and fast reorder switches on.";
             return;
           }
-          box.innerHTML = "";
+          if (box) box.innerHTML = "";
+          if (gBox) gBox.innerHTML = "";
           state.history.forEach(function (o) {
             if (!o.statusStage) o.statusStage = o.payment && o.payment.pending ? "payment_pending" : "placed";
             if (!o.stageAt) o.stageAt = Date.now();
             if (!o.placedAt) o.placedAt = o.stageAt;
             syncServerOrder(o);
+            [box, gBox].forEach(function (target) {
+              if (target) target.appendChild(buildHistoryCard(o));
+            });
+          });
+          var rn2 = $("reorderNote"); if (rn2) rn2.textContent = "";
+          tickTrackers();
+        }
+        function buildHistoryCard(o) {
             var d = document.createElement("div");
             d.className = "order-card";
             var itemsHtml = o.items.map(function (i) { var skuH = i.sku || (prodById(i.id) || {}).sku || ""; return "<div class='sum-line'><span class='sl-n'>" + esc(i.name) + "<small>" + esc(i.size) + " × " + i.qty + (skuH ? " · Item #" + esc(skuH) : "") + "</small></span><span>" + money(i.price * i.qty) + "</span></div>"; }).join("");
@@ -6430,10 +6453,7 @@
               var subj = document.querySelector('#ticketForm input[name="subject"]'); if (subj) subj.focus();
               toast("Ticket form set to order " + o.num);
             });
-            box.appendChild(d);
-          });
-          var rn2 = $("reorderNote"); if (rn2) rn2.textContent = "";
-          tickTrackers();
+            return d;
         }
         $("createForm").addEventListener("submit", function (ev) {
           ev.preventDefault();
@@ -6594,6 +6614,7 @@
           $("acctOut").hidden = false;
           $("acctIn").hidden = true;
           $("acctTitle").textContent = "Join the route";
+          renderHistory();
           renderMenuAcct();
           renderAcctIdentity();
           renderCreditCard();
