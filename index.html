@@ -765,6 +765,10 @@
       .mem-card ul { list-style: none; margin: 16px 0 20px; padding: 0; display: grid; gap: 9px; font-size: 14.5px; }
       .mem-card ul .ck { color: var(--gold); font-weight: 900; margin-right: 8px; }
       .mem-card .btn { margin-top: auto; width: 100%; }
+      .mem-card.diamond { border: 1.5px solid var(--gold); background: linear-gradient(180deg, color-mix(in srgb, var(--gold) 8%, var(--surface)), var(--surface) 58%); box-shadow: 0 18px 38px rgba(150, 105, 15, 0.24); }
+      .d-only { display: inline-block; font-family: "Archivo", sans-serif; font-size: 9.5px; font-weight: 800; letter-spacing: 0.08em; color: #2a1d08; background: var(--gold-grad); border-radius: 999px; padding: 2px 7px; margin-left: 7px; vertical-align: 2px; white-space: nowrap; }
+      .mt-perks { list-style: none; margin: 9px 0 0; padding: 0; display: grid; gap: 4px; font-size: 12.5px; color: var(--ink-soft); }
+      .mt-perks .ck { color: var(--gold); font-weight: 900; margin-right: 6px; }
       .mem-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
       .mem-toggle button { background: var(--surface); border: 0; font: inherit; font-weight: 700; font-size: 14px; padding: 10px 18px; cursor: pointer; color: var(--ink-soft); min-height: 44px; }
       .mem-toggle button[aria-pressed="true"] { background: var(--gold-grad); color: #2a1d08; }
@@ -829,6 +833,59 @@
       .top-name { font-family: "Archivo", sans-serif; font-weight: 800; font-size: 17px; color: #fff; flex: 1; min-width: 0; }
       .top-spend { font-family: "Archivo", sans-serif; font-weight: 900; font-size: 17px; color: var(--gold-pale); white-space: nowrap; }
       .top-empty { color: #c9bda6; font-size: 15px; padding: 6px; }
+
+      /* ---------- Tier emblems (drawn icon family) ---------- */
+      .tier-emblem { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid var(--gold-bright); flex: none; vertical-align: middle; }
+      .tier-emblem svg { width: 74%; height: 74%; display: block; }
+      .tier-emblem.te-silver { background: radial-gradient(circle at 35% 30%, #ffffff, #edf1f4 58%, #d9dfe6); box-shadow: 0 0 16px rgba(158, 172, 186, 0.55), inset 0 0 0 2px rgba(255, 255, 255, 0.65); }
+      .tier-emblem.te-gold { background: radial-gradient(circle at 35% 30%, #fdf3d3, #f3df9f 58%, #e6c56a); box-shadow: 0 0 16px rgba(217, 168, 60, 0.55), inset 0 0 0 2px rgba(255, 255, 255, 0.5); }
+      .tier-emblem.te-platinum { background: radial-gradient(circle at 35% 30%, #ffffff, #f4f8fb 55%, #dde6ee); box-shadow: 0 0 18px rgba(214, 228, 238, 0.9), inset 0 0 0 2px rgba(255, 255, 255, 0.8); }
+      .tier-emblem.te-diamond { background: radial-gradient(circle at 35% 30%, #ffffff, #e8f8fd 58%, #cdeefb); box-shadow: 0 0 16px rgba(127, 199, 227, 0.6), inset 0 0 0 2px rgba(255, 255, 255, 0.7); }
+      .tier-emblem.te-lg { width: 84px; height: 84px; }
+      .tier-emblem.te-md { width: 52px; height: 52px; }
+      .tier-emblem.te-sm { width: 30px; height: 30px; border-width: 1.5px; }
+      .tier-emblem.te-xs { width: 22px; height: 22px; border-width: 1.5px; }
+      .tier-emblem.te-glyph { width: 15px; height: 15px; border: 0; background: none; box-shadow: none; vertical-align: -2px; }
+      .tier-emblem.te-glyph svg { width: 100%; height: 100%; }
+      .d-only .tier-emblem { margin-right: 4px; }
+      .mc-emblem { display: flex; justify-content: center; margin: 2px 0 14px; }
+      .cred-tier-name { display: inline-flex; align-items: center; gap: 8px; }
+      .mem-tier-row .mt-name { display: flex; align-items: center; gap: 9px; }
+      .head-tier { display: inline-flex; vertical-align: -6px; margin-left: 4px; }
+
+      /* ---------- Member identity: tier-wearing avatars ---------- */
+      .avatar { position: relative; display: inline-flex; flex: none; vertical-align: middle; }
+      .avatar .av-face { border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--bg-soft); width: 100%; height: 100%; }
+      .avatar .av-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .av-xs { width: 26px; height: 26px; }
+      .av-sm { width: 32px; height: 32px; }
+      .av-md { width: 46px; height: 46px; }
+      .av-lg { width: 78px; height: 78px; }
+      .av-initial { font-family: "Archivo", sans-serif; font-weight: 900; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--bg-soft); color: var(--ink-soft); }
+      .av-xs .av-initial, .av-sm .av-initial { font-size: 13px; }
+      .av-md .av-initial { font-size: 19px; }
+      .av-lg .av-initial { font-size: 32px; }
+      .av-init-silver { background: linear-gradient(145deg, #f2f5f8, #ccd4dc); color: #57636f; }
+      .av-init-gold { background: linear-gradient(145deg, #f7e3ac, #e3bc55); color: #6d4c0a; }
+      .av-init-platinum { background: linear-gradient(145deg, #ffffff, #dbe4ec); color: #5f6d79; }
+      .av-init-diamond { background: linear-gradient(145deg, #f2fcff, #bfe9f7); color: #2f7e96; }
+      .avatar.av-ring-silver .av-face { box-shadow: 0 0 0 3px #d3dbe2, 0 0 0 5px #8d99a6; }
+      .avatar.av-ring-gold .av-face { box-shadow: 0 0 0 3px #ecc964, 0 0 0 5px #b9821e, 0 0 14px rgba(217, 168, 60, 0.45); }
+      .avatar.av-ring-platinum .av-face { box-shadow: 0 0 0 3px #f4f8fb, 0 0 0 5px #aebac5, 0 0 14px rgba(200, 216, 228, 0.8); }
+      .avatar.av-ring-diamond .av-face { box-shadow: 0 0 0 3px #dff6ff, 0 0 0 5px #7fb6c9, 0 0 16px rgba(127, 199, 227, 0.65); }
+      .av-chip { position: absolute; right: -5px; bottom: -5px; width: 44%; height: 44%; min-width: 15px; min-height: 15px; border-radius: 50%; background: var(--surface); border: 1.5px solid var(--gold-bright); display: flex; align-items: center; justify-content: center; padding: 2.5px; z-index: 2; }
+      .av-chip svg { width: 100%; height: 100%; display: block; }
+      .av-chip.av-chip-top { right: auto; left: 50%; bottom: auto; top: -24%; transform: translateX(-50%); width: 46%; height: 46%; }
+      .acct-head-row { display: flex; gap: 16px; align-items: center; padding-top: 10px; }
+      #acctHeadAvatar { display: inline-flex; }
+      .id-welcome { text-align: center; border: 1.5px solid var(--gold); border-radius: 12px; background: linear-gradient(180deg, color-mix(in srgb, var(--gold) 9%, var(--surface)), var(--surface) 65%); padding: 22px 18px; margin-bottom: 18px; }
+      .id-welcome h4 { font-family: "Archivo", sans-serif; font-size: 24px; font-weight: 900; margin: 12px 0 4px; }
+      .id-welcome p { font-size: 14.5px; color: var(--ink-soft); margin: 0 auto 14px; max-width: 470px; }
+      .id-row { display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
+      .id-avatar-col { display: grid; gap: 10px; justify-items: center; padding-top: 14px; }
+      .id-editor { flex: 1; min-width: 240px; display: grid; gap: 12px; }
+      .id-file { position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; }
+      .rv-id { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
     </style>
   </head>
   <body>
@@ -1189,10 +1246,10 @@
                 <div class="gold-rule"></div>
               </div>
               <div class="mem-grid" style="margin-bottom: 20px;">
-                <div class="mem-card"><h3>Silver</h3><div class="mc-price"><strong>$9.99</strong> <span class="mc-per">/month</span></div><ul><li><span class="ck">✓</span>5% off every order</li></ul></div>
-                <div class="mem-card"><h3>Gold</h3><div class="mc-price"><strong>$19.99</strong> <span class="mc-per">/month</span></div><ul><li><span class="ck">✓</span>10% off every order</li><li><span class="ck">✓</span>Free delivery</li></ul></div>
-                <div class="mem-card"><h3>Platinum</h3><div class="mc-price"><strong>$34.99</strong> <span class="mc-per">/month</span></div><ul><li><span class="ck">✓</span>15% off every order</li><li><span class="ck">✓</span>Free delivery &amp; free shipping</li></ul></div>
-                <div class="mem-card"><h3>Diamond</h3><div class="mc-price"><strong>$59.99</strong> <span class="mc-per">/month</span></div><ul><li><span class="ck">✓</span>15% off every order</li><li><span class="ck">✓</span>Free delivery &amp; free shipping</li><li><span class="ck">✓</span>First access to exclusive drops</li><li><span class="ck">✓</span>Priority pickup</li></ul></div>
+                <div class="mem-card"><div class="mc-emblem"><span class="tier-emblem te-silver te-lg" data-symbol="silver" aria-hidden="true"></span></div><h3>Silver</h3><div class="mc-price"><strong>$9.99</strong> <span class="mc-per">/month</span></div><ul><li><span class="ck">✓</span>5% off every order</li><li><span class="ck">✓</span>Unlocks member bundle pricing</li><li><span class="ck">✓</span>$5 welcome credit the moment you join</li><li><span class="ck">✓</span>$10 anniversary credit every year</li></ul></div>
+                <div class="mem-card"><div class="mc-emblem"><span class="tier-emblem te-gold te-lg" data-symbol="gold" aria-hidden="true"></span></div><h3>Gold</h3><div class="mc-price"><strong>$19.99</strong> <span class="mc-per">/month</span></div><ul><li><span class="ck">✓</span>10% off every order</li><li><span class="ck">✓</span>Free delivery</li><li><span class="ck">✓</span>$10 welcome credit</li><li><span class="ck">✓</span>$100 credit line unlocks at $500 lifetime spend</li><li><span class="ck">✓</span>$20 anniversary credit</li></ul></div>
+                <div class="mem-card"><div class="mc-emblem"><span class="tier-emblem te-platinum te-lg" data-symbol="platinum" aria-hidden="true"></span></div><h3>Platinum</h3><div class="mc-price"><strong>$34.99</strong> <span class="mc-per">/month</span></div><ul><li><span class="ck">✓</span>15% off every order</li><li><span class="ck">✓</span>Free delivery</li><li><span class="ck">✓</span>Free shipping</li><li><span class="ck">✓</span>$20 welcome credit</li><li><span class="ck">✓</span>$250 credit line at $1,000 lifetime spend</li><li><span class="ck">✓</span>$35 anniversary credit</li></ul></div>
+                <div class="mem-card diamond"><div class="mc-emblem"><span class="tier-emblem te-diamond te-lg" data-symbol="diamond" aria-hidden="true"></span></div><h3>Diamond</h3><div class="mc-price"><strong>$59.99</strong> <span class="mc-per">/month</span></div><ul><li><span class="ck">✓</span>15% off every order</li><li><span class="ck">✓</span>Free delivery</li><li><span class="ck">✓</span>Free shipping</li><li><span class="ck">✓</span>$35 welcome credit</li><li><span class="ck">✓</span>$500 credit line at $2,500 lifetime spend</li><li><span class="ck">✓</span>$50 anniversary credit</li><li><span class="ck">✓</span>First access to exclusive drops — shop Friday Drops a full hour early <span class="d-only"><span class="tier-emblem te-diamond te-glyph" data-symbol="diamond" aria-hidden="true"></span>DIAMOND ONLY</span></li><li><span class="ck">✓</span>Priority pickup <span class="d-only"><span class="tier-emblem te-diamond te-glyph" data-symbol="diamond" aria-hidden="true"></span>DIAMOND ONLY</span></li></ul></div>
               </div>
               <button class="btn btn-gold" type="button" data-nav="membership">See Membership Plans</button>
               <p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 12px;">Pay ahead and save on the fee: 3 months takes 5% off, 6 months 10% off, 9 months 15% off, 12 months 20% off — charged up front for the term. Your tier’s percent off orders never changes.</p>
@@ -1461,14 +1518,23 @@
               </div>
               <div id="acctIn" hidden>
                 <div class="panel">
-                  <h3 style="font-size: 21px; font-weight: 800;" id="acctHello">Welcome back</h3>
-                  <p style="color: var(--ink-soft); margin-top: 6px;" id="acctMeta"></p>
+                  <div class="acct-head-row">
+                    <span id="acctHeadAvatar"></span>
+                    <div style="flex: 1; min-width: 0;">
+                      <h3 style="font-size: 21px; font-weight: 800;" id="acctHello">Welcome back</h3>
+                      <p style="color: var(--ink-soft); margin-top: 6px;" id="acctMeta"></p>
+                    </div>
+                  </div>
                   <p style="font-size: 14px; font-weight: 700; color: var(--gold); margin-top: 8px;" id="acctTopRank" hidden></p>
                   <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px;">
                     <button class="btn btn-gold" type="button" id="reorderBtn">Fast Reorder — Last Order</button>
                     <button class="btn btn-outline" type="button" id="signOutBtn">Sign Out</button>
                   </div>
                   <p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;" id="reorderNote"></p>
+                </div>
+                <div class="panel" style="margin-top: 18px;" id="acctIdentityPanel" hidden>
+                  <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Your member identity</h3>
+                  <div id="acctIdentityBody"></div>
                 </div>
                 <div class="panel" style="margin-top: 18px;" id="acctBalancePanel">
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Account balance</h3>
@@ -2054,15 +2120,15 @@
               dNote.hidden = false; dNote.className = "drop-note ember"; dNote.textContent = "Sold out — this drop item is gone.";
               addBtn.disabled = true; addBtn.textContent = "Sold Out";
             } else if (dAcc.phase === "scheduled") {
-              dNote.hidden = false; dNote.className = "drop-note gold"; dNote.textContent = "Drops Friday — Diamond members shop 1 hour early";
+              dNote.hidden = false; dNote.className = "drop-note gold"; dNote.innerHTML = diaGlyph() + " Drops Friday — Diamond members shop 1 hour early";
               addBtn.disabled = true; addBtn.textContent = "Not Yet Available";
             } else if (dAcc.phase === "early" && !dAcc.canBuy) {
-              dNote.hidden = false; dNote.className = "drop-note gold"; dNote.textContent = "Diamond members are shopping this drop now — it opens to everyone at the public open.";
+              dNote.hidden = false; dNote.className = "drop-note gold"; dNote.innerHTML = diaGlyph() + " Diamond members are shopping this drop now — it opens to everyone at the public open.";
               addBtn.disabled = true; addBtn.textContent = "Diamond Early Access";
             } else if (dAcc.left <= 5) {
-              dNote.hidden = false; dNote.className = "drop-note ember"; dNote.textContent = "Only " + dAcc.left + " left" + (dAcc.phase === "early" ? " — Diamond early access" : "");
+              dNote.hidden = false; dNote.className = "drop-note ember"; dNote.innerHTML = "Only " + dAcc.left + " left" + (dAcc.phase === "early" ? " — " + diaGlyph() + " Diamond early access" : "");
             } else if (dAcc.phase === "early") {
-              dNote.hidden = false; dNote.className = "drop-note gold"; dNote.textContent = "Diamond early access — you’re in, a full hour early.";
+              dNote.hidden = false; dNote.className = "drop-note gold"; dNote.innerHTML = diaGlyph() + " Diamond early access — you’re in, a full hour early.";
             }
           }
           addBtn.addEventListener("click", function () {
@@ -2154,7 +2220,7 @@
           closeMenu(); closeDrawer();
           window.scrollTo({ top: 0 });
           updateCartBar();
-          if (v === "account") { renderCreditCard(); renderAcctBalance(); renderAcctMembership(); renderReferrals(); renderAcctGive(); renderTopMembers(); renderReviewsBiz(); updateCreateNotes(); }
+          if (v === "account") { renderCreditCard(); renderAcctBalance(); renderAcctMembership(); renderAcctIdentity(); renderReferrals(); renderAcctGive(); renderTopMembers(); renderReviewsBiz(); updateCreateNotes(); }
         }
         function goNav(target) {
           if (target === "home") { showView("home"); }
@@ -2294,11 +2360,185 @@
         }
         /* ================= Membership ================= */
         var MEMBERSHIP_TIERS = [
-          { id: "silver", name: "Silver", price: 9.99, pct: 0.05, welcome: 5, anniv: 10, freeDelivery: false, freeShipping: false, perks: ["5% off every order"] },
-          { id: "gold", name: "Gold", price: 19.99, pct: 0.10, welcome: 10, anniv: 20, freeDelivery: true, freeShipping: false, perks: ["10% off every order", "Free delivery"], flag: "Most popular" },
-          { id: "platinum", name: "Platinum", price: 34.99, pct: 0.15, welcome: 20, anniv: 35, freeDelivery: true, freeShipping: true, perks: ["15% off every order", "Free delivery", "Free shipping"] },
-          { id: "diamond", name: "Diamond", price: 59.99, pct: 0.15, welcome: 35, anniv: 50, freeDelivery: true, freeShipping: true, perks: ["15% off every order", "Free delivery", "Free shipping", "First access to exclusive drops", "Priority pickup"], flag: "Top tier" }
+          { id: "silver", name: "Silver", price: 9.99, pct: 0.05, welcome: 5, anniv: 10, freeDelivery: false, freeShipping: false, perks: ["5% off every order", "Unlocks member bundle pricing", "$5 welcome credit the moment you join", "$10 anniversary credit every year"] },
+          { id: "gold", name: "Gold", price: 19.99, pct: 0.10, welcome: 10, anniv: 20, freeDelivery: true, freeShipping: false, perks: ["10% off every order", "Free delivery", "$10 welcome credit", "$100 credit line unlocks at $500 lifetime spend", "$20 anniversary credit"], flag: "Most popular" },
+          { id: "platinum", name: "Platinum", price: 34.99, pct: 0.15, welcome: 20, anniv: 35, freeDelivery: true, freeShipping: true, perks: ["15% off every order", "Free delivery", "Free shipping", "$20 welcome credit", "$250 credit line at $1,000 lifetime spend", "$35 anniversary credit"] },
+          { id: "diamond", name: "Diamond", price: 59.99, pct: 0.15, welcome: 35, anniv: 50, freeDelivery: true, freeShipping: true, perks: ["15% off every order", "Free delivery", "Free shipping", "$35 welcome credit", "$500 credit line at $2,500 lifetime spend", "$50 anniversary credit", { t: "First access to exclusive drops — shop Friday Drops a full hour early", badge: "DIAMOND ONLY" }, { t: "Priority pickup", badge: "DIAMOND ONLY" }], flag: "Top tier" }
         ];
+        /* Full benefit stack for a tier, as checklist items — the one list
+           every surface (membership cards, checkout join panel, account)
+           renders, so the tiers read the same everywhere. A perk entry is
+           either a plain line or { t, badge } for a badged exclusive. */
+        function perkLiHTML(p) {
+          if (typeof p === "string") return '<li><span class="ck">✓</span>' + esc(p) + "</li>";
+          return '<li><span class="ck">✓</span>' + esc(p.t) + (p.badge ? ' <span class="d-only">' + (p.badge === "DIAMOND ONLY" ? diaGlyph() : "") + esc(p.badge) + "</span>" : "") + "</li>";
+        }
+        function tierBenefitsHTML(tier) { return tier.perks.map(perkLiHTML).join(""); }
+        /* ================= Tier emblems =================
+           One drawn icon family in inline SVG, in the store's gold-on-cream
+           language: Silver = a stamped silver coin, Gold = a warm gold bar,
+           Platinum = the same bar form in pale mirror-bright platinum with
+           a sparkle, Diamond = a faceted cut gem. Every symbol sits in the
+           same gold-ring medallion with a tier-colored glow (see the
+           .tier-emblem CSS). Gradients live in one shared defs block so the
+           same artwork stays crisp at every size, from card crown to chip. */
+        document.body.insertAdjacentHTML("afterbegin",
+          '<svg width="0" height="0" style="position: absolute;" aria-hidden="true"><defs>' +
+          '<linearGradient id="tg-silver" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7fafc"/><stop offset="0.55" stop-color="#c3ccd4"/><stop offset="1" stop-color="#e9eef3"/></linearGradient>' +
+          '<linearGradient id="tg-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6d67c"/><stop offset="0.6" stop-color="#d9a83c"/><stop offset="1" stop-color="#bd8620"/></linearGradient>' +
+          '<linearGradient id="tg-goldtop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbe9ae"/><stop offset="1" stop-color="#eec95f"/></linearGradient>' +
+          '<linearGradient id="tg-plat" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="0.6" stop-color="#dde5ec"/><stop offset="1" stop-color="#f4f8fb"/></linearGradient>' +
+          '<linearGradient id="tg-diamond" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2fcff"/><stop offset="0.55" stop-color="#bfe9f7"/><stop offset="1" stop-color="#dff6ff"/></linearGradient>' +
+          "</defs></svg>");
+        function tierSymbolSVG(tierId) {
+          if (tierId === "silver") return '<svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="16.5" fill="url(#tg-silver)" stroke="#8d99a6" stroke-width="1.6"/><circle cx="24" cy="24" r="12.8" fill="none" stroke="#9fb0be" stroke-width="1.1" stroke-dasharray="2.4 2.1"/><path d="M24 17.4l1.95 4.05 4.45.55-3.25 3.05.85 4.4L24 27.3l-4 2.15.85-4.4-3.25-3.05 4.45-.55z" fill="#eef3f7" stroke="#8494a3" stroke-width="1.1" stroke-linejoin="round"/></svg>';
+          if (tierId === "gold") return '<svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M18.2 13h11.6l3.4 5.8H14.8z" fill="url(#tg-goldtop)" stroke="#a87c1c" stroke-width="1.2" stroke-linejoin="round"/><path d="M14.8 18.8h18.4l4.1 12.6H10.7z" fill="url(#tg-gold)" stroke="#a87c1c" stroke-width="1.2" stroke-linejoin="round"/><path d="M14.8 18.8h18.4l1.2 3.7H13.6z" fill="#fbe9ae" opacity="0.5"/></svg>';
+          if (tierId === "platinum") return '<svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M17.6 15.5h11.6l3.4 5.8H14.2z" fill="url(#tg-plat)" stroke="#93a3b1" stroke-width="1.2" stroke-linejoin="round"/><path d="M14.2 21.3h18.4l4.1 12.6H10.1z" fill="url(#tg-plat)" stroke="#93a3b1" stroke-width="1.2" stroke-linejoin="round"/><path d="M14.2 21.3h18.4l1.2 3.7H13z" fill="#ffffff" opacity="0.65"/><path d="M38.6 3.8l1.15 3.55 3.55 1.15-3.55 1.15-1.15 3.55-1.15-3.55-3.55-1.15 3.55-1.15z" fill="#ffffff" stroke="#aebfcd" stroke-width="0.8" stroke-linejoin="round"/></svg>';
+          if (tierId === "diamond") return '<svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M9.5 19.5L16.5 10h15l7 9.5L24 39z" fill="url(#tg-diamond)" stroke="#6fa9bf" stroke-width="1.4" stroke-linejoin="round"/><path d="M9.5 19.5h29M16.5 10l4.2 9.5M31.5 10l-4.2 9.5M20.7 19.5L24 39M27.3 19.5L24 39" fill="none" stroke="#6fa9bf" stroke-width="1.05"/><path d="M39.8 3.4l.95 2.9 2.9.95-2.9.95-.95 2.9-.95-2.9-2.9-.95 2.9-.95z" fill="#ffffff" stroke="#9fc9da" stroke-width="0.7" stroke-linejoin="round"/></svg>';
+          return "";
+        }
+        function tierEmblemHTML(tierId, size) {
+          return '<span class="tier-emblem te-' + tierId + " te-" + (size || "sm") + '" aria-hidden="true">' + tierSymbolSVG(tierId) + "</span>";
+        }
+        function diaGlyph() { return tierEmblemHTML("diamond", "glyph"); }
+        /* Static surfaces (the home membership band, its DIAMOND ONLY
+           badges) carry empty medallion shells — fill them with the art. */
+        document.querySelectorAll("[data-symbol]").forEach(function (el) { el.innerHTML = tierSymbolSVG(el.getAttribute("data-symbol")); });
+        /* ================= Member identity =================
+           Members only (any ACTIVE tier): a self-picked username and an
+           uploaded profile picture, stored on the account record. The
+           avatar WEARS the tier while the membership is active — ring +
+           symbol chip (Diamond's gem sits on the top edge of the frame).
+           Non-members get none of it: no upload, no username, no ring, no
+           badge. If a membership lapses, the picture and username stay but
+           the ring and badge come off until renewal. */
+        function memberTierByEmail(email) {
+          var rec = email ? state.memberships[normEmail(email)] : null;
+          return membershipActiveFor(rec) ? tierById(rec.tierId) : null;
+        }
+        function identityOf(email) {
+          var a = state.accounts[normEmail(email)];
+          return a ? { username: a.username || "", avatar: a.avatar || "" } : { username: "", avatar: "" };
+        }
+        function publicName(email, fallback) {
+          var idn = identityOf(email);
+          if (idn.username) return idn.username;
+          return shortName(fallback || nameOf(normEmail(email)));
+        }
+        function avatarHTML(email, size) {
+          email = normEmail(email);
+          var idn = identityOf(email);
+          var tier = memberTierByEmail(email);
+          var initial = (idn.username || nameOf(email) || "?").trim().charAt(0).toUpperCase() || "?";
+          var face = idn.avatar
+            ? '<img src="' + idn.avatar + '" alt="" />'
+            : '<span class="av-initial' + (tier ? " av-init-" + tier.id : "") + '">' + esc(initial) + "</span>";
+          var chip = tier ? '<span class="av-chip' + (tier.id === "diamond" ? " av-chip-top" : "") + '" aria-hidden="true">' + tierSymbolSVG(tier.id) + "</span>" : "";
+          return '<span class="avatar av-' + (size || "md") + (tier ? " av-ring-" + tier.id : "") + '"><span class="av-face">' + face + "</span>" + chip + "</span>";
+        }
+        function renderAcctHeader() {
+          var av = $("acctHeadAvatar");
+          if (!av) return;
+          if (!state.user) { av.innerHTML = ""; return; }
+          var email = walletEmail();
+          var idn = identityOf(email);
+          var tier = memberTierByEmail(email);
+          av.innerHTML = avatarHTML(email, "lg");
+          var hello = $("acctHello");
+          if (hello) {
+            if (idn.username) hello.innerHTML = "Welcome back, " + esc(idn.username) + (tier ? ' <span class="head-tier">' + tierEmblemHTML(tier.id, "sm") + "</span>" : "");
+            else hello.textContent = "Welcome, " + state.user.name;
+          }
+        }
+        function renderAcctIdentity() {
+          renderAcctHeader();
+          var panel = $("acctIdentityPanel"), body = $("acctIdentityBody");
+          if (!panel || !body) return;
+          if (!state.user) { panel.hidden = true; body.innerHTML = ""; return; }
+          var email = walletEmail();
+          var rec = memberRecord();
+          /* Members only: a non-member (or a lapsed member) sees no upload
+             control and no username field at all. */
+          if (!membershipActiveFor(rec)) { panel.hidden = true; body.innerHTML = ""; return; }
+          panel.hidden = false;
+          var tier = tierById(rec.tierId);
+          var acct = ensureAccount(email, state.user.name);
+          var idn = identityOf(email);
+          var html = "";
+          /* One-time welcome card: the moment a membership activates, the
+             identity unlocks and this card greets the member once, emblem
+             big, alongside the welcome-credit news. */
+          var wKey = rec.tierId + "|" + (rec.since || "");
+          if (acct.welcomeSeenFor !== wKey) {
+            var wAmt = 0;
+            var w = state.balances[email];
+            if (w) for (var wi = 0; wi < w.ledger.length; wi++) if (w.ledger[wi].type === "welcome") { wAmt = w.ledger[wi].amount || 0; break; }
+            html += '<div class="id-welcome">' + tierEmblemHTML(tier.id, "lg") +
+              "<h4>Welcome to " + esc(tier.name) + ".</h4>" +
+              "<p>Your membership is live — and so is your member identity. Pick a username, upload a picture, and your " + esc(tier.name) + " frame rides with you across the store: your reviews, the Top Members wall, everywhere your name shows." +
+              (wAmt > 0 ? " And " + wholeMoney(wAmt) + " welcome credit just landed in your balance — redeemable while your membership stays active." : "") + "</p>" +
+              '<button class="btn btn-gold" type="button" id="idWelcomeOk">Let’s go</button></div>';
+          }
+          html += '<div class="id-row"><div class="id-avatar-col">' + avatarHTML(email, "lg") +
+            '<label class="btn btn-outline" style="min-height: 42px; padding: 8px 14px; font-size: 13.5px; cursor: pointer;">Upload a picture<input class="id-file" type="file" id="idAvatarFile" accept="image/*" /></label>' +
+            (idn.avatar ? '<button class="btn btn-outline" type="button" id="idAvatarRemove" style="min-height: 38px; padding: 6px 12px; font-size: 13px;">Remove picture</button>' : "") +
+            "</div>" +
+            '<div class="id-editor">' +
+            '<div><span style="font-family: \'Archivo\', sans-serif; font-weight: 900; font-size: 19px;">' + esc(idn.username || state.user.name) + "</span> " + tierEmblemHTML(tier.id, "sm") +
+            '<div style="font-size: 13px; color: var(--ink-soft); margin-top: 2px;">' + esc(tier.name) + " member — your picture wears the " + esc(tier.name) + (tier.id === "diamond" ? " ring, with the cut diamond sitting on the top edge of the frame." : " ring and badge.") + "</div></div>" +
+            '<label class="f" style="margin: 0;">Your username <small>(shows on your reviews and the Top Members wall)</small><input type="text" id="idUserName" maxlength="24" autocomplete="off" placeholder="Pick a username" value="' + esc(idn.username) + '" /></label>' +
+            '<div class="form-msg" id="idMsg" role="status" aria-live="polite"></div>' +
+            '<div><button class="btn btn-gold" type="button" id="idSaveName">Save Username</button></div>' +
+            '<p style="font-size: 13px; color: var(--ink-soft); margin: 0;">Upload any image you want — it’s sized to fit the frame automatically. No picture? Your initial rides in a ' + esc(tier.name) + "-color medallion instead.</p>" +
+            "</div></div>";
+          body.innerHTML = html;
+          var wok = $("idWelcomeOk");
+          if (wok) wok.addEventListener("click", function () { acct.welcomeSeenFor = wKey; renderAcctIdentity(); });
+          var save = $("idSaveName");
+          if (save) save.addEventListener("click", function () {
+            var v = $("idUserName").value.trim().replace(/\s+/g, " ");
+            var msg = $("idMsg");
+            if (v.length < 2 || v.length > 24) { msg.className = "form-msg err"; msg.textContent = "Usernames run 2–24 characters."; return; }
+            if (!/^[A-Za-z0-9][A-Za-z0-9 _.'-]*$/.test(v)) { msg.className = "form-msg err"; msg.textContent = "Letters, numbers, spaces, and _ . ’ - only."; return; }
+            acct.username = v;
+            renderAcctIdentity(); renderTopMembers(); refreshReviewCards();
+            toast("Username saved — welcome, " + v);
+          });
+          var file = $("idAvatarFile");
+          if (file) file.addEventListener("change", function () { handleAvatarFile(file, email); });
+          var rem = $("idAvatarRemove");
+          if (rem) rem.addEventListener("click", function () { acct.avatar = ""; renderAcctIdentity(); renderTopMembers(); refreshReviewCards(); toast("Picture removed — your initial medallion is back"); });
+        }
+        /* Any image a member uploads becomes their profile picture: read
+           it, center-crop to a square, and compress client-side to a
+           256px JPEG before it is stored on the account. */
+        function handleAvatarFile(input, email) {
+          var f = input.files && input.files[0];
+          if (!f) return;
+          var msg = $("idMsg");
+          function fail(t) { if (msg) { msg.className = "form-msg err"; msg.textContent = t; } }
+          if (!/^image\//.test(f.type || "")) { fail("That file isn’t an image — pick a photo or picture file."); return; }
+          var reader = new FileReader();
+          reader.onload = function () {
+            var img = new Image();
+            img.onload = function () {
+              var S = 256;
+              var cv = document.createElement("canvas"); cv.width = S; cv.height = S;
+              var cx = cv.getContext("2d");
+              cx.fillStyle = "#faf7f0"; cx.fillRect(0, 0, S, S);
+              var scale = Math.max(S / img.width, S / img.height);
+              var w = img.width * scale, h = img.height * scale;
+              cx.drawImage(img, (S - w) / 2, (S - h) / 2, w, h);
+              var acct = ensureAccount(email, state.user ? state.user.name : "");
+              try { acct.avatar = cv.toDataURL("image/jpeg", 0.85); } catch (e) { fail("That image couldn’t be processed — try another one."); return; }
+              renderAcctIdentity(); renderTopMembers(); refreshReviewCards();
+              toast("Profile picture set — looking sharp");
+            };
+            img.onerror = function () { fail("That image couldn’t be read — try another one."); };
+            img.src = reader.result;
+          };
+          reader.readAsDataURL(f);
+        }
         var MEM_INSTANT_WINDOW = 365 * 24 * 60 * 60 * 1000;
         function tierById(id) { for (var i = 0; i < MEMBERSHIP_TIERS.length; i++) if (MEMBERSHIP_TIERS[i].id === id) return MEMBERSHIP_TIERS[i]; return null; }
         /* Term ladder: the discount is on the membership FEE only, charged up
@@ -3139,7 +3379,7 @@
           var tier = tierById(ms.tierId);
           var pct = Math.max(0, Math.min(100, spend / ms.spend * 100));
           return '<div class="cred-card cred-' + ms.tierId + (mini ? " mini" : "") + '">' +
-            '<div class="cred-top"><span class="cred-tier-name">' + (mini ? "Next level — " : "") + esc(tier ? tier.name : ms.tierId) + ' credit line</span>' +
+            '<div class="cred-top"><span class="cred-tier-name">' + tierEmblemHTML(ms.tierId, "sm") + (mini ? "Next level — " : "") + esc(tier ? tier.name : ms.tierId) + ' credit line</span>' +
             '<span class="cred-chip">' + money(ms.line) + " line · " + money(ms.spend) + " lifetime spend</span></div>" +
             '<div class="cred-track"><div class="cred-fill" style="width: ' + pct.toFixed(1) + '%;"></div></div>' +
             (mini
@@ -3219,7 +3459,7 @@
         function credLockedBarHTML(ms) {
           var tier = tierById(ms.tierId);
           return '<div class="cred-card cred-' + ms.tierId + ' mini locked">' +
-            '<div class="cred-top"><span class="cred-tier-name">' + esc(tier ? tier.name : ms.tierId) + ' credit line</span>' +
+            '<div class="cred-top"><span class="cred-tier-name">' + tierEmblemHTML(ms.tierId, "sm") + esc(tier ? tier.name : ms.tierId) + ' credit line</span>' +
             '<span class="cred-chip">' + money(ms.line) + " line · " + money(ms.spend) + " lifetime spend</span></div>" +
             '<div class="cred-track"><div class="cred-fill" style="width: 0%;"></div></div>' +
             '<div class="cred-state">Locked</div>' +
@@ -4776,9 +5016,10 @@
               ? money(r.tier.price) + "/mo"
               : money(r.fee) + " for " + coMonths + " months · " + money(termPerMonth(r.tier, coMonths)) + "/mo · You save " + money(termSave(r.tier, coMonths)) + " vs monthly";
             html += '<div class="mem-tier-row' + (r === bestRow && r.savings > 0 ? " best" : "") + '">' +
-              '<div><div class="mt-name">' + esc(r.tier.name) + '</div><div class="mt-price">' + feeLine + " · " + Math.round(r.tier.pct * 100) + "% off orders" + (r.perks.length ? " + " + r.perks.join(" + ") : "") + "</div>" +
+              '<div><div class="mt-name">' + tierEmblemHTML(r.tier.id, "sm") + esc(r.tier.name) + '</div><div class="mt-price">' + feeLine + " · " + Math.round(r.tier.pct * 100) + "% off orders" + (r.perks.length ? " + " + r.perks.join(" + ") : "") + "</div>" +
               (r.pays ? '<div class="mem-pays">' + esc(r.tier.name) + " pays for itself on this order — save " + money(r.savings) + ", membership is " + money(r.fee) + "</div>" : "") +
               (r.welcome > 0 ? '<div class="mt-welcome">Join ' + esc(r.tier.name) + " — " + wholeMoney(r.welcome) + " lands in your balance instantly</div>" : "") +
+              '<ul class="mt-perks">' + tierBenefitsHTML(r.tier) + "</ul>" +
               "</div>" +
               '<div class="mt-math"><div><span class="mt-was">' + money(base.total) + "</span><strong>" + money(r.tt.total) + '</strong></div><div class="mt-save">Save ' + money(Math.max(0, r.savings)) + "</div></div>" +
               '<button class="btn btn-gold mem-join-btn" type="button" data-join-tier="' + r.tier.id + '">Join ' + esc(r.tier.name) + "</button></div>";
@@ -4820,7 +5061,7 @@
              continuous renewal, and tier switch alike; the anti-farming
              rule inside decides cancel-and-rejoin cases). */
           var wcGrant = grantWelcomeCredit(email, tier, state.memTerm || 1, prev);
-          renderMembershipView(); renderAcctMembership(); renderCart(); renderAcctBalance();
+          renderMembershipView(); renderAcctMembership(); renderAcctIdentity(); renderCart(); renderAcctBalance();
           toast(deferred
             ? "Welcome back to " + tier.name + " — your discount applies from your next order" + (wcGrant > 0 ? ", and " + wholeMoney(wcGrant) + " welcome credit just landed in your balance — redeemable while your membership stays active" : "")
             : "Welcome to " + tier.name + " — your discount now applies automatically at checkout" + (wcGrant > 0 ? ", and " + wholeMoney(wcGrant) + " welcome credit just landed in your balance — redeemable while your membership stays active" : ""));
@@ -4849,14 +5090,14 @@
             $("memGoAcct").addEventListener("click", function () { showView("account"); setAcctTab("create"); });
           } else if (mem) {
             var mt = tierById(mem.tierId);
-            st.innerHTML = '<div class="mem-proof" style="margin-bottom: 16px;">You’re a <strong>' + esc(mt.name) + " member</strong> — " + Math.round(mt.pct * 100) + "% off applies automatically at checkout. Term: <strong>" + esc(termName(recTermMonths(mem))) + "</strong>." + (mem.discountDeferred ? " Your discount starts with your next order." : "") + (mem.cancelAtPeriodEnd ? " You cancelled renewal — your benefits run to " + esc(mem.periodEnd || "") + ", the end of your paid term. Fees aren’t refunded mid-term." : " Renews " + esc(mem.periodEnd || "") + " at the end of your term.") + "</div>";
+            st.innerHTML = '<div class="mem-proof" style="margin-bottom: 16px;">' + tierEmblemHTML(mt.id, "sm") + ' You’re a <strong>' + esc(mt.name) + " member</strong> — " + Math.round(mt.pct * 100) + "% off applies automatically at checkout. Term: <strong>" + esc(termName(recTermMonths(mem))) + "</strong>." + (mem.discountDeferred ? " Your discount starts with your next order." : "") + (mem.cancelAtPeriodEnd ? " You cancelled renewal — your benefits run to " + esc(mem.periodEnd || "") + ", the end of your paid term. Fees aren’t refunded mid-term." : " Renews " + esc(mem.periodEnd || "") + " at the end of your term.") + "</div>";
           } else {
             st.innerHTML = "";
           }
           grid.innerHTML = "";
           MEMBERSHIP_TIERS.forEach(function (tier) {
             var card = document.createElement("div");
-            card.className = "mem-card" + (tier.flag ? " hot" : "");
+            card.className = "mem-card" + (tier.flag ? " hot" : "") + (tier.id === "diamond" ? " diamond" : "");
             var total = termTotal(tier, months);
             var isCurrent = !!(mem && mem.tierId === tier.id);
             var ttRows = MEM_TERMS.map(function (tm) {
@@ -4865,10 +5106,11 @@
             }).join("");
             card.innerHTML =
               (tier.flag ? '<span class="mc-flag">' + esc(tier.flag) + "</span>" : "") +
+              '<div class="mc-emblem">' + tierEmblemHTML(tier.id, "lg") + "</div>" +
               "<h3>" + esc(tier.name) + "</h3>" +
               '<div class="mc-price"><strong>' + money(total) + '</strong> <span class="mc-per">' + (months === 1 ? "/month" : "for " + months + " months — paid up front") + "</span></div>" +
               '<div class="mc-per">' + (months === 1 ? "Billed monthly. Pick a longer term above to cut the fee." : "Works out to " + money(termPerMonth(tier, months)) + "/month — you save " + money(termSave(tier, months)) + " vs paying monthly.") + " Your " + Math.round(tier.pct * 100) + "% off orders is the same on every term.</div>" +
-              "<ul>" + tier.perks.map(function (p) { return '<li><span class="ck">✓</span>' + esc(p) + "</li>"; }).join("") + '<li><span class="ck">✓</span>' + wholeMoney(welcomeGrantFor(tier, months)) + " welcome credit lands in your balance the moment you join — and again at every renewal</li>" + '<li><span class="ck">✓</span>' + wholeMoney(tier.anniv) + " anniversary credit lands every year on your join date, while your membership stays active</li></ul>" +
+              "<ul>" + tierBenefitsHTML(tier) + "</ul>" +
               '<div class="term-table" aria-label="Term prices for ' + esc(tier.name) + '">' + ttRows + "</div>" +
               (isCurrent
                 ? '<button class="btn btn-outline" type="button" disabled aria-disabled="true">Current plan</button>'
@@ -4903,14 +5145,15 @@
           }
           body.innerHTML =
             '<div class="mem-status"><div>' +
-            '<span style="font-family: \'Archivo\', sans-serif; font-weight: 900; font-size: 19px;">' + esc(tier.name) + '</span><span class="mem-pill">' + (r.cancelAtPeriodEnd ? "Cancels " + esc(r.periodEnd || "") : "Active") + "</span>" +
+            tierEmblemHTML(tier.id, "md") + ' <span style="font-family: \'Archivo\', sans-serif; font-weight: 900; font-size: 19px;">' + esc(tier.name) + '</span><span class="mem-pill">' + (r.cancelAtPeriodEnd ? "Cancels " + esc(r.periodEnd || "") : "Active") + "</span>" +
             '<p style="font-size: 14px; color: var(--ink-soft); margin-top: 6px;">' + esc(termName(rm)) + " · " + money(price) + (rm === 1 ? "/month" : " paid up front (" + money(termPerMonth(tier, rm)) + "/mo" + (termSave(tier, rm) > 0 ? " — saved " + money(termSave(tier, rm)) + " vs paying monthly" : "") + ")") + " · Member since " + esc(r.since || "") + "<br>" +
             Math.round(tier.pct * 100) + "% off the product subtotal at checkout" + (tier.freeDelivery ? " · Free delivery" : "") + (tier.freeShipping ? " · Free shipping" : "") +
             (r.discountDeferred ? "<br>Your discount applies from your next order." : "") +
             (r.cancelAtPeriodEnd ? "<br>You cancelled renewal — your benefits run to " + esc(r.periodEnd || "") + ", the end of your paid term. Membership fees aren’t refunded mid-term." : "<br>Renews " + esc(r.periodEnd || "") + " at the end of your term · Cancel anytime — cancelling stops renewal, benefits run to the end of the paid term, and fees aren’t refunded mid-term.") +
             (r.cancelAtPeriodEnd ? "" : "<br>Stay subscribed and your next paid renewal drops another " + wholeMoney(welcomeGrantFor(tier, rm)) + " welcome credit into your balance the moment it lands.") +
             annivLine +
-            "</p></div>" +
+            "</p>" +
+            '<ul class="acct-perks" style="margin: 14px 0 0;">' + tierBenefitsHTML(tier) + "</ul></div>" +
             '<div style="display: flex; gap: 10px; flex-wrap: wrap;">' +
             '<button class="btn btn-outline" type="button" id="acctMemChange">Change Tier</button>' +
             (r.cancelAtPeriodEnd
@@ -5380,6 +5623,7 @@
           renderHistory();
           renderAcctShip();
           renderAcctMembership();
+          renderAcctIdentity();
           renderAcctBalance();
           renderCreditCard();
           renderReferrals();
@@ -5463,6 +5707,7 @@
           $("acctIn").hidden = true;
           $("acctTitle").textContent = "Join the route";
           renderMenuAcct();
+          renderAcctIdentity();
           renderCreditCard();
           renderCoPay();
           renderCart();
@@ -5963,10 +6208,10 @@
           var whenStr = new Date(d.startsAt).toLocaleString("en-US", { weekday: "long", month: "long", day: "numeric", hour: "numeric", minute: "2-digit" });
           var earlyStr = new Date(d.startsAt - 3600000).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
           if (status) {
-            if (ph === "scheduled") status.innerHTML = '<span class="count-chip">Drop opens in <b data-countdown-to="' + d.startsAt + '">…</b></span><p style="margin-top: 10px; font-size: 14.5px; color: var(--ink-soft);">Opens ' + esc(whenStr) + " — Diamond members shop 1 hour early, from " + esc(earlyStr) + ". Quantities are limited and live: when they’re gone, they’re gone.</p>";
+            if (ph === "scheduled") status.innerHTML = '<span class="count-chip">Drop opens in <b data-countdown-to="' + d.startsAt + '">…</b></span><p style="margin-top: 10px; font-size: 14.5px; color: var(--ink-soft);">Opens ' + esc(whenStr) + " — " + diaGlyph() + " Diamond members shop 1 hour early, from " + esc(earlyStr) + ". Quantities are limited and live: when they’re gone, they’re gone.</p>";
             else if (ph === "early") status.innerHTML = isDiamondMember()
-              ? '<span class="count-chip">Diamond early access — <b>you’re in</b></span><p style="margin-top: 10px; font-size: 14.5px; color: var(--ink-soft);">You’re shopping the drop a full hour early. Opens to everyone in <b data-countdown-to="' + d.startsAt + '">…</b>.</p>'
-              : '<span class="count-chip">Diamond early access is live</span><p style="margin-top: 10px; font-size: 14.5px; color: var(--ink-soft);">Diamond members are shopping now. The drop opens to everyone in <b data-countdown-to="' + d.startsAt + '">…</b> (' + esc(whenStr) + ").</p>";
+              ? '<span class="count-chip">' + diaGlyph() + ' Diamond early access — <b>you’re in</b></span><p style="margin-top: 10px; font-size: 14.5px; color: var(--ink-soft);">You’re shopping the drop a full hour early. Opens to everyone in <b data-countdown-to="' + d.startsAt + '">…</b>.</p>'
+              : '<span class="count-chip">' + diaGlyph() + ' Diamond early access is live</span><p style="margin-top: 10px; font-size: 14.5px; color: var(--ink-soft);">Diamond members are shopping now. The drop opens to everyone in <b data-countdown-to="' + d.startsAt + '">…</b> (' + esc(whenStr) + ").</p>";
             else {
               /* Wave 3 flash treatment: ticking end-of-drop countdown +
                  a "% claimed" bar from the drop's REAL quantities
@@ -6272,7 +6517,15 @@
           if (vis.length) {
             html += vis.map(function (r) {
               var isMine = !!(state.user && r.email === normEmail(state.user.email));
-              return '<div class="rev-item"><div class="rv-head"><span class="rv-name">' + esc(shortName(r.name)) + (isMine ? " (you)" : "") + '</span><span class="rv-stars">' + starsStr(r.stars) + '</span></div>' +
+              /* Member reviews carry the identity: avatar wearing the tier,
+                 username, and the tier badge. Non-member reviews keep the
+                 plain first-name + last-initial display. */
+              var rTier = memberTierByEmail(r.email);
+              var rIdn = identityOf(r.email);
+              var rHead = (rTier || rIdn.username || rIdn.avatar)
+                ? '<span class="rv-id">' + avatarHTML(r.email, "sm") + '<span class="rv-name">' + esc(publicName(r.email, r.name)) + (isMine ? " (you)" : "") + "</span>" + (rTier ? tierEmblemHTML(rTier.id, "xs") : "") + "</span>"
+                : '<span class="rv-name">' + esc(shortName(r.name)) + (isMine ? " (you)" : "") + "</span>";
+              return '<div class="rev-item"><div class="rv-head">' + rHead + '<span class="rv-stars">' + starsStr(r.stars) + '</span></div>' +
                 (r.text ? '<div class="rv-text">' + esc(r.text) + "</div>" : "") +
                 '<div class="rv-when">' + esc(r.when || "") + "</div></div>";
             }).join("");
@@ -6485,7 +6738,8 @@
           if (wall) {
             var top5 = topMembersList(5);
             wall.innerHTML = top5.length ? top5.map(function (r, i) {
-              return '<div class="top-row"><span class="top-rank">#' + (i + 1) + '</span><span class="top-name">' + esc(shortName(r.name)) + '</span><span class="top-spend">' + wallMoney(r.spend) + "</span></div>";
+              var rTier = memberTierByEmail(r.email);
+              return '<div class="top-row"><span class="top-rank">#' + (i + 1) + "</span>" + avatarHTML(r.email, "md") + '<span class="top-name">' + esc(publicName(r.email, r.name)) + "</span>" + (rTier ? tierEmblemHTML(rTier.id, "sm") : "") + '<span class="top-spend">' + wallMoney(r.spend) + "</span></div>";
             }).join("") : '<div class="top-empty">No one is on the wall yet — complete an order and your name could be the first up here.</div>';
           }
           var biz = $("topBiz");
