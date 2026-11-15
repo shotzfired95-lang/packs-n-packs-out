@@ -5228,16 +5228,46 @@
             var you = reduced ? "" : '<path class="map-you-path" pathLength="100" d="M54 44 C 92 56, 148 68, 188 78" />';
             var youDot = '<circle cx="52" cy="36" r="8.5" style="fill: var(--surface);" stroke="var(--gold)" stroke-width="2.5" /><circle cx="52" cy="36" r="3" style="fill: var(--gold);" /><text class="map-pin-label" x="52" y="20" text-anchor="middle">YOU</text>';
             var hasSpot = !!(o.fulfillment && o.fulfillment.location);
+            /* No spot chosen yet: the banner card reads the order's
+               CURRENT state, the same conditions that open the spot
+               picker below (claimed by a team member, at Packing, with
+               spots available) — never frozen at the pre-claim wording
+               once the picker is open. trackerMapHTML re-renders on
+               every tracker sync via refreshOrderViews(), so this card
+               follows the order on the confirmation view and on the
+               history cards, guest and signed-in alike. */
+            var bannerStaff = o.serverStaffName || o.staffName || "";
+            var pickerOpen = !!(!hasSpot && o.serverLinked && stage === "processing" && bannerStaff && (o.serverSpots || []).length);
+            var bannerTime = o.time ? '<div class="mpc-time">Pickup time: ' + esc(o.time) + "</div>" : "";
+            var noSpotCard;
+            if (completed) {
+              noSpotCard = '<div class="map-pickup-card"><div class="mpc-kicker"><span class="mc-dot"></span>Picked up</div>' +
+                '<div class="mpc-name">Picked up — order complete</div>' +
+                '<div class="mpc-addr">Thanks for picking up with us.</div>' +
+                bannerTime + "</div>";
+            } else if (stage === "ready") {
+              noSpotCard = '<div class="map-pickup-card"><div class="mpc-kicker"><span class="mc-dot"></span>Ready for you</div>' +
+                '<div class="mpc-name">Your order is ready</div>' +
+                '<div class="mpc-addr">Your team member will confirm your pickup spot with you.</div>' +
+                bannerTime + "</div>";
+            } else if (pickerOpen) {
+              noSpotCard = '<div class="map-pickup-card"><div class="mpc-kicker"><span class="mc-dot"></span>Pickup</div>' +
+                '<div class="mpc-name">Your spot picker is open</div>' +
+                '<div class="mpc-addr">' + esc(bannerStaff) + ' has your order — pick your pickup spot now and we’ll have it ready at the spot you choose.</div>' +
+                bannerTime + "</div>";
+            } else {
+              noSpotCard = '<div class="map-pickup-card"><div class="mpc-kicker"><span class="mc-dot"></span>Pickup</div>' +
+                '<div class="mpc-name">Your pickup spot opens soon</div>' +
+                '<div class="mpc-addr">You’ll choose your spot once a team member picks up your order.</div>' +
+                bannerTime + "</div>";
+            }
             var card = hasSpot
               ? '<div class="map-pickup-card"><div class="mpc-kicker"><span class="mc-dot"></span>' + (stage === "ready" ? "Ready for you — you're headed here" : completed ? "Picked up here" : "You're headed here") + '</div>' +
                 '<div class="mpc-name">' + esc(locName) + '</div>' +
                 (locAddr ? '<div class="mpc-addr">' + esc(locAddr) + "</div>" : "") +
                 (o.time ? '<div class="mpc-time">Pickup time: ' + esc(o.time) + "</div>" : "") +
                 dirBtnHTML(pickupDirAddr(o), "Get Directions", "") + "</div>"
-              : '<div class="map-pickup-card"><div class="mpc-kicker"><span class="mc-dot"></span>Pickup</div>' +
-                '<div class="mpc-name">Your pickup spot opens soon</div>' +
-                '<div class="mpc-addr">You’ll choose your spot once a team member picks up your order.</div>' +
-                (o.time ? '<div class="mpc-time">Pickup time: ' + esc(o.time) + "</div>" : "") + "</div>";
+              : noSpotCard;
             return '<div class="tracker-map stage-pickup' + (reduced ? " no-anim" : "") + '"><svg class="map-svg" viewBox="0 0 400 210" role="img" aria-label="Map centered on your pickup location, ' + esc(locName) + '">' + mapStreetsSVG() + you + youDot + pin + "</svg>" + chip + card + "</div>";
           }
           var isOut = stage === "out" || stage === "shipped";
