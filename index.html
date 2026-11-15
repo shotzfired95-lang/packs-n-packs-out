@@ -278,6 +278,7 @@
       .cred-lock-note { font-size: 14.5px; color: var(--ink-soft); margin-top: 12px; }
       .cred-lock-note strong { color: var(--ink); }
       .pending-pill { display: inline-block; font-family: "Archivo", sans-serif; font-weight: 800; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; background: var(--ember); color: #fff; border-radius: 6px; padding: 4px 9px; vertical-align: 2px; }
+      .confirmed-pill { display: inline-block; font-family: "Archivo", sans-serif; font-weight: 800; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; background: #7c5410; color: #fff; border-radius: 6px; padding: 4px 9px; vertical-align: 2px; }
       /* ---------- Subscription payment gate: pending join / activation ---------- */
       .mem-pending { border: 2px dashed var(--ember); background: color-mix(in srgb, var(--ember) 6%, var(--surface)); border-radius: 12px; padding: 16px; display: grid; gap: 10px; margin-bottom: 16px; }
       .mem-pending h4 { font-family: "Archivo", sans-serif; font-size: 17px; font-weight: 900; margin: 0; display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
@@ -2615,6 +2616,35 @@
           } catch (e) {}
         }
         loadCart();
+        /* Order history persists on this device too, the same way:
+           saveHistory() runs the moment an order is placed, again
+           when the server answers with the real order number and
+           access token, and on every tracker refresh (server sync,
+           pickup-spot pick) via refreshOrderViews(); loadHistory()
+           restores the saved orders at startup, so the Account view's
+           Order History — live tracker and pickup-spot picker
+           included — is still there after a reload. Each record
+           carries everything its tracker needs, including the
+           order's own server access token: this is the customer's
+           copy, on the customer's device. Saved entries are
+           validated like the cart's — a record without an order
+           number or an items list is dropped, transient sync/search
+           flags never carry over, and a missing or corrupt saved
+           value simply means no orders yet. */
+        function saveHistory() { try { lsSet("pnpo_history", JSON.stringify(state.history)); } catch (e) {} }
+        function loadHistory() {
+          try {
+            var v = JSON.parse(lsGet("pnpo_history") || "null");
+            if (!Array.isArray(v)) return;
+            state.history = v.filter(function (o) {
+              if (!o || typeof o !== "object" || !o.num || !Array.isArray(o.items)) return false;
+              delete o._syncing;
+              delete o._spotQuery;
+              return true;
+            });
+          } catch (e) {}
+        }
+        loadHistory();
         function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
         function locationsForMarket() {
           var m = state.market || "Illinois";
@@ -5454,6 +5484,11 @@
         }
         setInterval(tickTrackers, 1000);
         function refreshOrderViews(o) {
+          /* Every order mutation that reaches a refresh — a server
+             tracker sync changing stage/payment/staff/spot, or a
+             pickup-spot pick — is saved here, so the restored
+             history never lags the live tracker. */
+          saveHistory();
           renderHistory();
           renderCreditCard();
           if (state.currentOrderNum === o.num && state.view === "confirm") renderConfirm(o);
@@ -5977,6 +6012,7 @@
           };
           state.currentOrderNum = order.num;
           state.history.unshift(order);
+          saveHistory();
           /* The order now goes to the order server, which issues the real
              order number and fires the business alert itself (the old
              ntfy order alert is gone). On success the server number
@@ -6055,6 +6091,10 @@
           renderCart();
           msg.className = "form-msg"; msg.textContent = "";
           coFormEl.reset();
+          /* The server round-trip is done: the record now carries its
+             final order number, access token, and any member note —
+             save it again so a reload restores exactly this order. */
+          saveHistory();
           renderConfirm(order);
           showView("confirm");
           /* Wave 3: the post-order referral slide-in — confirmation
@@ -6062,6 +6102,33 @@
           maybeReferralSlideIn();
           });
         });
+        /* ---------- Current-state order detail lines ----------
+           refreshOrderViews() re-renders the confirmation details and
+           the account history cards on every tracker sync, so their
+           payment and pickup lines are computed from the order's
+           CURRENT state — never frozen at how the order looked when it
+           was placed. */
+        function payIsConfirmed(o) {
+          if (!o || !o.payment) return false;
+          if (o.serverPaymentState === "confirmed") return true;
+          return o.payment.pending === false;
+        }
+        function pickupSpotOpenText(o) {
+          /* For a pickup order with no spot chosen yet: the sentence for
+             the state the order is in NOW once a team member has claimed
+             it (picker open, spots still loading, or ready) — or null
+             while it is still waiting on a claim, so callers keep their
+             existing waiting wording untouched. */
+          if (!o || !o.fulfillment || o.fulfillment.method !== "pickup" || o.fulfillment.location) return null;
+          var stage = o.statusStage || "placed";
+          if (stage === "ready") return "Your order is ready — your team member will confirm your pickup spot with you.";
+          var staffName = o.serverStaffName || o.staffName || "";
+          if (o.serverLinked && stage === "processing" && staffName) {
+            if ((o.serverSpots || []).length) return esc(staffName) + " has your order and your spot picker is open — pick your pickup spot on your tracker and we’ll have it ready there.";
+            return esc(staffName) + " has your order — they’re getting a pickup spot ready, and spots open on your tracker as soon as one is available.";
+          }
+          return null;
+        }
         function renderConfirm(o) {
           state.currentOrderNum = o.num;
           syncServerOrder(o);
@@ -6077,24 +6144,34 @@
           var isShipOrder = o.fulfillment && o.fulfillment.method === "shipping";
           var payM = o.payment ? o.payment.method : "cash";
           var totalLabel, payLine;
+          /* The send-first methods share one tail per payment state:
+             the pending tail is the original wording, word for word;
+             once the server confirms the money landed, the line reads
+             confirmed and the PENDING text never renders again. */
+          var payTail = payIsConfirmed(o)
+            ? " <span class='confirmed-pill'>Confirmed</span> <strong style='color: var(--ink);'>Payment confirmed</strong> — the business confirmed the money landed. This order is marked paid."
+            : " <span class='pending-pill'>Pending</span> This order stays <strong style='color: var(--ink);'>PENDING</strong> until the business confirms the money landed — it is not marked paid yet.";
+          var payTailBtc = payIsConfirmed(o)
+            ? " <span class='confirmed-pill'>Confirmed</span> <strong style='color: var(--ink);'>Payment confirmed</strong> — your payment is confirmed on the blockchain. This order is marked paid."
+            : " <span class='pending-pill'>Pending</span> This order stays <strong style='color: var(--ink);'>PENDING</strong> until the payment is confirmed on the blockchain — it is not marked paid yet.";
           if (payM === "card") {
             totalLabel = "Paid online";
             payLine = "<br />Payment: <strong style='color: var(--ink);'>Paid online</strong> — " + esc(o.payment.brand || "Card") + " ending in " + esc(o.payment.last4 || "") + ".";
           } else if (payM === "applepay") {
             totalLabel = "Total — Apple Pay";
-            payLine = "<br />Payment: <strong style='color: var(--ink);'>Apple Pay</strong> — you sent " + money(o.total) + " to " + APPLEPAY_PHONE + " (from " + esc(o.payment.sender || "") + "). <span class='pending-pill'>Pending</span> This order stays <strong style='color: var(--ink);'>PENDING</strong> until the business confirms the money landed — it is not marked paid yet.";
+            payLine = "<br />Payment: <strong style='color: var(--ink);'>Apple Pay</strong> — you sent " + money(o.total) + " to " + APPLEPAY_PHONE + " (from " + esc(o.payment.sender || "") + ")." + payTail;
           } else if (payM === "cashapp") {
             totalLabel = "Total — Cash App";
-            payLine = "<br />Payment: <strong style='color: var(--ink);'>Cash App</strong> — you sent " + money(o.total) + " to " + CASHAPP_TAG + " (from " + esc(o.payment.sender || "") + "). <span class='pending-pill'>Pending</span> This order stays <strong style='color: var(--ink);'>PENDING</strong> until the business confirms the money landed — it is not marked paid yet.";
+            payLine = "<br />Payment: <strong style='color: var(--ink);'>Cash App</strong> — you sent " + money(o.total) + " to " + CASHAPP_TAG + " (from " + esc(o.payment.sender || "") + ")." + payTail;
           } else if (payM === "chime") {
             totalLabel = "Total — Chime";
-            payLine = "<br />Payment: <strong style='color: var(--ink);'>Chime</strong> — you sent " + money(o.total) + " to " + CHIME_NAME + " (from " + esc(o.payment.sender || "") + "). <span class='pending-pill'>Pending</span> This order stays <strong style='color: var(--ink);'>PENDING</strong> until the business confirms the money landed — it is not marked paid yet.";
+            payLine = "<br />Payment: <strong style='color: var(--ink);'>Chime</strong> — you sent " + money(o.total) + " to " + CHIME_NAME + " (from " + esc(o.payment.sender || "") + ")." + payTail;
           } else if (payM === "current") {
             totalLabel = "Total — Current";
-            payLine = "<br />Payment: <strong style='color: var(--ink);'>Current</strong> — you sent " + money(o.total) + " to " + CURRENT_TAG + " (from " + esc(o.payment.sender || "") + "). <span class='pending-pill'>Pending</span> This order stays <strong style='color: var(--ink);'>PENDING</strong> until the business confirms the money landed — it is not marked paid yet.";
+            payLine = "<br />Payment: <strong style='color: var(--ink);'>Current</strong> — you sent " + money(o.total) + " to " + CURRENT_TAG + " (from " + esc(o.payment.sender || "") + ")." + payTail;
           } else if (payM === "bitcoin") {
             totalLabel = "Total — Bitcoin";
-            payLine = "<br />Payment: <strong style='color: var(--ink);'>Bitcoin</strong> — you sent " + btcAmountFor(o.total) + " BTC (" + money(o.total) + ") to our wallet " + BTC_WALLET + " (transaction / sending address: " + esc(o.payment.sender || "") + "). <span class='pending-pill'>Pending</span> This order stays <strong style='color: var(--ink);'>PENDING</strong> until the payment is confirmed on the blockchain — it is not marked paid yet.";
+            payLine = "<br />Payment: <strong style='color: var(--ink);'>Bitcoin</strong> — you sent " + btcAmountFor(o.total) + " BTC (" + money(o.total) + ") to our wallet " + BTC_WALLET + " (transaction / sending address: " + esc(o.payment.sender || "") + ")." + payTailBtc;
           } else if (isDeliveryOrder) {
             totalLabel = "Total due at your door";
             payLine = "<br />Payment: <strong style='color: var(--ink);'>Cash on delivery</strong> — pay the driver when your order arrives, and give the driver your Cash Acceptance Code (below) to complete the cash transaction.";
@@ -6111,7 +6188,7 @@
           } else if (isShipOrder) {
             fulLine = "Shipping for <strong style='color: var(--ink);'>" + esc(o.name) + "</strong> · " + esc(o.time) + "<br />Ship to: " + esc(o.fulfillment.address || "") + "<br />Ships from: " + esc(originForOrder(o).name) + (originForOrder(o).detail ? " — " + esc(originForOrder(o).detail) : "") + "<br />Market: " + esc(o.market) + " · We’ll text " + esc(o.phone) + " when your order ships." + payLine;
           } else {
-            fulLine = "Pickup for <strong style='color: var(--ink);'>" + esc(o.name) + "</strong> · " + esc(o.time) + (o.fulfillment && o.fulfillment.location ? "<br />Pickup at: " + esc(o.fulfillment.location) + (o.fulfillment.detail ? " — " + esc(o.fulfillment.detail) : "") : "<br />Pickup spot: you’ll choose your spot once a team member picks up your order — it opens on your tracker as soon as packing starts.") + "<br />Market: " + esc(o.market) + " · We’ll text " + esc(o.phone) + " when it’s ready." + payLine + "<br />Bring your photo ID — we check it on every pickup." + '<span style="display: block; margin-top: 10px;">' + dirBtnHTML(pickupDirAddr(o), "Get Directions", "") + "</span>";
+            fulLine = "Pickup for <strong style='color: var(--ink);'>" + esc(o.name) + "</strong> · " + esc(o.time) + (o.fulfillment && o.fulfillment.location ? "<br />Pickup at: " + esc(o.fulfillment.location) + (o.fulfillment.detail ? " — " + esc(o.fulfillment.detail) : "") : "<br />Pickup spot: " + (pickupSpotOpenText(o) || "you’ll choose your spot once a team member picks up your order — it opens on your tracker as soon as packing starts.")) + "<br />Market: " + esc(o.market) + " · We’ll text " + esc(o.phone) + " when it’s ready." + payLine + "<br />Bring your photo ID — we check it on every pickup." + '<span style="display: block; margin-top: 10px;">' + dirBtnHTML(pickupDirAddr(o), "Get Directions", "") + "</span>";
           }
           var completedHead = o.statusStage === "completed" ? '<h3 style="font-size: 17px; font-weight: 800; margin-bottom: 10px;">Your receipt</h3>' : '<h3 style="font-size: 17px; font-weight: 800; margin-bottom: 10px;">Order details</h3>';
           box.innerHTML =
@@ -6317,7 +6394,7 @@
           if (!box) return;
           refreshTicketOrderOptions();
           if (!state.history.length) {
-            box.innerHTML = "<p style='color: var(--ink-soft); font-size: 15px;'>No orders yet in this session — place an order and its live tracker will live here.</p>";
+            box.innerHTML = "<p style='color: var(--ink-soft); font-size: 15px;'>No orders on this device yet — place an order and its live tracker will live right here, waiting for you whenever you come back.</p>";
             var rn = $("reorderNote"); if (rn) rn.textContent = "Place your first order and fast reorder switches on.";
             return;
           }
@@ -6336,10 +6413,10 @@
               ? "Ship to: " + esc(o.fulfillment.address || "") + " · " + esc(o.time)
               : o.fulfillment && o.fulfillment.location
               ? "Pickup at: " + esc(o.fulfillment.location) + (o.fulfillment.detail ? " — " + esc(o.fulfillment.detail) : "") + " · " + esc(o.time) + '<span style="display: block; margin-top: 8px;">' + dirBtnHTML(pickupDirAddr(o), "Get Directions", "small") + "</span>"
-              : "Pickup · " + esc(o.time) + " — you’ll choose your spot once a team member picks up your order";
+              : "Pickup · " + esc(o.time) + " — " + (pickupSpotOpenText(o) || "you’ll choose your spot once a team member picks up your order");
             d.innerHTML =
               '<div class="order-card-head"><span class="oc-num">' + esc(o.num) + '</span>' + statusPillHTML(o) + "</div>" +
-              '<div class="oc-meta" style="font-size:13px; color: var(--ink-soft); margin-top:4px;">' + esc(o.when) + " · " + o.items.reduce(function (n, i) { return n + i.qty; }, 0) + " items · " + esc(o.payment ? o.payment.status : "") + (o.payment && o.payment.last4 ? " (" + esc(o.payment.brand || "Card") + " ···· " + esc(o.payment.last4) + ")" : "") + (o.payment && o.payment.balancePaid ? " · " + money(o.payment.balancePaid) + " from account balance" : "") + "</div>" +
+              '<div class="oc-meta" style="font-size:13px; color: var(--ink-soft); margin-top:4px;">' + esc(o.when) + " · " + o.items.reduce(function (n, i) { return n + i.qty; }, 0) + " items · " + esc(o.payment ? (payIsConfirmed(o) ? "Payment confirmed" : o.payment.status) : "") + (o.payment && o.payment.last4 ? " (" + esc(o.payment.brand || "Card") + " ···· " + esc(o.payment.last4) + ")" : "") + (o.payment && o.payment.balancePaid ? " · " + money(o.payment.balancePaid) + " from account balance" : "") + "</div>" +
               trackerHTML(o, "history") +
               '<div style="margin-top: 14px;">' + itemsHtml + receiptBreakdownHTML(o) + "</div>" +
               '<p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;">' + whereHtml + "</p>" +
