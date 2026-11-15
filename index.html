@@ -718,6 +718,16 @@
       @media (max-width: 520px) { .tracker-step .ts-label { font-size: 10.5px; } .tracker-dot { width: 32px; height: 32px; } .tracker-step::before { top: 15px; } .tracker-fill { top: 51px; } .tracker-marker { top: 53px; } .burst { top: 16px; } .ts-timer { padding: 2px 6px; font-size: 10.5px; } .tracker-marker .mk-badge { width: 30px; height: 30px; } }
       .tracker-callout { border: 1.5px solid var(--gold-pale); background: color-mix(in srgb, var(--gold) 7%, var(--surface)); border-radius: 12px; padding: 13px 15px; font-size: 14.5px; margin-top: 16px; }
       .tracker-callout strong { font-family: "Archivo", sans-serif; }
+      /* ---------- Order cancellation (tracker area) ---------- */
+      .tracker-cancel { margin-top: 16px; display: grid; gap: 10px; }
+      .tracker-cancel-note { font-size: 14px; color: var(--ink-soft); margin: 0; }
+      .btn-cancel { background: transparent; border-color: var(--ember); color: var(--ember); justify-self: start; }
+      .btn-cancel:hover { background: color-mix(in srgb, var(--ember) 8%, transparent); }
+      .btn-cancel-solid { background: var(--ember); color: #fff; }
+      .btn-cancel-solid:hover { filter: brightness(1.07); }
+      .cancel-confirm { border: 1.5px solid var(--ember); background: color-mix(in srgb, var(--ember) 6%, var(--surface)); border-radius: 12px; padding: 13px 15px; font-size: 14.5px; display: grid; gap: 11px; }
+      .cancel-confirm strong { font-family: "Archivo", sans-serif; }
+      .cancel-confirm-row { display: flex; gap: 10px; flex-wrap: wrap; }
       .eta-line { font-family: "Archivo", sans-serif; font-weight: 900; font-size: 19px; color: var(--ink); margin-bottom: 5px; }
       .eta-line span { color: var(--gold); font-variant-numeric: tabular-nums; }
       @media (prefers-reduced-motion: reduce) {
@@ -2164,15 +2174,20 @@
            onto the store's own stage names; payment state, the claiming
            staff member, and the chosen pickup spot come from the server
            response and render through the existing tracker UI. */
-        var SERVER_LOCKED_STAGES = { ready: 1, out: 1, shipped: 1, completed: 1 };
+        var SERVER_LOCKED_STAGES = { ready: 1, out: 1, shipped: 1, completed: 1, cancelled: 1 };
         function applyServerTracker(o, v) {
           if (!o || !v) return false;
+          /* Cancelled is terminal: once an order is cancelled (here or
+             from another device), no later sync moves it again. */
+          if (o.statusStage === "cancelled") return false;
           function sig() {
-            return [o.statusStage || "", o.serverStaffName || "", (o.fulfillment && o.fulfillment.spotId) || "", (o.payment && o.payment.pending) ? "p" : "", o._serverSpotSig || ""].join("|");
+            return [o.statusStage || "", o.serverStage || "", o.serverStaffName || "", (o.fulfillment && o.fulfillment.spotId) || "", (o.payment && o.payment.pending) ? "p" : "", o._serverSpotSig || ""].join("|");
           }
           var before = sig();
           var s = v.stage;
-          if (s === "packing") o.statusStage = "processing";
+          if (s) o.serverStage = s;
+          if (s === "cancelled") o.statusStage = "cancelled";
+          else if (s === "packing") o.statusStage = "processing";
           else if (s === "ready") o.statusStage = "ready";
           else if (s === "out") o.statusStage = "out";
           else if (s === "shipped") o.statusStage = "shipped";
@@ -2645,6 +2660,10 @@
               if (!o || typeof o !== "object" || !o.num || !Array.isArray(o.items)) return false;
               delete o._syncing;
               delete o._spotQuery;
+              delete o._cancelConfirm;
+              delete o._cancelling;
+              delete o._cancelDenied;
+              delete o._cancelError;
               return true;
             });
           } catch (e) {}
@@ -5051,12 +5070,13 @@
           else if (stage === "shipped") { idx = idxOf("shipped"); headline = "Shipped — on its way"; sub = "Your order is on its way to " + (o.fulfillment.address || "your address") + ". " + o.time + "."; }
           else if (stage === "ready") { idx = idxOf("ready"); headline = "Ready for pickup"; sub = "Your order is ready — show this screen when you arrive."; }
           else if (stage === "completed") { idx = stages.length - 1; headline = "Order complete"; sub = "This order is complete — your full receipt is below. Thank you for riding with Packs N’ Packs Out."; }
-          var doneThrough = stage === "completed" ? stages.length - 1 : (stage === "payment_confirmed" ? idx : idx - 1);
+          else if (stage === "cancelled") { idx = idxOf("placed"); headline = "Order cancelled"; sub = "This order was cancelled."; }
+          var doneThrough = stage === "cancelled" ? idx : stage === "completed" ? stages.length - 1 : (stage === "payment_confirmed" ? idx : idx - 1);
           return { stages: stages, idx: idx, doneThrough: doneThrough, headline: headline, sub: sub, isDel: isDel, isShip: isShip };
         }
         function statusPillHTML(o) {
           var info = trackerInfo(o);
-          var cls = o.statusStage === "completed" ? "gold" : (o.statusStage === "payment_pending" ? "ember" : "dark");
+          var cls = o.statusStage === "completed" ? "gold" : (o.statusStage === "cancelled" || o.statusStage === "payment_pending" ? "ember" : "dark");
           return '<span class="status-pill ' + cls + '">' + esc(info.headline) + "</span>";
         }
         function receiptBreakdownHTML(o) {
@@ -5112,6 +5132,7 @@
         }
         function mapEtaLabel(o) {
           var stage = o.statusStage || "placed";
+          if (stage === "cancelled") return "Order cancelled";
           if (stage === "completed") return "Delivered · Order complete";
           var isShip = o.fulfillment && o.fulfillment.method === "shipping";
           var target = etaTargetFor(o);
@@ -5127,6 +5148,7 @@
         }
         function pickupEtaLabel(o) {
           var stage = o.statusStage || "placed";
+          if (stage === "cancelled") return "Order cancelled";
           if (stage === "completed") return "Picked up · Order complete";
           if (stage === "ready") return "Ready now · Come on in";
           var target = etaTargetFor(o);
@@ -5213,12 +5235,15 @@
           var reduced = reducedMotion();
           var stage = o.statusStage || "placed";
           var completed = stage === "completed";
+          var cancelled = stage === "cancelled";
           var isPickup = !info.isDel && !info.isShip;
           mapSeq += 1;
           if (isPickup) {
             var locName = (o.fulfillment && o.fulfillment.location) || "Your pickup spot";
             var locAddr = (o.fulfillment && o.fulfillment.detail) || "";
-            var chip = completed
+            var chip = cancelled
+              ? '<div class="map-chip done"><span class="mc-dot"></span><span>Cancelled · Order cancelled</span></div>'
+              : completed
               ? '<div class="map-chip done"><span class="mc-dot"></span><span>Picked up · Order complete</span></div>'
               : '<div class="map-chip"><span class="mc-dot"></span><span data-pickup-eta-for="' + esc(o.num) + '">' + esc(pickupEtaLabel(o)) + "</span></div>";
             var pin =
@@ -5240,7 +5265,11 @@
             var pickerOpen = !!(!hasSpot && o.serverLinked && stage === "processing" && bannerStaff && (o.serverSpots || []).length);
             var bannerTime = o.time ? '<div class="mpc-time">Pickup time: ' + esc(o.time) + "</div>" : "";
             var noSpotCard;
-            if (completed) {
+            if (cancelled) {
+              noSpotCard = '<div class="map-pickup-card"><div class="mpc-kicker"><span class="mc-dot"></span>Cancelled</div>' +
+                '<div class="mpc-name">Order cancelled</div>' +
+                '<div class="mpc-addr">This order was cancelled.</div></div>';
+            } else if (completed) {
               noSpotCard = '<div class="map-pickup-card"><div class="mpc-kicker"><span class="mc-dot"></span>Picked up</div>' +
                 '<div class="mpc-name">Picked up — order complete</div>' +
                 '<div class="mpc-addr">Thanks for picking up with us.</div>' +
@@ -5261,7 +5290,9 @@
                 '<div class="mpc-addr">You’ll choose your spot once a team member picks up your order.</div>' +
                 bannerTime + "</div>";
             }
-            var card = hasSpot
+            var card = cancelled
+              ? noSpotCard
+              : hasSpot
               ? '<div class="map-pickup-card"><div class="mpc-kicker"><span class="mc-dot"></span>' + (stage === "ready" ? "Ready for you — you're headed here" : completed ? "Picked up here" : "You're headed here") + '</div>' +
                 '<div class="mpc-name">' + esc(locName) + '</div>' +
                 (locAddr ? '<div class="mpc-addr">' + esc(locAddr) + "</div>" : "") +
@@ -5271,7 +5302,7 @@
             return '<div class="tracker-map stage-pickup' + (reduced ? " no-anim" : "") + '"><svg class="map-svg" viewBox="0 0 400 210" role="img" aria-label="Map centered on your pickup location, ' + esc(locName) + '">' + mapStreetsSVG() + you + youDot + pin + "</svg>" + chip + card + "</div>";
           }
           var isOut = stage === "out" || stage === "shipped";
-          var stageCls = completed ? "stage-done" : isOut ? (info.isShip ? "stage-shipped" : "stage-out") : "stage-early";
+          var stageCls = completed || cancelled ? "stage-done" : isOut ? (info.isShip ? "stage-shipped" : "stage-out") : "stage-early";
           var pid = "rp-" + String(o.num).replace(/[^A-Za-z0-9]/g, "") + "-" + mapSeq;
           var routeD = "M48 150 C 104 150, 122 96, 192 92 C 248 89, 292 64, 348 64";
           var destLabel = info.isShip ? (shipCityOf(o) || "SHIP TO").toUpperCase() : "YOUR DOOR";
@@ -5307,7 +5338,9 @@
              (out for delivery / shipped). Before that stage there is no
              truck, no live ETA — just a plain note that live location
              starts when the order is on its way. */
-          var chip2 = completed
+          var chip2 = cancelled
+            ? '<div class="map-chip done"><span class="mc-dot"></span><span>Cancelled · Order cancelled</span></div>'
+            : completed
             ? '<div class="map-chip done"><span class="mc-dot"></span><span>Delivered · Order complete</span></div>'
             : isOut
             ? '<div class="map-chip"><span class="mc-dot"></span><span data-map-eta-for="' + esc(o.num) + '">' + esc(mapEtaLabel(o)) + "</span></div>"
@@ -5361,6 +5394,7 @@
           if (!o.fulfillment || o.fulfillment.method !== "pickup") return "";
           var stage = o.statusStage || "placed";
           var f = o.fulfillment;
+          if (stage === "cancelled") return "";
           if (stage === "completed") {
             return f.location ? '<div class="pickup-pick"><p class="pp-final">Picked up at</p><p class="pp-spot">' + esc(f.location) + (f.detail ? " — " + esc(f.detail) : "") + "</p></div>" : "";
           }
@@ -5390,7 +5424,7 @@
                 for (var si = 0; si < o.serverSpots.length; si++) if (o.serverSpots[si].id === spotId) loc = o.serverSpots[si];
               }
               if (!loc) return;
-              if (o.statusStage === "ready" || o.statusStage === "completed" || o.statusStage === "out" || o.statusStage === "shipped") return;
+              if (o.statusStage === "ready" || o.statusStage === "completed" || o.statusStage === "cancelled" || o.statusStage === "out" || o.statusStage === "shipped") return;
               o.fulfillment.spotId = loc.id;
               o.fulfillment.location = loc.name;
               o.fulfillment.detail = loc.detail;
@@ -5420,20 +5454,124 @@
             });
           });
         }
+        /* ---------- Order cancellation ----------
+           The server allows a customer cancel only while the order's
+           server stage is still "placed" (before Packing). Locally that
+           is the placed / payment_pending / payment_confirmed stages on
+           a server-linked order carrying its access token. Confirming
+           POSTs to the server's cancel endpoint with that same token;
+           a 409 means the order already moved past "placed" on the
+           business side, so the order is refreshed from the server and
+           shown in its true state with a too-late notice. */
+        function isPlacedStage(o) {
+          var s = (o && o.statusStage) || "placed";
+          return s === "placed" || s === "payment_pending" || s === "payment_confirmed";
+        }
+        function canCancelOrder(o) {
+          return !!(o && o.serverLinked && o.accessToken && isPlacedStage(o) && (!o.serverStage || o.serverStage === "placed"));
+        }
+        function cancelSectionHTML(o) {
+          var stage = o.statusStage || "placed";
+          if (stage === "cancelled" || stage === "completed") return "";
+          if (canCancelOrder(o)) {
+            if (o._cancelConfirm) {
+              return '<div class="tracker-cancel"><div class="cancel-confirm"><span><strong>Cancel this order?</strong> This can’t be undone — order ' + esc(o.num) + ' will be cancelled and will not be prepared.</span>' +
+                '<span class="cancel-confirm-row"><button class="btn btn-cancel-solid" type="button" data-cancel-confirm="' + esc(o.num) + '"' + (o._cancelling ? " disabled" : "") + ' style="min-height: 44px; padding: 9px 16px;">' + (o._cancelling ? "Cancelling…" : "Yes, cancel this order") + '</button>' +
+                '<button class="btn btn-outline" type="button" data-cancel-dismiss="' + esc(o.num) + '"' + (o._cancelling ? " disabled" : "") + ' style="min-height: 44px; padding: 9px 16px;">Keep my order</button></span></div></div>';
+            }
+            return '<div class="tracker-cancel">' + (o._cancelError ? '<p class="tracker-cancel-note">' + esc(o._cancelError) + "</p>" : "") +
+              '<button class="btn btn-cancel" type="button" data-cancel-order="' + esc(o.num) + '">Cancel this order</button></div>';
+          }
+          if (stage === "processing" || stage === "ready" || stage === "out" || stage === "shipped") {
+            if (o._cancelDenied) {
+              return '<div class="tracker-cancel"><div class="tracker-callout" style="margin-top: 0;"><strong>Too late to cancel online.</strong> This order has already moved past the point where it can be cancelled online — contact the business about changes.</div></div>';
+            }
+            return '<div class="tracker-cancel"><p class="tracker-cancel-note">Your order is being prepared and can no longer be cancelled online — contact the business about changes.</p></div>';
+          }
+          return "";
+        }
+        function requestCancelOrder(o) {
+          if (!o || o._cancelling) return;
+          if (!o.accessToken) {
+            o._cancelConfirm = false;
+            o._cancelError = "We couldn’t cancel this order just now — please try again.";
+            refreshOrderViews(o);
+            return;
+          }
+          o._cancelling = true;
+          o._cancelError = "";
+          refreshOrderViews(o);
+          api("/orders/" + encodeURIComponent(o.num) + "/cancel?access=" + encodeURIComponent(o.accessToken), { method: "POST", timeout: 8000 }).then(function (r) {
+            o._cancelling = false;
+            if (r && (r.status === 200 || r.status === 201)) {
+              o._cancelConfirm = false;
+              o._cancelDenied = false;
+              o._cancelError = "";
+              if (r.data) applyServerTracker(o, r.data);
+              o.statusStage = "cancelled";
+              o.serverStage = "cancelled";
+              o.stageAt = Date.now();
+              refreshOrderViews(o);
+              toast("Order " + o.num + " cancelled");
+              return;
+            }
+            if (r && r.status === 409) {
+              o._cancelConfirm = false;
+              api("/orders/" + encodeURIComponent(o.num) + "?access=" + encodeURIComponent(o.accessToken), { timeout: 6000 }).then(function (r2) {
+                if (r2 && r2.status === 200 && r2.data) applyServerTracker(o, r2.data);
+                o._cancelDenied = true;
+                refreshOrderViews(o);
+                toast("This order can no longer be cancelled online");
+              });
+              return;
+            }
+            o._cancelError = "We couldn’t cancel this order just now — please try again.";
+            refreshOrderViews(o);
+            toast("Couldn’t cancel — please try again");
+          });
+        }
+        function wireCancelButtons(root) {
+          if (!root) return;
+          root.querySelectorAll("[data-cancel-order]").forEach(function (b) {
+            b.addEventListener("click", function () {
+              var o = orderByNum(b.getAttribute("data-cancel-order"));
+              if (!o) return;
+              o._cancelConfirm = true;
+              o._cancelError = "";
+              refreshOrderViews(o);
+            });
+          });
+          root.querySelectorAll("[data-cancel-dismiss]").forEach(function (b) {
+            b.addEventListener("click", function () {
+              var o = orderByNum(b.getAttribute("data-cancel-dismiss"));
+              if (!o) return;
+              o._cancelConfirm = false;
+              refreshOrderViews(o);
+            });
+          });
+          root.querySelectorAll("[data-cancel-confirm]").forEach(function (b) {
+            b.addEventListener("click", function () {
+              var o = orderByNum(b.getAttribute("data-cancel-confirm"));
+              if (!o) return;
+              requestCancelOrder(o);
+            });
+          });
+        }
         function trackerHTML(o, ctx) {
           var info = trackerInfo(o);
           var n = info.stages.length;
           var stage = o.statusStage || "placed";
           var completed = stage === "completed";
+          var cancelled = stage === "cancelled";
           var activeIdx = info.idx;
           if (stage === "payment_confirmed") { for (var q = 0; q < n; q++) if (info.stages[q].id === "processing") activeIdx = q; }
           var steps = info.stages.map(function (s, i) {
             var isDone = i <= info.doneThrough || completed;
-            var cls = isDone ? "done" : (i === activeIdx ? "current" : "");
+            var cls = isDone ? "done" : (i === activeIdx && !cancelled ? "current" : "");
             if (completed && i === n - 1) cls += " celebrate";
             var mark = isDone ? CHK_SVG : String(i + 1);
             var lbl = s.id === "payment" ? (stage === "payment_pending" ? "Payment pending" : "Payment confirmed") : s.label;
-            var timer = (!completed && i === activeIdx) ? '<span class="ts-timer"><span class="live-dot"></span><span data-elapsed-for="' + esc(o.num) + '">0:00</span></span>' : "";
+            var timer = (!completed && !cancelled && i === activeIdx) ? '<span class="ts-timer"><span class="live-dot"></span><span data-elapsed-for="' + esc(o.num) + '">0:00</span></span>' : "";
             var burst = (completed && i === n - 1) ? burstHTML() : "";
             return '<div class="tracker-step ' + cls + '" style="--d:' + (i * 80) + 'ms"><span class="tracker-dot">' + mark + '</span><span class="ts-label">' + lbl + "</span>" + timer + burst + "</div>";
           }).join("");
@@ -5449,19 +5587,21 @@
           if (o.statusStage === "out") callout = '<div class="tracker-callout"><div class="eta-line">Arriving in <span data-eta-for="' + esc(o.num) + '">—</span></div><strong>Arrival window: ' + esc(o.time) + '</strong><br />Deliver to: ' + esc((o.fulfillment && o.fulfillment.address) || "") + "<br />Have your photo ID (21+) ready at the door.</div>";
           if (o.statusStage === "shipped") callout = '<div class="tracker-callout"><strong>Shipped — on its way.</strong><br />Ship to: ' + esc((o.fulfillment && o.fulfillment.address) || "") + "<br />Order " + esc(o.num) + " · " + esc(o.time) + ".</div>";
           var shipPrompt = "";
-          if (o.fulfillment && o.fulfillment.method === "shipping" && !state.shipInfo) {
+          if (!cancelled && o.fulfillment && o.fulfillment.method === "shipping" && !state.shipInfo) {
             shipPrompt = '<div class="tracker-callout"><strong>Shipping information needed.</strong><br />This order ships as soon as your shipping information is on file — add it now so nothing is delayed.<br /><button class="btn btn-gold" type="button" data-ship-info="1" style="margin-top: 10px; min-height: 44px; padding: 9px 16px;">Add Shipping Information</button></div>';
           }
           if (o.statusStage === "payment_pending") callout = '<div class="tracker-callout"><strong>Payment pending.</strong> This order is not marked paid yet — it moves to packing as soon as the business confirms your payment landed.</div>';
           var enRoute = stage === "out" || stage === "shipped";
-          var liveChip = completed
+          var liveChip = cancelled
+            ? '<span class="live-chip done"><span class="live-dot"></span>Cancelled</span>'
+            : completed
             ? '<span class="live-chip done"><span class="live-dot"></span>Completed</span>'
             : enRoute
             ? '<span class="live-chip"><span class="live-dot"></span>Live</span>'
             : '<span class="live-chip done"><span class="live-dot"></span>Tracking</span>';
           return '<div class="tracker"><div class="tracker-head"><div class="tracker-live-row">' + liveChip + '</div>' +
             '<div class="tracker-headline">' + esc(info.headline) + '</div><p class="tracker-sub">' + esc(info.sub) + "</p></div>" + map +
-            '<div class="tracker-steps">' + steps + fill + marker + "</div>" + callout + shipPrompt + pickupSectionHTML(o) + "</div>";
+            '<div class="tracker-steps">' + steps + fill + marker + "</div>" + callout + shipPrompt + pickupSectionHTML(o) + cancelSectionHTML(o) + "</div>";
         }
         function pad2(x) { return (x < 10 ? "0" : "") + x; }
         function fmtClock(ms) {
@@ -6159,6 +6299,7 @@
              fallback: that future tense is wrong on a finished order. */
           if (!o || !o.fulfillment || o.fulfillment.method !== "pickup" || o.fulfillment.location) return null;
           var stage = o.statusStage || "placed";
+          if (stage === "cancelled") return "Order cancelled.";
           if (stage === "completed") return "Picked up — order complete.";
           if (stage === "ready") return "Your order is ready — your team member will confirm your pickup spot with you.";
           var staffName = o.serverStaffName || o.staffName || "";
@@ -6176,7 +6317,7 @@
           if (!o.placedAt) o.placedAt = o.stageAt;
           $("ordNum").textContent = o.num;
           var trk = $("ordTracker");
-          if (trk) { trk.innerHTML = trackerHTML(o, "confirm"); wireShipInfo(trk); wirePickupPicker(trk); }
+          if (trk) { trk.innerHTML = trackerHTML(o, "confirm"); wireShipInfo(trk); wirePickupPicker(trk); wireCancelButtons(trk); }
           var box = $("ordDetails");
           var lines = o.items.map(function (i) { var skuI = i.sku || (prodById(i.id) || {}).sku || ""; return "<div class='sum-line'><span class='sl-n'>" + esc(i.name) + "<small>" + esc(i.size) + " × " + i.qty + (skuI ? " · Item #" + esc(skuI) : "") + "</small></span><span>" + money(i.price * i.qty) + "</span></div>"; }).join("");
           var isDeliveryOrder = o.fulfillment && o.fulfillment.method === "delivery";
@@ -6229,6 +6370,7 @@
           } else {
             fulLine = "Pickup for <strong style='color: var(--ink);'>" + esc(o.name) + "</strong> · " + esc(o.time) + (o.fulfillment && o.fulfillment.location ? "<br />Pickup at: " + esc(o.fulfillment.location) + (o.fulfillment.detail ? " — " + esc(o.fulfillment.detail) : "") : "<br />Pickup spot: " + (pickupSpotOpenText(o) || "you’ll choose your spot once a team member picks up your order — it opens on your tracker as soon as packing starts.")) + "<br />Market: " + esc(o.market) + " · We’ll text " + esc(o.phone) + " when it’s ready." + payLine + "<br />Bring your photo ID — we check it on every pickup." + '<span style="display: block; margin-top: 10px;">' + dirBtnHTML(pickupDirAddr(o), "Get Directions", "") + "</span>";
           }
+          if (o.statusStage === "cancelled") { fulLine = "Order cancelled."; totalLabel = "Total"; }
           var completedHead = o.statusStage === "completed" ? '<h3 style="font-size: 17px; font-weight: 800; margin-bottom: 10px;">Your receipt</h3>' : '<h3 style="font-size: 17px; font-weight: 800; margin-bottom: 10px;">Order details</h3>';
           box.innerHTML =
             completedHead + lines +
@@ -6245,7 +6387,7 @@
           var panel = $("cashComplete");
           if (!panel) return;
           var isCash = !!(o.payment && o.payment.method === "cash" && o.payment.cashCode);
-          if (!isCash) { panel.hidden = true; panel.innerHTML = ""; return; }
+          if (!isCash || o.statusStage === "cancelled") { panel.hidden = true; panel.innerHTML = ""; return; }
           panel.hidden = false;
           var where = o.fulfillment && o.fulfillment.method === "delivery" ? "delivery" : o.fulfillment && o.fulfillment.method === "shipping" ? "shipment release" : "pickup";
           if (o.payment.cashDone) {
@@ -6323,7 +6465,7 @@
             saveShipInfo(vals);
             renderShipInfoForm(o);
             var trk = $("ordTracker");
-            if (trk) { trk.innerHTML = trackerHTML(o, "confirm"); wireShipInfo(trk); wirePickupPicker(trk); }
+            if (trk) { trk.innerHTML = trackerHTML(o, "confirm"); wireShipInfo(trk); wirePickupPicker(trk); wireCancelButtons(trk); }
             renderHistory();
             toast("Shipping information saved to your account");
           });
@@ -6464,7 +6606,9 @@
             var d = document.createElement("div");
             d.className = "order-card";
             var itemsHtml = o.items.map(function (i) { var skuH = i.sku || (prodById(i.id) || {}).sku || ""; return "<div class='sum-line'><span class='sl-n'>" + esc(i.name) + "<small>" + esc(i.size) + " × " + i.qty + (skuH ? " · Item #" + esc(skuH) : "") + "</small></span><span>" + money(i.price * i.qty) + "</span></div>"; }).join("");
-            var whereHtml = o.fulfillment && o.fulfillment.method === "delivery"
+            var whereHtml = o.statusStage === "cancelled"
+              ? "Order cancelled."
+              : o.fulfillment && o.fulfillment.method === "delivery"
               ? "Delivery to: " + esc(o.fulfillment.address || "") + " · Window: " + esc(o.time)
               : o.fulfillment && o.fulfillment.method === "shipping"
               ? "Ship to: " + esc(o.fulfillment.address || "") + " · " + esc(o.time)
@@ -6480,6 +6624,7 @@
               '<div style="display:flex; gap:10px; flex-wrap:wrap; margin-top: 12px;"><button class="btn btn-outline" type="button" data-help-order="' + esc(o.num) + '" style="min-height:44px; padding:9px 16px;">Get help with this order</button></div>';
             wireShipInfo(d);
             wirePickupPicker(d);
+            wireCancelButtons(d);
             var hb = d.querySelector("[data-help-order]");
             if (hb) hb.addEventListener("click", function () {
               var sel = $("ticketOrderSel"); if (sel) sel.value = o.num;
