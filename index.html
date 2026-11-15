@@ -11,6 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Packs Out" />
     <link rel="manifest" href="assets/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
     <link rel="icon" href="data:," />
     <title>Packs N’ Packs Out</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -6925,8 +6926,20 @@
         var ua = navigator.userAgent || "";
         var isIOS = /iphone|ipad|ipod/i.test(ua);
         var isAndroid = /android/i.test(ua);
-        $("installBtn").addEventListener("click", function () {
+        var deferredInstallPrompt = null;
+        window.addEventListener("beforeinstallprompt", function (e) {
+          e.preventDefault();
+          deferredInstallPrompt = e;
+        });
+        $("installBtn").addEventListener("click", async function () {
           var el = $("installStatus");
+          if (deferredInstallPrompt) {
+            var promptEvent = deferredInstallPrompt;
+            promptEvent.prompt();
+            try { await promptEvent.userChoice; } catch (err) {}
+            deferredInstallPrompt = null;
+            return;
+          }
           if (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone) {
             el.textContent = "You’re already running the installed app — welcome back.";
           } else if (isIOS) {
@@ -6938,6 +6951,7 @@
           }
         });
         window.addEventListener("appinstalled", function () {
+          deferredInstallPrompt = null;
           $("installStatus").textContent = "Installed — look for the gold truck on your home screen.";
         });
 
