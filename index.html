@@ -2980,45 +2980,6 @@
           var names = { applepay: "Apple Pay", cashapp: "Cash App", chime: "Chime", current: "Current", bitcoin: "Bitcoin", cash: "Cash" };
           return names[method] || method;
         }
-        function membershipAlertBody(p) {
-          var tier = tierById(p.tierId);
-          var lines = [];
-          lines.push("New pending membership — Packs N' Packs Out");
-          lines.push("");
-          lines.push("Type: " + (p.kind === "renewal" ? "Renewal" : "New join"));
-          lines.push("Tier: " + (tier ? tier.name : p.tierId));
-          lines.push("Term: " + termName(p.termMonths || 1) + " (" + (p.termMonths || 1) + ((p.termMonths || 1) === 1 ? " month" : " months") + ")");
-          lines.push("Fee: " + money(p.fee));
-          lines.push("Payment method: " + memPayBrand(p.method));
-          if (p.sender) lines.push("Sent from: " + p.sender);
-          lines.push("");
-          lines.push("Customer: " + (p.name || ""));
-          lines.push("Email: " + (p.email || ""));
-          lines.push("");
-          lines.push("ACTIVATION CODE: " + p.code);
-          lines.push("");
-          lines.push("This membership is PENDING — no discount, no welcome credit, and no perks are active. Confirm the payment landed, then hand the customer this activation code: their membership switches on the moment they enter it in My Account → Membership.");
-          return lines.join("\n");
-        }
-        function fireMembershipAlert(p) {
-          try {
-            if (!alertSettings().enabled) return;
-            if (typeof fetch !== "function") return;
-            var body = membershipAlertBody(p);
-            var title = "New Pending Membership — Packs N' Packs Out";
-            var send = function (t, isRetry) {
-              try {
-                var pr = fetch(ALERT_TOPIC_URL, {
-                  method: "POST",
-                  headers: { "Title": t, "Email": ALERT_EMAIL, "Content-Type": "text/plain; charset=utf-8" },
-                  body: body
-                });
-                if (pr && pr.catch) pr.catch(function () { if (!isRetry) send(title.replace(/—/g, "-"), true); });
-              } catch (e) { if (!isRetry) send(title.replace(/—/g, "-"), true); }
-            };
-            send(title, false);
-          } catch (e) { /* fire-and-forget: an alert failure never touches the join */ }
-        }
         function mjSentConfirmHTML(appName, amt) {
           return '<label class="pay-sent"><input type="checkbox" id="mjSentConfirm" /><span><strong>I’ve sent it.</strong> I paid ' + money(amt) + " in " + appName + ". My membership stays <strong>PENDING</strong> until the business confirms the payment landed — submitting this join does not switch anything on.</span></label>";
         }
@@ -3178,10 +3139,10 @@
             state.pendingMemberships[email] = pending;
             savePendingMemberships();
             state.memJoin = null;
-            /* A server join fires the business alert from the server —
-               no ntfy membership alert. The local flow (no session, or
-               the server unreachable) is unchanged, alert included. */
-            if (!viaServer) fireMembershipAlert(pending);
+            /* No client-side membership alert: the pending record (and
+               its activation code) is never posted from the browser to
+               any public channel. Business notification of a join is
+               the server's job, over its own authenticated channel. */
             refreshMembershipSurfaces();
             toast(tier.name + " join submitted — pending until your payment is confirmed");
           }
@@ -4298,6 +4259,85 @@
           renderDrawerMemberNote();
           updateCartBar();
         }
+
+        /* ==== Server catalog overlay =====================================
+           The server catalog (owner panel) is the single source of truth
+           for product names, size prices and sold-out state. The baked-in
+           PRODUCTS render immediately; when the server catalog arrives it
+           is overlaid by product id and the shop grid + cart re-render.
+           Server items with no baked-in counterpart are ignored (the store
+           has no media/layout for them). ANY failure — network error,
+           timeout over 4s, non-OK status, malformed body — leaves the
+           baked-in catalog exactly as-is. ================================ */
+        function applyCatalogOverlay(serverProducts) {
+          if (!Array.isArray(serverProducts)) return 0;
+          var changed = 0;
+          for (var i = 0; i < serverProducts.length; i++) {
+            var sp = serverProducts[i];
+            if (!sp || typeof sp.id !== "string") continue;
+            var bp = null;
+            for (var j = 0; j < PRODUCTS.length; j++) {
+              if (PRODUCTS[j].id === sp.id) { bp = PRODUCTS[j]; break; }
+            }
+            if (!bp) continue; /* server-only item: ignored */
+            var dirty = false;
+            if (typeof sp.name === "string" && sp.name !== "" && sp.name !== bp.name) {
+              bp.name = sp.name; dirty = true;
+            }
+            if (Array.isArray(sp.sizes) && sp.sizes.length > 0) {
+              var serverSizes = [], valid = true;
+              for (var k = 0; k < sp.sizes.length; k++) {
+                var ss = sp.sizes[k];
+                if (!ss || typeof ss.label !== "string" || typeof ss.price !== "number" || !isFinite(ss.price)) { valid = false; break; }
+                serverSizes.push({ l: ss.label, p: ss.price });
+              }
+              if (valid) {
+                var bakedLabels = {};
+                bp.sizes.forEach(function (bs) { bakedLabels[bs.l] = true; });
+                var hasNewLabel = serverSizes.some(function (ss) { return !bakedLabels[ss.l]; });
+                if (hasNewLabel) {
+                  bp.sizes = serverSizes; dirty = true;
+                } else {
+                  var priceByLabel = {};
+                  serverSizes.forEach(function (ss) { priceByLabel[ss.l] = ss.p; });
+                  bp.sizes.forEach(function (bs) {
+                    if (Object.prototype.hasOwnProperty.call(priceByLabel, bs.l) && priceByLabel[bs.l] !== bs.p) {
+                      bs.p = priceByLabel[bs.l]; dirty = true;
+                    }
+                  });
+                }
+              }
+            }
+            if (!!sp.soldOut !== !!bp.soldOut) { bp.soldOut = !!sp.soldOut; dirty = true; }
+            if (dirty) changed++;
+          }
+          return changed;
+        }
+
+        (function loadServerCatalog() {
+          if (typeof fetch !== "function") return;
+          var controller = (typeof AbortController === "function") ? new AbortController() : null;
+          var timer = controller ? setTimeout(function () { controller.abort(); }, 4000) : null;
+          fetch("https://packs-n-packs-out-server.onrender.com/catalog", controller ? { signal: controller.signal } : {})
+            .then(function (res) {
+              if (timer) { clearTimeout(timer); timer = null; }
+              if (!res || !res.ok) return null;
+              return res.json();
+            })
+            .then(function (data) {
+              if (!data || !Array.isArray(data.products)) return;
+              var changed = applyCatalogOverlay(data.products);
+              if (changed > 0) {
+                if (typeof renderShop === "function") renderShop();
+                if (typeof renderCart === "function") renderCart();
+              }
+            })
+            .catch(function () {
+              if (timer) { clearTimeout(timer); timer = null; }
+              /* fetch failed / timed out / bad JSON: keep baked-in catalog */
+            });
+        })();
+
         function renderDrawerMemberNote() {
           var el = $("drawerMemberNote");
           if (!el) return;
