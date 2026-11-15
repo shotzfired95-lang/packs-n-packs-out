@@ -2612,7 +2612,7 @@
             "</div></div>";
           body.innerHTML = html;
           var wok = $("idWelcomeOk");
-          if (wok) wok.addEventListener("click", function () { acct.welcomeSeenFor = wKey; renderAcctIdentity(); });
+          if (wok) wok.addEventListener("click", function () { acct.welcomeSeenFor = wKey; saveAccounts(); renderAcctIdentity(); });
           var save = $("idSaveName");
           if (save) save.addEventListener("click", function () {
             var v = $("idUserName").value.trim().replace(/\s+/g, " ");
@@ -2620,13 +2620,14 @@
             if (v.length < 2 || v.length > 24) { msg.className = "form-msg err"; msg.textContent = "Usernames run 2–24 characters."; return; }
             if (!/^[A-Za-z0-9][A-Za-z0-9 _.'-]*$/.test(v)) { msg.className = "form-msg err"; msg.textContent = "Letters, numbers, spaces, and _ . ’ - only."; return; }
             acct.username = v;
+            saveAccounts();
             renderAcctIdentity(); renderTopMembers(); refreshReviewCards();
             toast("Username saved — welcome, " + v);
           });
           var file = $("idAvatarFile");
           if (file) file.addEventListener("change", function () { handleAvatarFile(file, email); });
           var rem = $("idAvatarRemove");
-          if (rem) rem.addEventListener("click", function () { acct.avatar = ""; renderAcctIdentity(); renderTopMembers(); refreshReviewCards(); toast("Picture removed — your initial medallion is back"); });
+          if (rem) rem.addEventListener("click", function () { acct.avatar = ""; saveAccounts(); renderAcctIdentity(); renderTopMembers(); refreshReviewCards(); toast("Picture removed — your initial medallion is back"); });
         }
         /* Any image a member uploads becomes their profile picture: read
            it, center-crop to a square, and compress client-side to a
@@ -2650,6 +2651,7 @@
               cx.drawImage(img, (S - w) / 2, (S - h) / 2, w, h);
               var acct = ensureAccount(email, state.user ? state.user.name : "");
               try { acct.avatar = cv.toDataURL("image/jpeg", 0.85); } catch (e) { fail("That image couldn’t be processed — try another one."); return; }
+              saveAccounts();
               renderAcctIdentity(); renderTopMembers(); refreshReviewCards();
               toast("Profile picture set — looking sharp");
             };
@@ -4621,9 +4623,12 @@
            (account emails). Only a signed-in member whose email is on this
            list can select Cash — at pickup or on delivery. The business adds
            or removes members by editing this list. */
-        var CASH_APPROVED_EMAILS = ["approved-member@example.com"];
+        var CASH_APPROVED_EMAILS = ["carmenmorgan556@gmail.com", "myeshajackson98@gmail.com"];
         function cashApproved() {
-          return !!(state.user && state.user.cashApproved);
+          if (!state.user) return false;
+          if (state.user.cashApproved) return true;
+          var em = String(state.user.email || "").trim().toLowerCase();
+          return CASH_APPROVED_EMAILS.indexOf(em) >= 0;
         }
         var PAY_METHODS = [
           { id: "card", name: "Card", desc: "Visa · Mastercard · Amex · Discover" },
@@ -6203,6 +6208,7 @@
           var myAcct = ensureAccount(String(email).trim().toLowerCase(), name);
           if (myAcct && myAcct._new) {
             myAcct._new = false;
+            saveAccounts();
             var scratchGot = claimScratchFor(String(email).trim().toLowerCase());
             if (scratchGot > 0) setTimeout(function () { toast("Scratch bonus — " + money(scratchGot) + " landed in your balance"); }, 700);
             var wheelGot = claimWheelFor(String(email).trim().toLowerCase());
@@ -6524,6 +6530,20 @@
         var SCRATCH_POOL = [{ amt: 5, w: 60 }, { amt: 10, w: 25 }, { amt: 15, w: 10 }, { amt: 25, w: 5 }];
 
         function normEmail(e) { return String(e || "").trim().toLowerCase(); }
+        /* Account records persist on this device (localStorage — the
+           same pattern pending memberships already use). This is what
+           makes a set password stick: accounts used to live only in
+           page memory, so the credential vanished on the next page
+           load and every login fell back to the one-time set-password
+           step again, in a loop. Records are saved the moment an
+           account is created, a password is set, or the record
+           changes — and only the salted hash is ever stored, never
+           the plain password. */
+        function saveAccounts() { try { lsSet("pnpo_accounts", JSON.stringify(state.accounts)); } catch (e) {} }
+        function loadAccounts() {
+          try { var v = JSON.parse(lsGet("pnpo_accounts") || "null"); if (v && typeof v === "object") state.accounts = v; } catch (e) {}
+        }
+        loadAccounts();
         /* Account passwords live on the account record ONLY as a salted
            hash — never plaintext. Same djb2-family string hash the store
            uses for invite codes (codeForEmail), stretched over a
@@ -6545,6 +6565,11 @@
           if (!acct) return;
           acct.pwSalt = Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
           acct.pwHash = pwHash(pw, acct.pwSalt);
+          /* Persist immediately — the credential must be on the saved
+             record before anything else runs, so the next login (this
+             visit or any later one) verifies against it instead of
+             asking for a new password again. */
+          saveAccounts();
         }
         function accountPasswordOk(acct, pw) {
           return !!(acct && acct.pwHash && acct.pwSalt) && pwHash(pw, acct.pwSalt) === acct.pwHash;
@@ -6578,8 +6603,9 @@
               if (inv && inv !== email) a.inviter = inv;
             }
             if (!state.referrals[email]) state.referrals[email] = { earnings: 0 };
+            saveAccounts();
           }
-          if (name && !a.name) a.name = name;
+          if (name && !a.name) { a.name = name; saveAccounts(); }
           return a;
         }
         function nameOf(email) {
