@@ -143,10 +143,10 @@
       /* ---------- Fulfillment ---------- */
       .seg { display: inline-flex; background: var(--surface); border: 1.5px solid var(--espresso); border-radius: 999px; overflow: hidden; flex: none; }
       .seg button { border: 0; background: transparent; color: var(--ink); font-family: "Archivo", sans-serif; font-weight: 800; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; padding: 8px 16px; min-height: 38px; cursor: pointer; }
-      .seg button[aria-pressed="true"] { background: var(--espresso); color: #f5ecd9; }
+      .seg button[aria-pressed="true"] { background: var(--gold-grad); color: #2a1d08; box-shadow: 0 0 0 1px rgba(150, 105, 15, 0.35), 0 3px 14px rgba(193, 144, 42, 0.55); }
       .seg.light { border-color: #57431f; background: #2c2013; }
       .seg.light button { color: #c9bda6; }
-      .seg.light button[aria-pressed="true"] { background: var(--gold-grad); color: #2a1d08; }
+      .seg.light button[aria-pressed="true"] { background: var(--gold-grad); color: #2a1d08; box-shadow: 0 0 0 1px rgba(150, 105, 15, 0.35), 0 3px 14px rgba(193, 144, 42, 0.55); }
       .loc-detail { font-size: 14px; }
       .loc-panel { background: var(--surface); border-bottom: 1px solid var(--line); }
       .loc-panel-in { padding-top: 16px; padding-bottom: 18px; display: grid; gap: 10px; }
@@ -412,7 +412,7 @@
       .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
       .chip { font-family: "Archivo", sans-serif; font-weight: 600; font-size: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 9px 18px; cursor: pointer; min-height: 42px; }
       .chip:hover { border-color: var(--gold-bright); }
-      .chip[aria-pressed="true"] { background: var(--espresso); border-color: var(--espresso); color: #f5ecd9; }
+      .chip[aria-pressed="true"] { background: var(--gold-grad); border-color: var(--gold); color: #2a1d08; box-shadow: 0 0 0 1px rgba(150, 105, 15, 0.35), 0 3px 14px rgba(193, 144, 42, 0.5); }
       .back-link { display: inline-flex; align-items: center; gap: 7px; background: none; border: 0; font: inherit; font-weight: 600; color: var(--gold); cursor: pointer; padding: 10px 2px; min-height: 44px; }
 
       /* ---------- Cart drawer ---------- */
@@ -479,7 +479,15 @@
       .benefit p { font-size: 13.5px; color: var(--ink-soft); }
       .tabs { display: flex; gap: 8px; margin-bottom: 18px; }
       .tabs button { font-family: "Archivo", sans-serif; font-weight: 700; font-size: 14.5px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 10px 20px; cursor: pointer; min-height: 44px; }
-      .tabs button[aria-pressed="true"] { background: var(--espresso); border-color: var(--espresso); color: #f5ecd9; }
+      .tabs button[aria-pressed="true"] { background: var(--gold-grad); border-color: var(--gold); color: #2a1d08; box-shadow: 0 0 0 1px rgba(150, 105, 15, 0.35), 0 3px 14px rgba(193, 144, 42, 0.5); }
+
+      /* ---------- Tap feedback: press pulse + current-nav marker ---------- */
+      @keyframes tapPulse { 0% { transform: scale(1); filter: brightness(1); } 35% { transform: scale(1.07); filter: brightness(1.16); } 100% { transform: scale(1); filter: brightness(1); } }
+      .tap-pulse { animation: tapPulse 0.12s ease-out; }
+      @media (prefers-reduced-motion: reduce) { .tap-pulse { animation: none; } }
+      .menu-links button.nav-active { background: var(--gold-grad); color: #2a1d08; box-shadow: 0 0 0 1px rgba(150, 105, 15, 0.35), 0 3px 14px rgba(193, 144, 42, 0.5); }
+      .menu-links button.nav-active .arr { color: #2a1d08; }
+      footer nav button.nav-active { background: var(--gold-grad); color: #2a1d08; border-radius: 8px; box-shadow: 0 0 0 1px rgba(150, 105, 15, 0.35), 0 3px 14px rgba(193, 144, 42, 0.5); }
       .confirm-badge { width: 74px; height: 74px; border-radius: 50%; background: var(--gold-grad); color: #2a1d08; font-size: 36px; font-weight: 900; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
       .order-num { font-family: "Archivo", sans-serif; font-weight: 900; font-size: 26px; letter-spacing: 0.06em; text-align: center; }
 
@@ -1822,7 +1830,7 @@
           { id: "s1090sp", brand: "Packs N' Packs Out", name: "Sweet Pebbles", sku: "S1090SP", cat: "Flower",
             video: "assets/s1090sp-sweet-pebbles.mp4", poster: "assets/s1090sp-sweet-pebbles-poster.jpg", img: "assets/s1090sp-sweet-pebbles-poster.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 675 } ] },
           { id: "s1089cg", brand: "Packs N' Packs Out", name: "Candy Gas", sku: "S1089CG", cat: "Flower",
-            video: "assets/s1089cg-candy-gas.mp4", poster: "assets/s1089cg-candy-gas-poster.jpg", img: "assets/s1089cg-candy-gas-poster.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 675 } ] },
+            video: "assets/s1089cg-candy-gas.mp4", poster: "assets/s1089cg-candy-gas-poster.jpg", img: "assets/s1089cg-candy-gas-poster.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 1267.5 } ] },
           { id: "s1081ss", brand: "Packs N' Packs Out", name: "Silver Surfer", sku: "S1081SS", cat: "Flower",
             video: "assets/s1081ss-silver-surfer.mp4", poster: "assets/s1081ss-silver-surfer-poster.jpg", img: "assets/s1081ss-silver-surfer-poster.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 675 } ] },
           { id: "s1082sm", brand: "Packs N' Packs Out", name: "Santa Maria", sku: "S1082SM", cat: "Flower",
@@ -2004,6 +2012,31 @@
           clearTimeout(toastTimer);
           toastTimer = setTimeout(function () { t.hidden = true; }, 2300);
         }
+
+        /* ================= Tap feedback =================
+           The tab you're on stays lit gold (the [aria-pressed="true"]
+           rules and .nav-active above). A tap on a tab or a key button
+           answers with a quick pulse and — where the browser allows
+           it — a single 10ms haptic tick. Wired ONLY to tabs, Add to
+           Cart, and the primary checkout buttons: never scroll,
+           quantity steppers, or minor controls. */
+        function tapTick() {
+          try { if ("vibrate" in navigator) navigator.vibrate(10); } catch (e) {}
+        }
+        function pressPulse(el) {
+          if (!el || reduceMotion) return;
+          el.classList.remove("tap-pulse");
+          void el.offsetWidth;
+          el.classList.add("tap-pulse");
+          setTimeout(function () { el.classList.remove("tap-pulse"); }, 180);
+        }
+        function tapFeedback(el) { tapTick(); pressPulse(el); }
+        document.addEventListener("click", function (ev) {
+          var t = ev.target;
+          if (!t || !t.closest) return;
+          var hit = t.closest(".seg button, .tabs button, .chip, #menuLinks button, footer nav button, .prod .add, #checkoutBtn, #coSubmit");
+          if (hit) tapFeedback(hit);
+        });
 
         /* ================= Ticker ================= */
         (function buildTicker() {
@@ -2220,8 +2253,29 @@
           closeMenu(); closeDrawer();
           window.scrollTo({ top: 0 });
           updateCartBar();
+          syncNavActive();
           if (v === "account") { renderCreditCard(); renderAcctBalance(); renderAcctMembership(); renderAcctIdentity(); renderReferrals(); renderAcctGive(); renderTopMembers(); renderReviewsBiz(); updateCreateNotes(); }
         }
+        /* Main navigation lit state: the menu + footer item for the
+           view (or shop category) you're on carries .nav-active. */
+        function syncNavActive() {
+          var inShop = state.view === "shop";
+          document.querySelectorAll("#menuLinks button, footer nav button").forEach(function (b) {
+            var nav = b.getAttribute("data-nav");
+            var shop = b.getAttribute("data-shop");
+            var cat = b.getAttribute("data-cat");
+            var on = false;
+            if (inShop) {
+              if (cat !== null) on = state.shopCat === cat;
+              else if (shop !== null) on = state.shopCat === shop;
+            } else if (nav !== null) {
+              on = nav === state.view;
+            }
+            b.classList.toggle("nav-active", on);
+            if (on) b.setAttribute("aria-current", "true"); else b.removeAttribute("aria-current");
+          });
+        }
+        syncNavActive();
         function goNav(target) {
           if (target === "home") { showView("home"); }
           else if (target === "account") { showView("account"); }
