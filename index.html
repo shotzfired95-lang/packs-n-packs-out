@@ -165,6 +165,14 @@
       .loc-opt .ld { grid-column: 1 / -1; font-size: 13px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; margin-top: 1px; }
       .loc-opt .leta { font-family: "Archivo", sans-serif; font-weight: 700; font-size: 11.5px; color: var(--gold); background: color-mix(in srgb, var(--gold) 13%, var(--bg)); border: 1px solid var(--gold-pale); border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
       .loc-row .dir-btn.loc-dir { display: flex; width: 100%; justify-content: center; margin-top: 6px; min-height: 36px; padding-top: 7px; padding-bottom: 7px; }
+      .pickup-pick { margin-top: 16px; border: 1.5px solid var(--line); border-radius: 12px; padding: 14px; background: var(--bg); display: grid; gap: 10px; text-align: left; }
+      .pickup-pick .pp-staff { font-size: 15px; margin: 0; }
+      .pickup-pick .pp-title { font-family: "Archivo", sans-serif; font-size: 16px; font-weight: 800; margin: 0; }
+      .pickup-pick .pp-wait, .pickup-pick .pp-note { font-size: 14px; color: var(--ink-soft); margin: 0; }
+      .pickup-pick .pp-chosen { font-size: 14.5px; margin: 0; }
+      .pickup-pick .pp-final { font-family: "Archivo", sans-serif; font-size: 11.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); margin: 0; }
+      .pickup-pick .pp-spot { font-size: 15.5px; font-weight: 700; margin: 0; }
+      .pickup-pick .loc-list.pp-list { max-height: min(46vh, 400px); padding: 2px; }
       .dir-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-family: "Archivo", sans-serif; font-weight: 800; font-size: 13.5px; letter-spacing: 0.02em; background: var(--gold-grad); color: #2a1d08; border-radius: 10px; padding: 10px 16px; min-height: 44px; text-decoration: none; box-shadow: 0 6px 14px rgba(150, 105, 15, 0.25); white-space: nowrap; transition: filter 0.15s ease, transform 0.15s ease; }
       .dir-btn:hover { filter: brightness(1.07); }
       .dir-btn:active { transform: scale(0.98); }
@@ -1541,6 +1549,19 @@
                   <div class="form-msg" id="loginMsg" role="status" aria-live="polite"></div>
                   <button class="btn btn-espresso" type="submit">Log In</button>
                 </form>
+                <form class="stack panel" id="setPwForm" novalidate hidden>
+                  <h3 style="font-size: 18px; font-weight: 800;">Set the password for this account</h3>
+                  <p style="font-size: 14px; color: var(--ink-soft); margin: 0;">This account doesn’t have a password on file yet. Set one now for <strong style="color: var(--ink);" id="setPwEmail"></strong> — you’ll use it to log in from here on.</p>
+                  <label class="f">New password
+                    <input type="password" name="password" autocomplete="new-password" required />
+                  </label>
+                  <label class="f">Confirm new password
+                    <input type="password" name="confirm" autocomplete="new-password" required />
+                  </label>
+                  <div class="form-msg" id="setPwMsg" role="status" aria-live="polite"></div>
+                  <button class="btn btn-gold" type="submit">Set Password &amp; Log In</button>
+                  <button class="btn btn-outline" type="button" id="setPwBack">Back to Log In</button>
+                </form>
               </div>
               <div id="acctIn" hidden>
                 <div class="panel">
@@ -1993,6 +2014,31 @@
         /* Home base — the default pickup origin for delivery & shipping routes.
            Routes always start at a pickup location, never a home address. */
         var HOME_BASE_ID = "shellmacarthur";
+        /* Staff roster — the store-side working copy of the owner panel's
+           Staff & Pickup Spots board (same names, same default sets: 5
+           available spots each, 15 of 32 open). A pickup order is claimed
+           by a staff member when packing starts, and the customer picks
+           their pickup spot from THAT staff member's available spots only.
+           Claim rule: the first staff member in roster order who has at
+           least one available spot. */
+        var STAFF_ROSTER = [
+          { id: "staff1", name: "Staff Member 1", spots: ["glen", "westglen", "heights", "northwoods", "grandprairie"] },
+          { id: "staff2", name: "Staff Member 2", spots: ["university", "universitysouth", "gsshell3623", "gsshell2416", "gsbp3712"] },
+          { id: "staff3", name: "Staff Member 3", spots: ["gs76", "gsphillips", "gsbp2312", "gsmobil", "shellknoxville"] }
+        ];
+        function staffById(id) { for (var i = 0; i < STAFF_ROSTER.length; i++) if (STAFF_ROSTER[i].id === id) return STAFF_ROSTER[i]; return null; }
+        function staffSpots(staff) {
+          if (!staff) return [];
+          return (staff.spots || []).map(function (id) { return locationById(id); }).filter(function (l) { return !!l; });
+        }
+        function claimStaffFor(o) {
+          if (!o) return null;
+          if (o.staffId) return staffById(o.staffId);
+          for (var i = 0; i < STAFF_ROSTER.length; i++) {
+            if (staffSpots(STAFF_ROSTER[i]).length) { o.staffId = STAFF_ROSTER[i].id; o.staffName = STAFF_ROSTER[i].name; return STAFF_ROSTER[i]; }
+          }
+          return null;
+        }
         var DELIVERY_ZONES = { "Illinois": ["60", "61", "62"] };
         var DELIVERY_FEE = 4.95, DELIVERY_FREE_OVER = 75, DELIVERY_MIN = 35;
         var SHIPPING_FEE = 9.95, SHIPPING_FREE_OVER = 150;
@@ -4238,12 +4284,9 @@
           document.querySelectorAll("[data-ful]").forEach(function (b) {
             b.setAttribute("aria-pressed", b.getAttribute("data-ful") === state.fulfillment ? "true" : "false");
           });
-          var loc = currentLocation();
           if (state.fulfillment === "pickup") {
-            $("locDetail").textContent = "Pickup · " + (loc ? loc.name.replace("Packs N' Packs Out — ", "") + ", " + loc.market : (state.market || "Illinois"));
-            $("drawerFulDetail").innerHTML = "<strong>Pickup:</strong> " + esc(loc ? loc.name : "") + " · " + esc(loc ? loc.eta : "") + ' <button type="button" id="dfChange">Change</button>';
-            var dc = $("dfChange");
-            if (dc) dc.addEventListener("click", function () { closeDrawer(); togglePanel(true); window.scrollTo({ top: 0, behavior: "smooth" }); });
+            $("locDetail").textContent = "Pickup · You’ll choose your spot once your order is being packed";
+            $("drawerFulDetail").innerHTML = "<strong>Pickup:</strong> You’ll choose your spot from your team member’s available locations once they start on your order.";
           } else if (state.fulfillment === "delivery") {
             var zip = state.deliveryZip;
             $("locDetail").textContent = "Delivery" + (/^\d{5}$/.test(zip) ? " · ZIP " + zip : " · " + (state.market || "Illinois"));
@@ -4281,20 +4324,11 @@
         function renderLocList() {
           var list = $("locList");
           if (!list) return;
-          var cur = currentLocation();
           var q = (state.locQuery || "").trim().toLowerCase();
           var spots = locationsForMarket().filter(function (l) { return locMatches(l, q); });
           list.innerHTML = spots.length ? spots.map(function (l) {
-            var isCur = !!(cur && cur.id === l.id);
-            return '<div class="loc-row' + (isCur ? " sel" : "") + '"><button type="button" class="loc-opt" data-loc="' + l.id + '" aria-pressed="' + (isCur ? "true" : "false") + '"><span class="ln">' + esc(l.name) + '</span><span class="leta">' + esc(l.eta) + '</span><span class="ld">' + esc(l.detail) + (l.type ? " · " + esc(l.type) : "") + (l.area ? " · " + esc(l.area) : "") + "</span></button>" + dirBtnHTML(l.detail, "Get Directions", "loc-dir") + "</div>";
+            return '<div class="loc-row"><div class="loc-opt"><span class="ln">' + esc(l.name) + '</span><span class="leta">' + esc(l.eta) + '</span><span class="ld">' + esc(l.detail) + (l.type ? " · " + esc(l.type) : "") + (l.area ? " · " + esc(l.area) : "") + "</span></div>" + dirBtnHTML(l.detail, "Get Directions", "loc-dir") + "</div>";
           }).join("") : '<p class="loc-empty">No pickup spots match that search</p>';
-          list.querySelectorAll("[data-loc]").forEach(function (b) {
-            b.addEventListener("click", function () {
-              state.locationId = b.getAttribute("data-loc");
-              updateFulfillmentUI();
-              toast("Pickup set — " + currentLocation().name);
-            });
-          });
         }
         function renderLocPanel() {
           var body = $("locPanelBody");
@@ -4308,7 +4342,7 @@
           if (state.fulfillment === "pickup") {
             body.innerHTML =
               '<div class="loc-search"><input type="text" id="locSearch" placeholder="Search by street or area" aria-label="Search pickup locations" autocomplete="off" value="' + esc(state.locQuery || "") + '" /></div>' +
-              '<p style="font-size: 12.5px; color: var(--ink-soft); margin: 0;">Pickup spots across the Peoria area — choose the one closest to you.</p>' +
+              '<p style="font-size: 12.5px; color: var(--ink-soft); margin: 0;">Pickup spots our team covers across the Peoria area. When you place a pickup order, you’ll choose your spot from the ones your team member has open once they start on it.</p>' +
               '<div class="loc-list" id="locList"></div>' +
               marketRowHTML();
             renderLocList();
@@ -4405,13 +4439,9 @@
             '<button type="button" data-ful="delivery" aria-pressed="' + (state.fulfillment === "delivery" ? "true" : "false") + '">Delivery</button>' +
             '<button type="button" data-ful="shipping" aria-pressed="' + (state.fulfillment === "shipping" ? "true" : "false") + '">Shipping</button></span>';
           if (state.fulfillment === "pickup") {
-            var loc = currentLocation();
             box.innerHTML = '<div class="fb-head">' + seg + "</div>" +
-              '<label class="f" style="margin: 0;">Pickup location' +
-              '<select id="coLoc">' + locationsForMarket().map(function (l) { return '<option value="' + l.id + '"' + (loc && l.id === loc.id ? " selected" : "") + ">" + esc(l.name) + " — " + esc(l.detail) + "</option>"; }).join("") + "</select></label>" +
-              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">' + esc(loc ? loc.eta : "") + " · Pay online by card or in store · Bring your photo ID.</p>" +
-              '<div>' + dirBtnHTML(loc ? loc.detail : "", "Get Directions", "") + "</div>";
-            $("coLoc").addEventListener("change", function () { state.locationId = this.value; updateFulfillmentUI(); });
+              '<p style="font-size: 15px; margin: 0;"><strong style="color: var(--ink);">Pickup</strong> — you’ll choose your spot once a team member picks up your order.</p>' +
+              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">No location is locked in at checkout. When packing starts, your tracker opens the pickup spots your team member has available — pick the one that suits you, and you can switch any time before your order is ready. Pay online by card or in store · Bring your photo ID.</p>';
             $("coTimeLabel").textContent = "Pickup time";
             setTimeOptions(pickupTimeOptions());
             $("coTimeSelect").hidden = true;
@@ -4904,7 +4934,7 @@
           if (act === "confirm_payment") {
             o.statusStage = "payment_confirmed";
             if (o.payment) { o.payment.pending = false; o.payment.status = "Payment confirmed — " + (o.payment.brand || ""); }
-          } else if (act === "start_packing") { o.statusStage = "processing"; }
+          } else if (act === "start_packing") { o.statusStage = "processing"; if (o.fulfillment && o.fulfillment.method === "pickup") claimStaffFor(o); }
           else if (act === "mark_final") { o.statusStage = isDel ? "out" : isShip ? "shipped" : "ready"; }
           else if (act === "complete") { o.statusStage = "completed"; if (o.payment && o.payment.method !== "cash" && o.payment.method !== "credit") o.payment.status = o.payment.method === "card" ? "Paid online" : "Payment confirmed — " + (o.payment.brand || ""); onOrderCompleted(o); }
           refreshOrderViews(o);
@@ -5094,11 +5124,17 @@
               '<circle cx="200" cy="48" r="7.5" style="fill: var(--surface);" /><circle cx="200" cy="48" r="3.4" style="fill: var(--espresso);" />';
             var you = reduced ? "" : '<path class="map-you-path" pathLength="100" d="M54 44 C 92 56, 148 68, 188 78" />';
             var youDot = '<circle cx="52" cy="36" r="8.5" style="fill: var(--surface);" stroke="var(--gold)" stroke-width="2.5" /><circle cx="52" cy="36" r="3" style="fill: var(--gold);" /><text class="map-pin-label" x="52" y="20" text-anchor="middle">YOU</text>';
-            var card = '<div class="map-pickup-card"><div class="mpc-kicker"><span class="mc-dot"></span>' + (stage === "ready" ? "Ready for you — you're headed here" : completed ? "Picked up here" : "You're headed here") + '</div>' +
-              '<div class="mpc-name">' + esc(locName) + '</div>' +
-              (locAddr ? '<div class="mpc-addr">' + esc(locAddr) + "</div>" : "") +
-              (o.time ? '<div class="mpc-time">Pickup time: ' + esc(o.time) + "</div>" : "") +
-              dirBtnHTML(pickupDirAddr(o), "Get Directions", "") + "</div>";
+            var hasSpot = !!(o.fulfillment && o.fulfillment.location);
+            var card = hasSpot
+              ? '<div class="map-pickup-card"><div class="mpc-kicker"><span class="mc-dot"></span>' + (stage === "ready" ? "Ready for you — you're headed here" : completed ? "Picked up here" : "You're headed here") + '</div>' +
+                '<div class="mpc-name">' + esc(locName) + '</div>' +
+                (locAddr ? '<div class="mpc-addr">' + esc(locAddr) + "</div>" : "") +
+                (o.time ? '<div class="mpc-time">Pickup time: ' + esc(o.time) + "</div>" : "") +
+                dirBtnHTML(pickupDirAddr(o), "Get Directions", "") + "</div>"
+              : '<div class="map-pickup-card"><div class="mpc-kicker"><span class="mc-dot"></span>Pickup</div>' +
+                '<div class="mpc-name">Your pickup spot opens soon</div>' +
+                '<div class="mpc-addr">You’ll choose your spot once a team member picks up your order.</div>' +
+                (o.time ? '<div class="mpc-time">Pickup time: ' + esc(o.time) + "</div>" : "") + "</div>";
             return '<div class="tracker-map stage-pickup' + (reduced ? " no-anim" : "") + '"><svg class="map-svg" viewBox="0 0 400 210" role="img" aria-label="Map centered on your pickup location, ' + esc(locName) + '">' + mapStreetsSVG() + you + youDot + pin + "</svg>" + chip + card + "</div>";
           }
           var isOut = stage === "out" || stage === "shipped";
@@ -5149,6 +5185,84 @@
             '<path class="route-live" id="' + pid + '" pathLength="100" d="' + routeD + '" />' + shimmer +
             storePin + destPin + truck + "</svg>" + chip2 + originBar + "</div>";
         }
+        /* ---------- Pickup spot choice (after processing starts) ----------
+           A pickup order carries no location until the staff member who
+           claimed it (at Packing) has the customer pick from their own
+           available spots. The pick can change until Ready for pickup. */
+        function spotCardsHTML(o, spots) {
+          var q = (o._spotQuery || "").trim().toLowerCase();
+          var list = (spots || []).filter(function (l) { return locMatches(l, q); });
+          if (!list.length) return '<p class="loc-empty">No pickup spots match that search</p>';
+          return list.map(function (l) {
+            var isCur = !!(o.fulfillment && o.fulfillment.spotId === l.id);
+            return '<div class="loc-row' + (isCur ? " sel" : "") + '"><button type="button" class="loc-opt" data-spot-pick="' + l.id + '" data-order="' + esc(o.num) + '" aria-pressed="' + (isCur ? "true" : "false") + '"><span class="ln">' + esc(l.name) + '</span><span class="leta">' + esc(l.eta) + '</span><span class="ld">' + esc(l.detail) + (l.type ? " · " + esc(l.type) : "") + (l.area ? " · " + esc(l.area) : "") + "</span></button>" + dirBtnHTML(l.detail, "Get Directions", "loc-dir") + "</div>";
+          }).join("");
+        }
+        function pickupSectionHTML(o) {
+          if (!o.fulfillment || o.fulfillment.method !== "pickup") return "";
+          var stage = o.statusStage || "placed";
+          var f = o.fulfillment;
+          if (stage === "completed") {
+            return f.location ? '<div class="pickup-pick"><p class="pp-final">Picked up at</p><p class="pp-spot">' + esc(f.location) + (f.detail ? " — " + esc(f.detail) : "") + "</p></div>" : "";
+          }
+          if (stage === "processing" || stage === "ready") {
+            if (!o.staffId) claimStaffFor(o);
+            var staff = staffById(o.staffId);
+            var head = staff ? '<p class="pp-staff"><strong>' + esc(staff.name) + "</strong> has your order</p>" : "";
+            if (stage === "ready") {
+              return '<div class="pickup-pick">' + head +
+                (f.location
+                  ? '<p class="pp-final">Your pickup spot</p><p class="pp-spot">' + esc(f.location) + (f.detail ? " — " + esc(f.detail) : "") + '</p><div>' + dirBtnHTML(pickupDirAddr(o), "Get Directions", "") + "</div>"
+                  : '<p class="pp-wait">Your order is ready — your team member will confirm your pickup spot with you.</p>') +
+                "</div>";
+            }
+            var spots = staff ? staffSpots(staff) : [];
+            if (!spots.length) {
+              return '<div class="pickup-pick">' + head + '<p class="pp-wait">Your team member is getting a pickup spot ready — spots will open here as soon as one is available.</p></div>';
+            }
+            var chosen = f.location
+              ? '<p class="pp-chosen">Your pickup spot: <strong>' + esc(f.location) + "</strong>" + (f.detail ? " — " + esc(f.detail) : "") + '</p><p class="pp-note">You can switch to another of ' + esc(staff.name) + "’s spots any time before your order is ready.</p>"
+              : "";
+            return '<div class="pickup-pick">' + head +
+              '<h4 class="pp-title">Pick your pickup location</h4>' + chosen +
+              '<div class="loc-search"><input type="text" data-spot-search="' + esc(o.num) + '" placeholder="Search by street or area" aria-label="Search pickup locations" autocomplete="off" value="' + esc(o._spotQuery || "") + '" /></div>' +
+              '<div class="loc-list pp-list" data-spot-list="' + esc(o.num) + '">' + spotCardsHTML(o, spots) + "</div></div>";
+          }
+          /* Before packing starts: waiting state, no picker. */
+          return '<div class="pickup-pick"><p class="pp-wait">We’re getting a team member on your order — you’ll pick your pickup spot once they start on it.</p></div>';
+        }
+        function wirePickupPicker(root) {
+          if (!root) return;
+          root.querySelectorAll("[data-spot-pick]").forEach(function (b) {
+            b.addEventListener("click", function () {
+              var o = orderByNum(b.getAttribute("data-order"));
+              var loc = locationById(b.getAttribute("data-spot-pick"));
+              if (!o || !loc) return;
+              if (o.statusStage === "ready" || o.statusStage === "completed") return;
+              o.fulfillment.spotId = loc.id;
+              o.fulfillment.location = loc.name;
+              o.fulfillment.detail = loc.detail;
+              o.fulfillment.originId = loc.id;
+              o.fulfillment.originName = loc.name;
+              o.fulfillment.originDetail = loc.detail;
+              refreshOrderViews(o);
+              toast("Pickup spot set — " + loc.name);
+            });
+          });
+          root.querySelectorAll("[data-spot-search]").forEach(function (inp) {
+            inp.addEventListener("input", function () {
+              var o = orderByNum(inp.getAttribute("data-spot-search"));
+              if (!o) return;
+              o._spotQuery = inp.value;
+              var list = root.querySelector('[data-spot-list="' + o.num + '"]');
+              if (list) {
+                var staff = staffById(o.staffId);
+                list.innerHTML = spotCardsHTML(o, staff ? staffSpots(staff) : []);
+                wirePickupPicker(list);
+              }
+            });
+          });
+        }
         function trackerHTML(o, ctx) {
           var info = trackerInfo(o);
           var n = info.stages.length;
@@ -5174,7 +5288,7 @@
           var marker = '<div class="tracker-marker" style="--mfrom:' + startPct + '%; --mto:' + markerLeft + '%; left:' + markerLeft + '%"><span class="mk-bob"><span class="mk-badge">' + (info.isDel || info.isShip ? TRUCK_SVG : BAG_SVG) + "</span></span></div>";
           var map = trackerMapHTML(o, info);
           var callout = "";
-          if (o.statusStage === "ready") callout = '<div class="tracker-callout"><strong>Show this screen when you arrive.</strong><br />Pickup at: ' + esc((o.fulfillment && o.fulfillment.location) || "") + (o.fulfillment && o.fulfillment.detail ? " — " + esc(o.fulfillment.detail) : "") + (o.time ? "<br />Pickup time: " + esc(o.time) : "") + "<br />Order " + esc(o.num) + " · " + esc(o.name) + " · Bring your photo ID.</div>";
+          if (o.statusStage === "ready") callout = '<div class="tracker-callout"><strong>Show this screen when you arrive.</strong>' + (o.fulfillment && o.fulfillment.location ? "<br />Pickup at: " + esc(o.fulfillment.location) + (o.fulfillment.detail ? " — " + esc(o.fulfillment.detail) : "") : "") + (o.time ? "<br />Pickup time: " + esc(o.time) : "") + "<br />Order " + esc(o.num) + " · " + esc(o.name) + " · Bring your photo ID.</div>";
           if (o.statusStage === "out") callout = '<div class="tracker-callout"><div class="eta-line">Arriving in <span data-eta-for="' + esc(o.num) + '">—</span></div><strong>Arrival window: ' + esc(o.time) + '</strong><br />Deliver to: ' + esc((o.fulfillment && o.fulfillment.address) || "") + "<br />Have your photo ID (21+) ready at the door.</div>";
           if (o.statusStage === "shipped") callout = '<div class="tracker-callout"><strong>Shipped — on its way.</strong><br />Ship to: ' + esc((o.fulfillment && o.fulfillment.address) || "") + "<br />Order " + esc(o.num) + " · " + esc(o.time) + ".</div>";
           var shipPrompt = "";
@@ -5190,7 +5304,7 @@
             : '<span class="live-chip done"><span class="live-dot"></span>Tracking</span>';
           return '<div class="tracker"><div class="tracker-head"><div class="tracker-live-row">' + liveChip + '</div>' +
             '<div class="tracker-headline">' + esc(info.headline) + '</div><p class="tracker-sub">' + esc(info.sub) + "</p></div>" + map +
-            '<div class="tracker-steps">' + steps + fill + marker + "</div>" + callout + shipPrompt + bizControlsHTML(o, ctx) + "</div>";
+            '<div class="tracker-steps">' + steps + fill + marker + "</div>" + callout + shipPrompt + pickupSectionHTML(o) + bizControlsHTML(o, ctx) + "</div>";
         }
         function pad2(x) { return (x < 10 ? "0" : "") + x; }
         function fmtClock(ms) {
@@ -5667,12 +5781,12 @@
           }
           var ful = { method: state.fulfillment };
           if (state.fulfillment === "pickup") {
-            var loc = currentLocation();
-            ful.location = loc ? loc.name : "";
-            ful.detail = loc ? loc.detail : "";
-            ful.originId = loc ? loc.id : HOME_BASE_ID;
-            ful.originName = ful.location;
-            ful.originDetail = ful.detail;
+            /* No location is locked at checkout — the customer picks from
+               the claiming staff member's available spots once packing
+               starts (see the tracker pickup section). */
+            ful.location = "";
+            ful.detail = "";
+            ful.spotId = "";
           } else if (state.fulfillment === "delivery") {
             var street = $("coStreet") ? $("coStreet").value.trim() : state.addr.street;
             var apt = $("coApt") ? $("coApt").value.trim() : state.addr.apt;
@@ -5852,7 +5966,7 @@
           if (!o.placedAt) o.placedAt = o.stageAt;
           $("ordNum").textContent = o.num;
           var trk = $("ordTracker");
-          if (trk) { trk.innerHTML = trackerHTML(o, "confirm"); wireBizControls(trk); wireShipInfo(trk); }
+          if (trk) { trk.innerHTML = trackerHTML(o, "confirm"); wireBizControls(trk); wireShipInfo(trk); wirePickupPicker(trk); }
           var box = $("ordDetails");
           var lines = o.items.map(function (i) { var skuI = i.sku || (prodById(i.id) || {}).sku || ""; return "<div class='sum-line'><span class='sl-n'>" + esc(i.name) + "<small>" + esc(i.size) + " × " + i.qty + (skuI ? " · Item #" + esc(skuI) : "") + "</small></span><span>" + money(i.price * i.qty) + "</span></div>"; }).join("");
           var isDeliveryOrder = o.fulfillment && o.fulfillment.method === "delivery";
@@ -5893,7 +6007,7 @@
           } else if (isShipOrder) {
             fulLine = "Shipping for <strong style='color: var(--ink);'>" + esc(o.name) + "</strong> · " + esc(o.time) + "<br />Ship to: " + esc(o.fulfillment.address || "") + "<br />Ships from: " + esc(originForOrder(o).name) + (originForOrder(o).detail ? " — " + esc(originForOrder(o).detail) : "") + "<br />Market: " + esc(o.market) + " · We’ll text " + esc(o.phone) + " when your order ships." + payLine;
           } else {
-            fulLine = "Pickup for <strong style='color: var(--ink);'>" + esc(o.name) + "</strong> · " + esc(o.time) + (o.fulfillment && o.fulfillment.location ? "<br />Pickup at: " + esc(o.fulfillment.location) + (o.fulfillment.detail ? " — " + esc(o.fulfillment.detail) : "") : "") + "<br />Market: " + esc(o.market) + " · We’ll text " + esc(o.phone) + " when it’s ready." + payLine + "<br />Bring your photo ID — we check it on every pickup." + '<span style="display: block; margin-top: 10px;">' + dirBtnHTML(pickupDirAddr(o), "Get Directions", "") + "</span>";
+            fulLine = "Pickup for <strong style='color: var(--ink);'>" + esc(o.name) + "</strong> · " + esc(o.time) + (o.fulfillment && o.fulfillment.location ? "<br />Pickup at: " + esc(o.fulfillment.location) + (o.fulfillment.detail ? " — " + esc(o.fulfillment.detail) : "") : "<br />Pickup spot: you’ll choose your spot once a team member picks up your order — it opens on your tracker as soon as packing starts.") + "<br />Market: " + esc(o.market) + " · We’ll text " + esc(o.phone) + " when it’s ready." + payLine + "<br />Bring your photo ID — we check it on every pickup." + '<span style="display: block; margin-top: 10px;">' + dirBtnHTML(pickupDirAddr(o), "Get Directions", "") + "</span>";
           }
           var completedHead = o.statusStage === "completed" ? '<h3 style="font-size: 17px; font-weight: 800; margin-bottom: 10px;">Your receipt</h3>' : '<h3 style="font-size: 17px; font-weight: 800; margin-bottom: 10px;">Order details</h3>';
           box.innerHTML =
@@ -6010,7 +6124,7 @@
             saveShipInfo(vals);
             renderShipInfoForm(o);
             var trk = $("ordTracker");
-            if (trk) { trk.innerHTML = trackerHTML(o, "confirm"); wireBizControls(trk); wireShipInfo(trk); }
+            if (trk) { trk.innerHTML = trackerHTML(o, "confirm"); wireBizControls(trk); wireShipInfo(trk); wirePickupPicker(trk); }
             renderHistory();
             toast("Shipping information saved to your account");
           });
@@ -6056,12 +6170,28 @@
         }
 
         /* ================= Account ================= */
+        var pendingSetPwEmail = "";
         function setAcctTab(which) {
           $("tabCreate").setAttribute("aria-pressed", which === "create" ? "true" : "false");
           $("tabLogin").setAttribute("aria-pressed", which === "login" ? "true" : "false");
           $("createForm").hidden = which !== "create";
           $("loginForm").hidden = which !== "login";
+          var spf = $("setPwForm"); if (spf) spf.hidden = true;
+          pendingSetPwEmail = "";
           if (which === "create") updateCreateNotes();
+        }
+        function derivedName(email) { return email.split("@")[0].replace(/^\w/, function (c) { return c.toUpperCase(); }); }
+        /* Legacy migration: an account with no stored password credential
+           gets a one-time set-password step at its first sign-in after
+           this fix — never a permanent lockout, and once the password is
+           set, verification is enforced like every other account. */
+        function showSetPassword(email) {
+          pendingSetPwEmail = normEmail(email);
+          $("createForm").hidden = true;
+          $("loginForm").hidden = true;
+          $("setPwForm").hidden = false;
+          $("setPwEmail").textContent = pendingSetPwEmail;
+          var m = $("setPwMsg"); m.className = "form-msg"; m.textContent = "";
         }
         $("tabCreate").addEventListener("click", function () { setAcctTab("create"); });
         $("tabLogin").addEventListener("click", function () { setAcctTab("login"); });
@@ -6119,7 +6249,9 @@
               ? "Delivery to: " + esc(o.fulfillment.address || "") + " · Window: " + esc(o.time)
               : o.fulfillment && o.fulfillment.method === "shipping"
               ? "Ship to: " + esc(o.fulfillment.address || "") + " · " + esc(o.time)
-              : "Pickup at: " + esc((o.fulfillment && o.fulfillment.location) || "") + (o.fulfillment && o.fulfillment.detail ? " — " + esc(o.fulfillment.detail) : "") + " · " + esc(o.time) + '<span style="display: block; margin-top: 8px;">' + dirBtnHTML(pickupDirAddr(o), "Get Directions", "small") + "</span>";
+              : o.fulfillment && o.fulfillment.location
+              ? "Pickup at: " + esc(o.fulfillment.location) + (o.fulfillment.detail ? " — " + esc(o.fulfillment.detail) : "") + " · " + esc(o.time) + '<span style="display: block; margin-top: 8px;">' + dirBtnHTML(pickupDirAddr(o), "Get Directions", "small") + "</span>"
+              : "Pickup · " + esc(o.time) + " — you’ll choose your spot once a team member picks up your order";
             d.innerHTML =
               '<div class="order-card-head"><span class="oc-num">' + esc(o.num) + '</span>' + statusPillHTML(o) + "</div>" +
               '<div class="oc-meta" style="font-size:13px; color: var(--ink-soft); margin-top:4px;">' + esc(o.when) + " · " + o.items.reduce(function (n, i) { return n + i.qty; }, 0) + " items · " + esc(o.payment ? o.payment.status : "") + (o.payment && o.payment.last4 ? " (" + esc(o.payment.brand || "Card") + " ···· " + esc(o.payment.last4) + ")" : "") + (o.payment && o.payment.balancePaid ? " · " + money(o.payment.balancePaid) + " from account balance" : "") + "</div>" +
@@ -6129,6 +6261,7 @@
               '<div style="display:flex; gap:10px; flex-wrap:wrap; margin-top: 12px;"><button class="btn btn-outline" type="button" data-help-order="' + esc(o.num) + '" style="min-height:44px; padding:9px 16px;">Get help with this order</button></div>';
             wireBizControls(d);
             wireShipInfo(d);
+            wirePickupPicker(d);
             var hb = d.querySelector("[data-help-order]");
             if (hb) hb.addEventListener("click", function () {
               var sel = $("ticketOrderSel"); if (sel) sel.value = o.num;
@@ -6149,9 +6282,13 @@
           if (!name || !phone || !email || !pw) { msg.className = "form-msg err"; msg.textContent = "Please complete every field so we can set your account up."; return; }
           if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg.className = "form-msg err"; msg.textContent = "That email doesn’t look complete — double-check it."; return; }
           if (pw.length < 6) { msg.className = "form-msg err"; msg.textContent = "Choose a password of at least 6 characters."; return; }
+          var existingAcct = state.accounts[normEmail(email)];
+          if (existingAcct && existingAcct.pwHash && !accountPasswordOk(existingAcct, pw)) { msg.className = "form-msg err"; msg.textContent = "That password doesn't match this account."; return; }
           if (refc) state.pendingRef = refc.toUpperCase();
           this.reset();
           signIn(name, email);
+          var newAcct = state.accounts[normEmail(email)];
+          if (newAcct && !newAcct.pwHash) setAccountPassword(newAcct, pw);
         });
         $("loginForm").addEventListener("submit", function (ev) {
           ev.preventDefault();
@@ -6159,9 +6296,38 @@
           var email = f.email.value.trim(), pw = f.password.value;
           if (!email || !pw) { msg.className = "form-msg err"; msg.textContent = "Enter your email and password to log in."; return; }
           if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg.className = "form-msg err"; msg.textContent = "That email doesn’t look complete — double-check it."; return; }
+          var acct = state.accounts[normEmail(email)];
+          if (acct && acct.pwHash) {
+            /* The password is checked against the account's stored
+               credential — a wrong one is rejected and nobody is
+               signed in. */
+            if (!accountPasswordOk(acct, pw)) { msg.className = "form-msg err"; msg.textContent = "That password doesn't match this account."; return; }
+            this.reset();
+            signIn(acct.name || derivedName(email), email);
+            return;
+          }
+          /* No password credential on file for this account yet — the
+             one-time set-password step runs instead of a sign-in. */
           this.reset();
-          signIn(email.split("@")[0].replace(/^\w/, function (c) { return c.toUpperCase(); }), email);
+          showSetPassword(email);
         });
+        $("setPwForm").addEventListener("submit", function (ev) {
+          ev.preventDefault();
+          var f = this.elements, msg = $("setPwMsg");
+          var email = pendingSetPwEmail;
+          var pw = f.password.value, pw2 = f.confirm.value;
+          if (!email) { setAcctTab("login"); return; }
+          if (pw.length < 6) { msg.className = "form-msg err"; msg.textContent = "Choose a password of at least 6 characters."; return; }
+          if (pw !== pw2) { msg.className = "form-msg err"; msg.textContent = "Those passwords don’t match — enter the same password in both fields."; return; }
+          var acct = ensureAccount(email, "");
+          setAccountPassword(acct, pw);
+          pendingSetPwEmail = "";
+          this.reset();
+          $("setPwForm").hidden = true;
+          $("loginForm").hidden = false;
+          signIn(acct.name || derivedName(email), email);
+        });
+        $("setPwBack").addEventListener("click", function () { setAcctTab("login"); });
         $("signOutBtn").addEventListener("click", function () {
           state.user = null;
           state.joinCharge = null;
@@ -6358,6 +6524,31 @@
         var SCRATCH_POOL = [{ amt: 5, w: 60 }, { amt: 10, w: 25 }, { amt: 15, w: 10 }, { amt: 25, w: 5 }];
 
         function normEmail(e) { return String(e || "").trim().toLowerCase(); }
+        /* Account passwords live on the account record ONLY as a salted
+           hash — never plaintext. Same djb2-family string hash the store
+           uses for invite codes (codeForEmail), stretched over a
+           per-account random salt. */
+        function pwHash(pw, salt) {
+          var s = String(salt || "") + "::" + String(pw || "");
+          var h1 = 5381, h2 = 52711;
+          for (var r = 0; r < 5; r++) {
+            for (var i = 0; i < s.length; i++) {
+              var c = s.charCodeAt(i);
+              h1 = ((h1 << 5) + h1 + c) >>> 0;
+              h2 = (((h2 << 5) + h2) ^ c) >>> 0;
+            }
+            s = h1.toString(36) + ":" + h2.toString(36) + ":" + s;
+          }
+          return h1.toString(36) + "-" + h2.toString(36);
+        }
+        function setAccountPassword(acct, pw) {
+          if (!acct) return;
+          acct.pwSalt = Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+          acct.pwHash = pwHash(pw, acct.pwSalt);
+        }
+        function accountPasswordOk(acct, pw) {
+          return !!(acct && acct.pwHash && acct.pwSalt) && pwHash(pw, acct.pwSalt) === acct.pwHash;
+        }
         function codeForEmail(email) {
           var h = 5381;
           for (var i = 0; i < email.length; i++) h = ((h << 5) + h + email.charCodeAt(i)) >>> 0;
