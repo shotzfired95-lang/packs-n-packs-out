@@ -1596,7 +1596,7 @@
                 </div>
                 <div class="panel" style="margin-top: 18px;">
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Your orders — live tracking</h3>
-                  <p style="font-size: 13.5px; color: var(--ink-soft); margin-bottom: 6px;">Every order’s tracker lives here — come back any time to see where it stands. The gold “Business controls” box on each order is the store side: advancing the status there is what moves the customer’s tracker.</p>
+                  <p style="font-size: 13.5px; color: var(--ink-soft); margin-bottom: 6px;">Every order’s tracker lives here — come back any time to see where it stands. Your tracker updates on its own as our team works your order, step by step.</p>
                   <div id="orderHistory"></div>
                 </div>
                 <div class="panel" style="margin-top: 18px;" id="acctMemberPanel">
@@ -4925,49 +4925,6 @@
           var cls = o.statusStage === "completed" ? "gold" : (o.statusStage === "payment_pending" ? "ember" : "dark");
           return '<span class="status-pill ' + cls + '">' + esc(info.headline) + "</span>";
         }
-        function nextBizAction(o) {
-          if (!o || o.statusStage === "completed") return null;
-          var isDel = o.fulfillment && o.fulfillment.method === "delivery";
-          var isShip = o.fulfillment && o.fulfillment.method === "shipping";
-          if (o.statusStage === "payment_pending") return { act: "confirm_payment", label: "Confirm payment received" };
-          if (o.statusStage === "payment_confirmed" || o.statusStage === "placed") return { act: "start_packing", label: "Start packing" };
-          if (o.statusStage === "processing") return isDel ? { act: "mark_final", label: "Mark on its way" } : isShip ? { act: "mark_final", label: "Mark shipped" } : { act: "mark_final", label: "Mark ready for pickup" };
-          if (o.statusStage === "out" || o.statusStage === "ready" || o.statusStage === "shipped") {
-            if (o.payment && o.payment.method === "cash" && !o.payment.cashDone) return { act: "cash_wait", label: "Complete with the Cash Acceptance Code at handoff" };
-            return { act: "complete", label: "Complete order" };
-          }
-          return { act: "start_packing", label: "Start packing" };
-        }
-        function advanceOrder(o, act) {
-          if (!o) return;
-          o.stageAt = Date.now();
-          var isDel = o.fulfillment && o.fulfillment.method === "delivery";
-          var isShip = o.fulfillment && o.fulfillment.method === "shipping";
-          if (act === "confirm_payment") {
-            o.statusStage = "payment_confirmed";
-            if (o.payment) { o.payment.pending = false; o.payment.status = "Payment confirmed — " + (o.payment.brand || ""); }
-          } else if (act === "start_packing") { o.statusStage = "processing"; if (o.fulfillment && o.fulfillment.method === "pickup") claimStaffFor(o); }
-          else if (act === "mark_final") { o.statusStage = isDel ? "out" : isShip ? "shipped" : "ready"; }
-          else if (act === "complete") { o.statusStage = "completed"; if (o.payment && o.payment.method !== "cash" && o.payment.method !== "credit") o.payment.status = o.payment.method === "card" ? "Paid online" : "Payment confirmed — " + (o.payment.brand || ""); onOrderCompleted(o); }
-          refreshOrderViews(o);
-          toast("Order " + o.num + " — " + trackerInfo(o).headline);
-        }
-        function bizControlsHTML(o, ctx) {
-          var nxt = nextBizAction(o);
-          if (o.statusStage === "completed") return '<div class="biz-box"><span class="biz-title">Business controls</span><p>This order is completed — no further steps.</p></div>';
-          if (!nxt) return "";
-          var dis = nxt.act === "cash_wait";
-          return '<div class="biz-box"><span class="biz-title">Business controls — store side</span>' +
-            '<p>Each tap here advances the customer’s tracker for order ' + esc(o.num) + '.</p>' +
-            '<button class="btn ' + (dis ? "btn-outline" : "btn-espresso") + '" type="button" data-biz="' + nxt.act + '" data-order="' + esc(o.num) + '" data-ctx="' + ctx + '"' + (dis ? " disabled" : "") + ">" + nxt.label + "</button>" +
-            (dis ? '<p>Cash orders close out when the customer’s Cash Acceptance Code is entered at handoff (see the cash panel on the confirmation).</p>' : "") + "</div>";
-        }
-        function wireBizControls(root) {
-          if (!root) return;
-          root.querySelectorAll("[data-biz]").forEach(function (b) {
-            b.addEventListener("click", function () { advanceOrder(orderByNum(b.getAttribute("data-order")), b.getAttribute("data-biz")); });
-          });
-        }
         function receiptBreakdownHTML(o) {
           var b = o.breakdown;
           if (!b) return '<div class="trow total" style="margin-top: 10px;"><span>Total</span><span>' + money(o.total) + "</span></div>";
@@ -5316,7 +5273,7 @@
             : '<span class="live-chip done"><span class="live-dot"></span>Tracking</span>';
           return '<div class="tracker"><div class="tracker-head"><div class="tracker-live-row">' + liveChip + '</div>' +
             '<div class="tracker-headline">' + esc(info.headline) + '</div><p class="tracker-sub">' + esc(info.sub) + "</p></div>" + map +
-            '<div class="tracker-steps">' + steps + fill + marker + "</div>" + callout + shipPrompt + pickupSectionHTML(o) + bizControlsHTML(o, ctx) + "</div>";
+            '<div class="tracker-steps">' + steps + fill + marker + "</div>" + callout + shipPrompt + pickupSectionHTML(o) + "</div>";
         }
         function pad2(x) { return (x < 10 ? "0" : "") + x; }
         function fmtClock(ms) {
@@ -5978,7 +5935,7 @@
           if (!o.placedAt) o.placedAt = o.stageAt;
           $("ordNum").textContent = o.num;
           var trk = $("ordTracker");
-          if (trk) { trk.innerHTML = trackerHTML(o, "confirm"); wireBizControls(trk); wireShipInfo(trk); wirePickupPicker(trk); }
+          if (trk) { trk.innerHTML = trackerHTML(o, "confirm"); wireShipInfo(trk); wirePickupPicker(trk); }
           var box = $("ordDetails");
           var lines = o.items.map(function (i) { var skuI = i.sku || (prodById(i.id) || {}).sku || ""; return "<div class='sum-line'><span class='sl-n'>" + esc(i.name) + "<small>" + esc(i.size) + " × " + i.qty + (skuI ? " · Item #" + esc(skuI) : "") + "</small></span><span>" + money(i.price * i.qty) + "</span></div>"; }).join("");
           var isDeliveryOrder = o.fulfillment && o.fulfillment.method === "delivery";
@@ -6048,29 +6005,8 @@
           }
           panel.innerHTML =
             '<h3 style="font-size: 17px; font-weight: 800; margin-bottom: 6px;">Your Cash Acceptance Code</h3>' +
-            '<p style="font-size: 14px; color: var(--ink-soft); margin: 0 0 12px;">Have this code ready at ' + where + " — the cash transaction is approved and completed only when the code is entered at handoff.</p>" +
-            '<div class="pay-code"><span class="pc-label">Cash Acceptance Code</span><span class="pc-val">' + esc(o.payment.cashCode) + '</span><span class="pc-note">For order ' + esc(o.num) + "</span></div>" +
-            '<div style="display: grid; gap: 10px; margin-top: 14px;">' +
-            '<label class="f" style="margin: 0;">Complete the cash transaction <small>(the code is entered at ' + where + ', when the cash changes hands)</small><input type="text" id="cashCodeInput" placeholder="CASH-000000" autocomplete="off" /></label>' +
-            '<div class="form-msg" id="cashCodeMsg" role="status" aria-live="polite"></div>' +
-            '<button class="btn btn-gold" type="button" id="cashCodeBtn">Enter Code &amp; Complete Cash Payment</button></div>';
-          $("cashCodeBtn").addEventListener("click", function () {
-            var v = $("cashCodeInput").value.trim().toUpperCase();
-            var m = $("cashCodeMsg");
-            if (v === String(o.payment.cashCode).toUpperCase()) {
-              o.payment.cashDone = true;
-              o.payment.status = where === "delivery" ? "Cash on delivery — completed" : "Cash at pickup — completed";
-              o.statusStage = "completed";
-              o.stageAt = Date.now();
-              onOrderCompleted(o);
-              renderCashComplete(o);
-              renderConfirm(o);
-              toast("Cash payment approved — order complete");
-            } else {
-              m.className = "form-msg err";
-              m.textContent = "That code doesn’t match this order’s Cash Acceptance Code — check the code and try again.";
-            }
-          });
+            '<p style="font-size: 14px; color: var(--ink-soft); margin: 0 0 12px;">Show this code at ' + where + " when you hand over the cash — a team member enters it on the store side to close the sale and complete the cash transaction. There’s nothing to enter here; just have the code ready.</p>" +
+            '<div class="pay-code"><span class="pc-label">Cash Acceptance Code</span><span class="pc-val">' + esc(o.payment.cashCode) + '</span><span class="pc-note">For order ' + esc(o.num) + "</span></div>";
         }
 
         /* ================= Saved shipping information ================= */
@@ -6136,7 +6072,7 @@
             saveShipInfo(vals);
             renderShipInfoForm(o);
             var trk = $("ordTracker");
-            if (trk) { trk.innerHTML = trackerHTML(o, "confirm"); wireBizControls(trk); wireShipInfo(trk); wirePickupPicker(trk); }
+            if (trk) { trk.innerHTML = trackerHTML(o, "confirm"); wireShipInfo(trk); wirePickupPicker(trk); }
             renderHistory();
             toast("Shipping information saved to your account");
           });
@@ -6272,7 +6208,6 @@
               '<div style="margin-top: 14px;">' + itemsHtml + receiptBreakdownHTML(o) + "</div>" +
               '<p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;">' + whereHtml + "</p>" +
               '<div style="display:flex; gap:10px; flex-wrap:wrap; margin-top: 12px;"><button class="btn btn-outline" type="button" data-help-order="' + esc(o.num) + '" style="min-height:44px; padding:9px 16px;">Get help with this order</button></div>';
-            wireBizControls(d);
             wireShipInfo(d);
             wirePickupPicker(d);
             var hb = d.querySelector("[data-help-order]");
