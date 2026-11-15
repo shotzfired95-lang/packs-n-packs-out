@@ -6151,11 +6151,15 @@
         function pickupSpotOpenText(o) {
           /* For a pickup order with no spot chosen yet: the sentence for
              the state the order is in NOW once a team member has claimed
-             it (picker open, spots still loading, or ready) — or null
-             while it is still waiting on a claim, so callers keep their
-             existing waiting wording untouched. */
+             it (picker open, spots still loading, or ready) — or, once
+             the order is finished, picked-up wording — or null while it
+             is still waiting on a claim, so callers keep their existing
+             waiting wording untouched. A completed order must never fall
+             through to the callers' pre-claim "you'll choose your spot"
+             fallback: that future tense is wrong on a finished order. */
           if (!o || !o.fulfillment || o.fulfillment.method !== "pickup" || o.fulfillment.location) return null;
           var stage = o.statusStage || "placed";
+          if (stage === "completed") return "Picked up — order complete.";
           if (stage === "ready") return "Your order is ready — your team member will confirm your pickup spot with you.";
           var staffName = o.serverStaffName || o.staffName || "";
           if (o.serverLinked && stage === "processing" && staffName) {
