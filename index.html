@@ -731,10 +731,7 @@
       .status-pill.dark { background: var(--espresso); color: var(--gold-pale); }
       .status-pill.ember { background: var(--ember); color: #fff; }
       .status-pill.soft { background: var(--bg-soft); color: var(--ink); border: 1px solid var(--line); }
-      .biz-box { border: 1.5px dashed var(--gold-bright); border-radius: 12px; background: var(--bg-soft); padding: 14px 15px; margin-top: 16px; display: grid; gap: 10px; text-align: left; }
-      .biz-box .biz-title { font-family: "Archivo", sans-serif; font-weight: 800; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); }
-      .biz-box p { font-size: 13.5px; color: var(--ink-soft); }
-      .biz-box .btn { justify-self: start; min-height: 46px; }
+
       .order-card { border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin-top: 16px; background: var(--surface); }
       .order-card:first-child { margin-top: 6px; }
       .order-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
@@ -1181,7 +1178,6 @@
               <div id="dropStatus" style="margin-bottom: 18px;"></div>
               <div class="prod-grid" id="dropGrid"></div>
               <p id="dropEmpty" style="color: var(--ink-soft); font-size: 15px;">No drop is live right now — the next one is being loaded. Check back Friday.</p>
-              <div id="dropBiz"></div>
             </div>
           </section>
 
@@ -1198,7 +1194,6 @@
                 <div class="bundle-grid" id="bundleGrid"></div>
                 <div class="panel bundle-side" id="bundleSummary"></div>
               </div>
-              <div id="bundleBiz"></div>
             </div>
           </section>
 
@@ -1307,10 +1302,6 @@
                 <div class="gold-rule"></div>
               </div>
               <div class="panel" id="givePanel"></div>
-              <div id="giveBiz"></div>
-              <div id="popBiz"></div>
-              <div id="catalogBiz"></div>
-              <div id="alertBiz"></div>
             </div>
           </section>
 
@@ -1324,7 +1315,6 @@
                 <div class="gold-rule"></div>
               </div>
               <div class="panel top-wall" id="topWall"></div>
-              <div id="topBiz"></div>
             </div>
           </section>
 
@@ -1586,6 +1576,22 @@
                   </div>
                   <p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;" id="reorderNote"></p>
                 </div>
+                <div class="panel" style="margin-top: 18px;" id="acctPwPanel">
+                  <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Change password</h3>
+                  <form class="stack" id="changePwForm" novalidate>
+                    <label class="f">Current password
+                      <input type="password" name="current" autocomplete="current-password" required />
+                    </label>
+                    <label class="f">New password
+                      <input type="password" name="next" autocomplete="new-password" required />
+                    </label>
+                    <label class="f">Confirm new password
+                      <input type="password" name="confirm" autocomplete="new-password" required />
+                    </label>
+                    <div class="form-msg" id="changePwMsg" role="status" aria-live="polite"></div>
+                    <button class="btn btn-espresso" type="submit">Save New Password</button>
+                  </form>
+                </div>
                 <div class="panel" style="margin-top: 18px;" id="acctIdentityPanel" hidden>
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Your member identity</h3>
                   <div id="acctIdentityBody"></div>
@@ -1614,10 +1620,6 @@
                 <div class="panel" style="margin-top: 18px;" id="acctGivePanel">
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Gold Truck Giveaway</h3>
                   <div id="acctGiveBody"></div>
-                </div>
-                <div class="panel" style="margin-top: 18px;" id="acctReviewsPanel">
-                  <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Product reviews</h3>
-                  <div id="acctReviewsBody"></div>
                 </div>
               </div>
               <div class="panel" style="margin-top: 18px;" id="acctCreditPanel">
@@ -2021,31 +2023,11 @@
         /* Home base — the default pickup origin for delivery & shipping routes.
            Routes always start at a pickup location, never a home address. */
         var HOME_BASE_ID = "shellmacarthur";
-        /* Staff roster — the store-side working copy of the owner panel's
-           Staff & Pickup Spots board (same names, same default sets: 5
-           available spots each, 15 of 32 open). A pickup order is claimed
-           by a staff member when packing starts, and the customer picks
-           their pickup spot from THAT staff member's available spots only.
-           Claim rule: the first staff member in roster order who has at
-           least one available spot. */
-        var STAFF_ROSTER = [
-          { id: "staff1", name: "Staff Member 1", spots: ["glen", "westglen", "heights", "northwoods", "grandprairie"] },
-          { id: "staff2", name: "Staff Member 2", spots: ["university", "universitysouth", "gsshell3623", "gsshell2416", "gsbp3712"] },
-          { id: "staff3", name: "Staff Member 3", spots: ["gs76", "gsphillips", "gsbp2312", "gsmobil", "shellknoxville"] }
-        ];
-        function staffById(id) { for (var i = 0; i < STAFF_ROSTER.length; i++) if (STAFF_ROSTER[i].id === id) return STAFF_ROSTER[i]; return null; }
-        function staffSpots(staff) {
-          if (!staff) return [];
-          return (staff.spots || []).map(function (id) { return locationById(id); }).filter(function (l) { return !!l; });
-        }
-        function claimStaffFor(o) {
-          if (!o) return null;
-          if (o.staffId) return staffById(o.staffId);
-          for (var i = 0; i < STAFF_ROSTER.length; i++) {
-            if (staffSpots(STAFF_ROSTER[i]).length) { o.staffId = STAFF_ROSTER[i].id; o.staffName = STAFF_ROSTER[i].name; return STAFF_ROSTER[i]; }
-          }
-          return null;
-        }
+        /* Staff claims and pickup spots are the business's side of the
+           order: the claiming team member's name and their available
+           spots reach this store only from the order server (see the
+           server tracker sync below) — there is no staff roster or
+           claiming in the customer store. */
         var DELIVERY_ZONES = { "Illinois": ["60", "61", "62"] };
         var DELIVERY_FEE = 4.95, DELIVERY_FREE_OVER = 75, DELIVERY_MIN = 35;
         var SHIPPING_FEE = 9.95, SHIPPING_FREE_OVER = 150;
@@ -2155,7 +2137,6 @@
           if (v.claimedByName) {
             o.serverStaffName = v.claimedByName;
             o.staffName = v.claimedByName;
-            for (var i = 0; i < STAFF_ROSTER.length; i++) if (STAFF_ROSTER[i].name === v.claimedByName) o.staffId = STAFF_ROSTER[i].id;
           }
           if (v.pickupSpot && o.fulfillment) {
             o.serverSpot = v.pickupSpot;
@@ -2438,7 +2419,7 @@
           window.scrollTo({ top: 0 });
           updateCartBar();
           syncNavActive();
-          if (v === "account") { renderHistory(); renderCreditCard(); renderAcctBalance(); renderAcctMembership(); renderAcctIdentity(); renderReferrals(); renderAcctGive(); renderTopMembers(); renderReviewsBiz(); updateCreateNotes(); }
+          if (v === "account") { renderHistory(); renderCreditCard(); renderAcctBalance(); renderAcctMembership(); renderAcctIdentity(); renderReferrals(); renderAcctGive(); renderTopMembers(); updateCreateNotes(); }
         }
         /* Main navigation lit state: the menu + footer item for the
            view (or shop category) you're on carries .nav-active. */
@@ -2555,6 +2536,34 @@
         }
         function cartCount() { return cartEntries().reduce(function (n, e) { return n + e.qty; }, 0); }
         function cartSubtotal() { return cartEntries().reduce(function (n, e) { return n + e.size.p * e.qty; }, 0); }
+        /* The cart persists on this device, the same way accounts and
+           pending memberships do: every mutation flows through
+           renderCart(), which calls saveCart(); loadCart() restores
+           the saved cart at startup, before the first cart render.
+           Saved entries are validated against the current catalog —
+           a key whose product or size no longer exists, or whose
+           quantity is not positive, is dropped; a missing or corrupt
+           saved value simply means an empty cart. */
+        function saveCart() { try { lsSet("pnpo_cart", JSON.stringify(state.cart)); } catch (e) {} }
+        function loadCart() {
+          try {
+            var v = JSON.parse(lsGet("pnpo_cart") || "null");
+            if (!v || typeof v !== "object") return;
+            var clean = {};
+            Object.keys(v).forEach(function (k) {
+              var parts = k.split("|");
+              var p = prodById(parts[0]);
+              if (!p || !p.sizes) return;
+              var sizeOk = false;
+              p.sizes.forEach(function (s) { if (s.l === parts[1]) sizeOk = true; });
+              var q = Math.floor(Number(v[k]));
+              if (!sizeOk || !isFinite(q) || q <= 0) return;
+              clean[k] = q;
+            });
+            state.cart = clean;
+          } catch (e) {}
+        }
+        loadCart();
         function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
         function locationsForMarket() {
           var m = state.market || "Illinois";
@@ -3231,20 +3240,6 @@
           renderCart();
           if (state.view === "checkout") renderCheckout();
         }
-        function welcomeGrantsGiven() {
-          var n = 0;
-          Object.keys(state.balances).forEach(function (em) {
-            state.balances[em].ledger.forEach(function (e) { if (e.type === "welcome") n += e.amount || 0; });
-          });
-          return r2(n);
-        }
-        function welcomeGrantEvents() {
-          var out = [];
-          Object.keys(state.balances).forEach(function (em) {
-            state.balances[em].ledger.forEach(function (e) { if (e.type === "welcome") out.push({ email: em, tier: e.note || "", amount: e.amount || 0, when: e.when || "" }); });
-          });
-          return out;
-        }
         /* ================= Anniversary credit drop (Wave 2) =================
            On each yearly anniversary of a member's ORIGINAL join date —
            while the membership is active — store credit lands in their
@@ -3309,59 +3304,6 @@
           w.welcomeRestricted = r2((w.welcomeRestricted || 0) + tier.anniv);
           w.ledger.unshift({ type: "anniversary", amount: tier.anniv, when: nowStamp(), note: tier.name });
           return tier.anniv;
-        }
-        function anniversaryGrantsGiven() {
-          var n = 0;
-          Object.keys(state.balances).forEach(function (em) {
-            state.balances[em].ledger.forEach(function (e) { if (e.type === "anniversary") n += e.amount || 0; });
-          });
-          return r2(n);
-        }
-        function anniversaryGrantEvents() {
-          var out = [];
-          Object.keys(state.balances).forEach(function (em) {
-            state.balances[em].ledger.forEach(function (e) { if (e.type === "anniversary") out.push({ email: em, tier: e.note || "", amount: e.amount || 0, when: e.when || "" }); });
-          });
-          return out;
-        }
-        /* Membership money, store side: fees collected at checkout vs
-           what memberships have given back — member discounts on orders
-           plus welcome and anniversary grants — for the net-position line. */
-        function membershipNetPosition() {
-          var fees = 0, discounts = 0;
-          state.history.forEach(function (o) {
-            var b = o.breakdown || {};
-            fees += b.memFee || 0;
-            discounts += b.memDisc != null ? b.memDisc : (b.discKind === "member" ? b.disc || 0 : 0);
-          });
-          var wg = welcomeGrantsGiven();
-          var ag = anniversaryGrantsGiven();
-          var grants = r2(wg + ag);
-          return { fees: r2(fees), discounts: r2(discounts), grants: grants, welcomeGrants: wg, annivGrants: ag, net: r2(fees - discounts - grants) };
-        }
-        function membershipBizBoxHTML() {
-          var np = membershipNetPosition();
-          return '<div class="biz-box"><span class="biz-title">Business controls — Memberships net position</span>' +
-            '<p>Membership fees collected: <strong style="color: var(--ink);">' + money(np.fees) + '</strong> · Member discounts given: <strong style="color: var(--ink);">' + money(np.discounts) + '</strong> · Welcome grants given: <strong style="color: var(--ink);">' + money(np.welcomeGrants) + '</strong> · Anniversary grants given: <strong style="color: var(--ink);">' + money(np.annivGrants) + '</strong><br>Net position (fees − discounts − welcome grants − anniversary grants): <strong style="color: var(--ink);">' + money(np.net) + "</strong> — welcome and anniversary credit are product owed to members, and every grant is counted here the moment it lands.</p></div>";
-        }
-        function welcomeEventsBizHTML() {
-          var evs = welcomeGrantEvents();
-          var aevs = anniversaryGrantEvents();
-          if (!evs.length && !aevs.length) return "";
-          var html = "";
-          if (evs.length) {
-            html += '<p style="margin-top: 4px;">Welcome grants given so far: <strong style="color: var(--ink);">' + money(welcomeGrantsGiven()) + '</strong> — each grant lands in that member’s balance ledger the moment a membership payment lands.</p>' +
-              evs.slice(0, 8).map(function (ev) {
-                return '<div class="ledger-row"><span class="lr-what">Welcome credit — ' + esc(ev.tier) + "<small>" + esc(ev.email) + (membershipActiveByEmail(ev.email) ? "" : " · membership inactive — credit paused") + " · " + esc(ev.when) + '</small></span><span class="lr-amt pos">+' + money(ev.amount) + "</span></div>";
-              }).join("");
-          }
-          if (aevs.length) {
-            html += '<p style="margin-top: 4px;">Anniversary grants given so far: <strong style="color: var(--ink);">' + money(anniversaryGrantsGiven()) + '</strong> — each grant lands in that member’s balance ledger on the yearly anniversary of their original join date, while the membership is active.</p>' +
-              aevs.slice(0, 8).map(function (ev) {
-                return '<div class="ledger-row"><span class="lr-what">Anniversary credit — ' + esc(ev.tier) + "<small>" + esc(ev.email) + (membershipActiveByEmail(ev.email) ? "" : " · membership inactive — credit paused") + " · " + esc(ev.when) + '</small></span><span class="lr-amt pos">+' + money(ev.amount) + "</span></div>";
-              }).join("");
-          }
-          return html;
         }
         function memberRecord() {
           if (!state.user || !state.user.email) return null;
@@ -3512,15 +3454,6 @@
           var pct = bundlePctFor(count);
           return { disc: pct > 0 ? r2(sub * pct) : 0, count: count, sub: r2(sub), pct: pct };
         }
-        function bundleStats() {
-          var sold = 0, given = 0;
-          state.history.forEach(function (o) {
-            var b = o.breakdown || {};
-            var bd = (b.bundleDisc || 0) > 0 ? b.bundleDisc : (b.discKind === "bundle" ? b.disc || 0 : 0);
-            if (bd > 0) { sold++; given += bd; }
-          });
-          return { sold: sold, given: r2(given) };
-        }
         function calcTotals(sub, tier) {
           /* Two discounts exist in the store — the membership discount
              and the (members-only) bundle discount — and they never
@@ -3632,10 +3565,10 @@
         }
         /* ================= Account balance (prepaid store credit) =================
            Customers load a balance with the store's existing payment options.
-           A top-up sits PENDING until the business approves it (the biz-box
-           below, mirroring how linked-payment orders wait for confirmation);
-           approval is what makes the credit spendable, and the load bonus is
-           credited at that same moment. Balance is store credit for this
+           A top-up sits PENDING until the business approves it in the
+           owner panel (mirroring how linked-payment orders wait for
+           confirmation); approval is what makes the credit spendable,
+           and the load bonus is credited at that same moment. Balance is store credit for this
            store only — it never expires and cannot be cashed out. */
         function r2(n) { return Math.round(n * 100) / 100; }
         var BONUS_TIERS = [
@@ -3658,18 +3591,6 @@
           return state.balances[em] || null;
         }
         function walletBalance() { var w = walletRec(false); return w ? w.balance : 0; }
-        function allPendingTopups() {
-          var out = [];
-          Object.keys(state.balances).forEach(function (em) {
-            state.balances[em].topups.forEach(function (tp) { if (tp.status === "pending") out.push(tp); });
-          });
-          return out;
-        }
-        function totalOutstanding() {
-          var n = 0;
-          Object.keys(state.balances).forEach(function (em) { n += state.balances[em].balance; });
-          return r2(n);
-        }
         function topupAmountNow() {
           if (state.topupCustom) { var v = parseFloat(state.topupCustom); if (isFinite(v) && v > 0) return r2(v); }
           return state.topupAmt;
@@ -3788,14 +3709,6 @@
               '<button class="btn btn-gold" type="button" id="tfSubmit">Add ' + money(amt) + " to My Balance</button>" +
               "</div>";
           }
-          var allPend = allPendingTopups();
-          html += '<div class="biz-box"><span class="biz-title">Business controls — store side</span>' +
-            '<p>Total store-credit balance outstanding right now: <strong style="color: var(--ink);">' + money(totalOutstanding()) + '</strong> — every dollar of it is product owed to customers. Approving a top-up below is what makes that customer’s credit spendable.</p>' +
-            (allPend.length ? allPend.map(function (tp) {
-              return '<div class="topup-card"><div class="tc-top"><span class="tc-amt">' + money(tp.amount) + " load → " + money(tp.credit) + " credit" + (tp.bonus > 0 ? " (incl. " + money(tp.bonus) + " bonus)" : "") + '</span><span class="pending-pill">Pending</span></div>' +
-                '<div class="tc-meta">' + esc(tp.email) + (membershipActiveByEmail(tp.email) ? "" : " · membership inactive — credit paused") + " · " + esc(tp.brand) + (tp.sender ? " · from " + esc(tp.sender) : "") + " · " + esc(tp.when) + "</div>" +
-                '<button class="btn btn-espresso" type="button" data-topup-approve="' + esc(tp.email) + "|" + tp.id + '">Approve top-up — make it spendable</button></div>';
-            }).join("") : "<p>No top-ups are waiting on approval right now.</p>") + welcomeEventsBizHTML() + "</div>";
           html += '<h4 style="font-size: 15px; font-weight: 800; margin: 18px 0 2px;">Balance history</h4>';
           if (w.ledger.length) {
             html += w.ledger.map(function (e) {
@@ -3814,12 +3727,6 @@
           });
           body.querySelectorAll("[data-tf-pay]").forEach(function (b) {
             b.addEventListener("click", function () { state.topupMethod = b.getAttribute("data-tf-pay"); renderAcctBalance(); });
-          });
-          body.querySelectorAll("[data-topup-approve]").forEach(function (b) {
-            b.addEventListener("click", function () {
-              var parts = b.getAttribute("data-topup-approve").split("|");
-              approveTopup(parts[0], parseInt(parts[1], 10));
-            });
           });
           var cust = $("tfCustomAmt");
           if (cust) {
@@ -3894,22 +3801,6 @@
           renderAcctBalance();
           toast("Top-up sent — " + money(tp.credit) + " in credit lands when the business approves it");
         }
-        function approveTopup(email, id) {
-          var w = state.balances[email];
-          if (!w) return;
-          var tp = null;
-          w.topups.forEach(function (x) { if (x.id === id) tp = x; });
-          if (!tp || tp.status !== "pending") return;
-          tp.status = "approved";
-          tp.approvedWhen = nowStamp();
-          w.balance = r2(w.balance + tp.credit);
-          if (tp.bonus > 0) w.ledger.unshift({ type: "bonus", amount: tp.bonus, when: nowStamp(), note: "Load bonus (+" + Math.round(bonusPctFor(tp.amount) * 100) + "%) on a " + money(tp.amount) + " load" });
-          w.ledger.unshift({ type: "load", amount: tp.amount, when: nowStamp(), note: "Load via " + tp.brand });
-          renderAcctBalance();
-          if (state.view === "checkout") { renderCoPay(); var ct = $("coTotals"); if (ct) ct.innerHTML = totalsHTML(totals()); }
-          toast("Top-up approved — " + money(tp.credit) + " credit is live for " + email);
-        }
-
         /* ================= Member credit line =================
            Each tier has its OWN credit bar with its own milestone, line
            amount, and styling: Gold $500 lifetime spend → $100 line,
@@ -3977,22 +3868,6 @@
           var rec = memberRecord();
           if (!rec) return null;
           return creditSummary(rec);
-        }
-        function allPendingRepayments() {
-          var out = [];
-          Object.keys(state.creditLines).forEach(function (em) {
-            var tb = state.creditLines[em].tab;
-            if (tb && tb.status === "repay_pending") out.push({ email: em, tab: tb });
-          });
-          return out;
-        }
-        function tabsOutstanding() {
-          var n = 0, count = 0;
-          Object.keys(state.creditLines).forEach(function (em) {
-            var tb = state.creditLines[em].tab;
-            if (tb) { n += tb.total; count++; }
-          });
-          return { total: r2(n), count: count };
         }
         function credBarHTML(ms, spend, mini, unlocked, paused) {
           var tier = tierById(ms.tierId);
@@ -4091,7 +3966,6 @@
           var csLive = creditSummaryLive();
           var cs = csLive || creditSummaryAny();
           var gatePaused = !csLive && !!cs;
-          var pendRepay = allPendingRepayments();
           /* The Credit Line card ALWAYS renders — Gold+ members get their
              live bars; everyone else (guest, non-member, Silver) gets the
              same three bars as a locked preview with the join prompt.
@@ -4165,24 +4039,11 @@
                 '<button class="btn btn-gold" type="button" data-nav="membership" style="margin-top: 12px;">See Memberships</button>';
           }
           html += '<p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 12px;">Redeeming credit requires an active membership.</p>';
-          var out = tabsOutstanding();
-          if (pendRepay.length || out.count) {
-            html += '<div class="biz-box"><span class="biz-title">Business controls — store side</span>' +
-              '<p>Open credit tabs outstanding right now: <strong style="color: var(--ink);">' + money(out.total) + '</strong> across ' + out.count + (out.count === 1 ? " account" : " accounts") + ' — product out the door, owed back within ' + CREDIT_TERM_DAYS + ' days each. Approving a repayment below settles that tab and reopens the member’s credit.</p>' +
-              (pendRepay.length ? pendRepay.map(function (pr) {
-                return '<div class="topup-card"><div class="tc-top"><span class="tc-amt">' + money(pr.tab.total) + ' tab repayment</span><span class="pending-pill">Pending</span></div>' +
-                  '<div class="tc-meta">' + esc(pr.email) + (membershipActiveByEmail(pr.email) ? "" : " · membership inactive — credit paused") + " · order " + esc(pr.tab.orderNum || "") + " · " + esc(pr.tab.repay ? pr.tab.repay.brand : "") + (pr.tab.repay && pr.tab.repay.sender ? " · from " + esc(pr.tab.repay.sender) : "") + " · " + esc(pr.tab.repay ? pr.tab.repay.when : "") + "</div>" +
-                  '<button class="btn btn-espresso" type="button" data-repay-approve="' + esc(pr.email) + '">Approve repayment — settle the tab</button></div>';
-              }).join("") : "<p>No tab repayments are waiting on approval right now.</p>") + "</div>";
-          }
           body.innerHTML = html;
           var rpT = $("rpToggle");
           if (rpT) rpT.addEventListener("click", function () { state.repayOpen = !state.repayOpen; renderCreditCard(); });
           body.querySelectorAll("[data-rp-pay]").forEach(function (b) {
             b.addEventListener("click", function () { state.repayMethod = b.getAttribute("data-rp-pay"); renderCreditCard(); });
-          });
-          body.querySelectorAll("[data-repay-approve]").forEach(function (b) {
-            b.addEventListener("click", function () { approveRepayment(b.getAttribute("data-repay-approve")); });
           });
           var rNum = $("rpCardNum");
           if (rNum) rNum.addEventListener("input", function () {
@@ -4244,17 +4105,6 @@
           renderCreditCard();
           toast("Repayment sent — your tab clears when the business approves it");
         }
-        function approveRepayment(email) {
-          var rec = state.creditLines[email];
-          if (!rec || !rec.tab || rec.tab.status !== "repay_pending") return;
-          var tab = rec.tab;
-          rec.history.unshift({ orderNum: tab.orderNum || "", total: tab.total, when: nowStamp() });
-          rec.tab = null;
-          renderCreditCard();
-          if (state.view === "checkout") renderCheckout();
-          toast("Tab settled — " + money(tab.total) + " repayment approved for " + email);
-        }
-
         function addToCart(p, size, qty) {
           if (!p || !size) return;
           var dAcc2 = dropAccess(p.id);
@@ -4321,6 +4171,11 @@
             Object.keys(state.bundle.keys).forEach(function (k) { if (!state.cart[k]) delete state.bundle.keys[k]; });
             if (!Object.keys(state.bundle.keys).length) state.bundle = null;
           }
+          /* Every cart mutation (add, stepper inc/dec/remove, bundle
+             add and pruning, reorder, the order-placed reset) flows
+             through this render — persisting here, after pruning,
+             keeps the saved cart identical to the shown cart. */
+          saveCart();
           var entries = cartEntries();
           var count = cartCount();
           var badge = $("cartCount");
@@ -5352,30 +5207,17 @@
             return f.location ? '<div class="pickup-pick"><p class="pp-final">Picked up at</p><p class="pp-spot">' + esc(f.location) + (f.detail ? " — " + esc(f.detail) : "") + "</p></div>" : "";
           }
           if (o.serverLinked) return pickupSectionServerHTML(o, stage);
-          if (stage === "processing" || stage === "ready") {
-            if (!o.staffId) claimStaffFor(o);
-            var staff = staffById(o.staffId);
-            var head = staff ? '<p class="pp-staff"><strong>' + esc(staff.name) + "</strong> has your order</p>" : "";
-            if (stage === "ready") {
-              return '<div class="pickup-pick">' + head +
-                (f.location
-                  ? '<p class="pp-final">Your pickup spot</p><p class="pp-spot">' + esc(f.location) + (f.detail ? " — " + esc(f.detail) : "") + '</p><div>' + dirBtnHTML(pickupDirAddr(o), "Get Directions", "") + "</div>"
-                  : '<p class="pp-wait">Your order is ready — your team member will confirm your pickup spot with you.</p>') +
-                "</div>";
-            }
-            var spots = staff ? staffSpots(staff) : [];
-            if (!spots.length) {
-              return '<div class="pickup-pick">' + head + '<p class="pp-wait">Your team member is getting a pickup spot ready — spots will open here as soon as one is available.</p></div>';
-            }
-            var chosen = f.location
-              ? '<p class="pp-chosen">Your pickup spot: <strong>' + esc(f.location) + "</strong>" + (f.detail ? " — " + esc(f.detail) : "") + '</p><p class="pp-note">You can switch to another of ' + esc(staff.name) + "’s spots any time before your order is ready.</p>"
-              : "";
+          if (stage === "ready") {
+            var staffNameL = o.serverStaffName || o.staffName || "";
+            var head = staffNameL ? '<p class="pp-staff"><strong>' + esc(staffNameL) + "</strong> has your order</p>" : "";
             return '<div class="pickup-pick">' + head +
-              '<h4 class="pp-title">Pick your pickup location</h4>' + chosen +
-              '<div class="loc-search"><input type="text" data-spot-search="' + esc(o.num) + '" placeholder="Search by street or area" aria-label="Search pickup locations" autocomplete="off" value="' + esc(o._spotQuery || "") + '" /></div>' +
-              '<div class="loc-list pp-list" data-spot-list="' + esc(o.num) + '">' + spotCardsHTML(o, spots) + "</div></div>";
+              (f.location
+                ? '<p class="pp-final">Your pickup spot</p><p class="pp-spot">' + esc(f.location) + (f.detail ? " — " + esc(f.detail) : "") + '</p><div>' + dirBtnHTML(pickupDirAddr(o), "Get Directions", "") + "</div>"
+                : '<p class="pp-wait">Your order is ready — your team member will confirm your pickup spot with you.</p>') +
+              "</div>";
           }
-          /* Before packing starts: waiting state, no picker. */
+          /* Before a team member starts on it (claims and spot lists
+             come from the business side): waiting state, no picker. */
           return '<div class="pickup-pick"><p class="pp-wait">We’re getting a team member on your order — you’ll pick your pickup spot once they start on it.</p></div>';
         }
         function wirePickupPicker(root) {
@@ -5413,7 +5255,7 @@
               o._spotQuery = inp.value;
               var list = root.querySelector('[data-spot-list="' + o.num + '"]');
               if (list) {
-                var searchSpots = o.serverLinked ? (o.serverSpots || []) : (staffById(o.staffId) ? staffSpots(staffById(o.staffId)) : []);
+                var searchSpots = o.serverLinked ? (o.serverSpots || []) : [];
                 list.innerHTML = spotCardsHTML(o, searchSpots);
                 wirePickupPicker(list);
               }
@@ -5563,25 +5405,13 @@
               '<div class="ticket-meta">' + esc(tk.category) + (tk.orderNum ? " · Order " + esc(tk.orderNum) : "") + " · Opened " + esc(tk.when) + "</div>" +
               '<div class="thread">' + thread + "</div>" +
               '<div class="ticket-reply"><label class="f" style="margin:0;">Add a message<textarea data-tk-reply placeholder="Write a follow-up…"></textarea></label>' +
-              '<button class="btn btn-outline" type="button" data-tk-add style="justify-self:start;">Add Message</button></div>' +
-              '<div class="biz-box"><span class="biz-title">Business — ticket desk</span>' +
-              '<label class="f" style="margin:0;">Ticket status<select data-tk-status><option' + (tk.status === "Open" ? " selected" : "") + '>Open</option><option' + (tk.status === "In progress" ? " selected" : "") + '>In progress</option><option' + (tk.status === "Resolved" ? " selected" : "") + '>Resolved</option></select></label>' +
-              '<label class="f" style="margin:0;">Reply as the business<textarea data-tk-bizreply placeholder="Reply to the customer…"></textarea></label>' +
-              '<button class="btn btn-espresso" type="button" data-tk-biz style="justify-self:start;">Send Business Reply</button></div>';
+              '<button class="btn btn-outline" type="button" data-tk-add style="justify-self:start;">Add Message</button></div>';
             card.querySelector("[data-tk-add]").addEventListener("click", function () {
               var ta = card.querySelector("[data-tk-reply]"); var v = ta.value.trim();
               if (!v) { toast("Write a message first"); return; }
               tk.messages.push({ who: "Customer", text: v, when: nowStamp() });
               if (tk.status === "Resolved") tk.status = "Open";
               renderTickets(); toast("Message added to " + tk.num);
-            });
-            card.querySelector("[data-tk-status]").addEventListener("change", function () { tk.status = this.value; renderTickets(); toast(tk.num + " — " + tk.status); });
-            card.querySelector("[data-tk-biz]").addEventListener("click", function () {
-              var ta = card.querySelector("[data-tk-bizreply]"); var v = ta.value.trim();
-              if (!v) { toast("Write a business reply first"); return; }
-              tk.messages.push({ who: "Business", text: v, when: nowStamp() });
-              if (tk.status === "Open") tk.status = "In progress";
-              renderTickets(); toast("Business reply sent on " + tk.num);
             });
             box.appendChild(card);
           });
@@ -5857,12 +5687,12 @@
                activated or cancelled — code entry lives here. */
             var pendOnly = state.user ? pendingMembershipFor(state.user.email) : null;
             if (pendOnly) {
-              body.innerHTML = pendingMembershipHTML() + membershipBizBoxHTML();
+              body.innerHTML = pendingMembershipHTML();
               wirePendingPanel(body);
               return;
             }
             body.innerHTML = '<p style="font-size: 14.5px; color: var(--ink-soft); margin: 0 0 12px;">You’re not a member yet. Members save on every order — the discount applies automatically at checkout once your membership is active, and at checkout you’ll see exactly what each tier saves on your cart before you join.</p>' +
-              '<button class="btn btn-gold" type="button" id="acctMemPlans">See Membership Plans</button>' + membershipBizBoxHTML();
+              '<button class="btn btn-gold" type="button" id="acctMemPlans">See Membership Plans</button>';
             $("acctMemPlans").addEventListener("click", function () { goNav("membership"); });
             return;
           }
@@ -5890,7 +5720,7 @@
             (r.cancelAtPeriodEnd
               ? '<button class="btn btn-gold" type="button" id="acctMemKeep">Keep My Membership</button>'
               : '<button class="btn btn-outline" type="button" id="acctMemCancel">Cancel Membership</button>') +
-            "</div></div>" + pendingMembershipHTML() + membershipBizBoxHTML();
+            "</div></div>" + pendingMembershipHTML();
           $("acctMemChange").addEventListener("click", function () { goNav("membership"); });
           var keep = $("acctMemKeep");
           if (keep) keep.addEventListener("click", function () {
@@ -6130,7 +5960,6 @@
           state.cart = {};
           state.bundle = null;
           renderCart();
-          renderBundleBiz();
           msg.className = "form-msg"; msg.textContent = "";
           coFormEl.reset();
           renderConfirm(order);
@@ -6385,7 +6214,6 @@
           renderReferrals();
           renderGiveaway();
           renderTopMembers();
-          renderReviewsBiz();
           renderScratch();
           renderMenuAcct();
           renderCoPay();
@@ -6475,9 +6303,13 @@
           if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg.className = "form-msg err"; msg.textContent = "That email doesn’t look complete — double-check it."; return; }
           var acct = state.accounts[normEmail(email)];
           var loginFormEl = this;
-          /* The server checks the login first. If the server is
-             unreachable or has no such account, the on-device
-             verification below keeps legacy accounts working — and a
+          /* The server checks the login first, and its verdict on the
+             password is FINAL: a 401 (invalid_credentials) means the
+             account exists on the server and this password is wrong —
+             the login is rejected in place and the on-device account
+             copy is NOT consulted. The on-device verification below
+             runs ONLY when the server has no account for this email
+             (404 no_account) or cannot be reached at all — and a
              successful local login silently creates the matching
              server account (migration) and stores its session. */
           api("/login", { method: "POST", body: { email: email, password: pw } }).then(function (r) {
@@ -6490,6 +6322,10 @@
               var la = state.accounts[normEmail(email)];
               if (la && !la.pwHash) setAccountPassword(la, pw);
               return;
+            }
+            if (r && r.status === 401) {
+              /* Server account exists, password wrong — flat no. */
+              msg.className = "form-msg err"; msg.textContent = "That password doesn't match this account."; return;
             }
             if (acct && acct.pwHash) {
               /* The password is checked against the account's stored
@@ -6534,6 +6370,51 @@
           signIn(acct.name || derivedName(email), email);
         });
         $("setPwBack").addEventListener("click", function () { setAcctTab("login"); });
+        /* Change password (signed-in account view). With a server
+           session, the server makes the change first; on its 200 the
+           on-device record's credential is updated to the same new
+           password (same salted hash setAccountPassword uses), so the
+           phone copy and the server agree and the old password stops
+           working everywhere. A local-only account (no session — not
+           migrated yet) verifies and updates on-device only. The
+           session is never touched: the customer stays signed in.
+           Passwords are never logged or displayed. */
+        $("changePwForm").addEventListener("submit", function (ev) {
+          ev.preventDefault();
+          var f = this.elements, msg = $("changePwMsg");
+          function fail(t) { msg.className = "form-msg err"; msg.textContent = t; }
+          if (!state.user) return;
+          var email = normEmail(state.user.email);
+          var cur = f.current.value, np = f.next.value, np2 = f.confirm.value;
+          if (!cur) { fail("Enter your current password."); return; }
+          if (np.length < 6) { fail("Choose a new password of at least 6 characters."); return; }
+          if (np !== np2) { fail("Those passwords don’t match — enter the same new password in both fields."); return; }
+          var formEl = this;
+          function done() {
+            formEl.reset();
+            msg.className = "form-msg ok";
+            msg.textContent = "Password updated — this is now the only password that works for your account.";
+          }
+          var token = getSession();
+          if (token) {
+            api("/accounts/change-password", { method: "POST", token: token, body: { currentPassword: cur, newPassword: np } }).then(function (r) {
+              if (r && r.status === 200) {
+                var acct = ensureAccount(email, state.user.name || "");
+                if (acct) setAccountPassword(acct, np);
+                done();
+                return;
+              }
+              if (r && r.status === 401) { fail("That current password doesn't match."); return; }
+              if (r && r.status === 400) { fail("Choose a new password of at least 6 characters."); return; }
+              fail("We couldn’t reach the server to change your password — check your connection and try again.");
+            });
+            return;
+          }
+          var local = state.accounts[email];
+          if (!local || !accountPasswordOk(local, cur)) { fail("That current password doesn't match."); return; }
+          setAccountPassword(local, np);
+          done();
+        });
         $("signOutBtn").addEventListener("click", function () {
           state.user = null;
           setSession("");
@@ -6871,18 +6752,6 @@
           } else {
             html += '<p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;">No friends have joined through your link yet — send it out and watch this list grow.</p>';
           }
-          var inviters = Object.keys(state.accounts).filter(function (em) { return friendsOf(em).length > 0 || (state.referrals[em] && state.referrals[em].earnings > 0); });
-          html += '<div class="biz-box"><span class="biz-title">Business controls — Referrals</span>' +
-            (inviters.length ? inviters.map(function (em) {
-              var fs = friendsOf(em);
-              var er = state.referrals[em] ? state.referrals[em].earnings : 0;
-              return '<div class="topup-card"><div class="tc-top"><span class="tc-amt">' + esc(nameOf(em)) + '</span><span class="cred-chip">' + money(er) + ' earned</span></div>' +
-                '<div class="tc-meta">' + esc(em) + " · code " + esc(state.accounts[em].code) + " · " + fs.length + (fs.length === 1 ? " friend" : " friends") + " joined · earnings paid: " + money(er) + "</div>" +
-                (fs.length ? fs.map(function (fem) {
-                  var sp = productSpendOf(fem);
-                  return '<div class="tc-meta">→ ' + esc(nameOf(fem)) + " (" + esc(fem) + ") — " + money(sp) + " completed product spend" + (sp >= REFERRAL_THRESHOLD ? " · crossed " + money(REFERRAL_THRESHOLD) + " — earning 5%" : " · " + money(r2(REFERRAL_THRESHOLD - sp)) + " to " + money(REFERRAL_THRESHOLD)) + "</div>";
-                }).join("") : "") + "</div>";
-            }).join("") : "<p>No referral activity yet — inviters, their friends, friend spend, and earnings paid will list here.</p>") + "</div>";
           body.innerHTML = html;
           var cb = $("refCopyBtn");
           if (cb) cb.addEventListener("click", function () { copyText(link, "Invite link copied"); });
@@ -7083,7 +6952,6 @@
             grid.innerHTML = "";
             if (empty) empty.hidden = false;
             if (status) status.innerHTML = "";
-            renderDropBiz();
             return;
           }
           if (empty) empty.hidden = true;
@@ -7111,63 +6979,6 @@
           }
           grid.innerHTML = "";
           ids.forEach(function (id) { var p = prodById(id); if (p) grid.appendChild(buildCard(p)); });
-          renderDropBiz();
-        }
-        function toLocalInput(ms) {
-          var dt = new Date(ms);
-          function pad(x) { return (x < 10 ? "0" : "") + x; }
-          return dt.getFullYear() + "-" + pad(dt.getMonth() + 1) + "-" + pad(dt.getDate()) + "T" + pad(dt.getHours()) + ":" + pad(dt.getMinutes());
-        }
-        function renderDropBiz() {
-          var box = $("dropBiz");
-          if (!box) return;
-          var d = dropCfg();
-          var rows = PRODUCTS.map(function (p) {
-            var it = d.items[p.id];
-            return '<label class="drop-item-row"><input type="checkbox" data-drop-pick="' + p.id + '"' + (it ? " checked" : "") + ' /><span style="flex: 1;">' + esc(p.name) + ' <small style="color: var(--ink-soft);">' + esc(p.cat) + '</small></span><span style="font-size: 12.5px; color: var(--ink-soft);">Qty</span><input type="number" min="0" step="1" data-drop-qty="' + p.id + '" value="' + (it ? it.qty : 10) + '" /></label>';
-          }).join("");
-          box.innerHTML = '<div class="biz-box"><span class="biz-title">Business controls — Friday Drop</span>' +
-            "<p>Name the drop, set its date and time, pick the catalog items, and set a limited quantity per item — then activate. Quantities are live store state: every purchase decrements them, and ending the drop returns items to regular catalog sale.</p>" +
-            (d.active
-              ? '<p>Current drop: <strong style="color: var(--ink);">' + esc(d.name || "Friday Drop") + "</strong> · opens " + esc(new Date(d.startsAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })) + ' · phase: <strong style="color: var(--ink);">' + dropPhase() + "</strong>" + Object.keys(d.items).map(function (id) { var p = prodById(id); return "<br>" + esc(p ? p.name : id) + " — " + d.items[id].left + " of " + d.items[id].qty + " left"; }).join("") + "</p>"
-              : "<p>No drop is active right now.</p>") +
-            '<label class="f" style="margin: 0;">Drop name<input type="text" id="dropNameInput" value="' + esc(d.name || "") + '" placeholder="e.g. Friday Drop — Fresh Lots" /></label>' +
-            '<label class="f" style="margin: 0;">Drop date &amp; time<input type="datetime-local" id="dropStartInput" value="' + (d.startsAt ? toLocalInput(d.startsAt) : "") + '" /></label>' +
-            '<div style="display: grid; gap: 8px;">' + rows + "</div>" +
-            '<div style="display: flex; gap: 10px; flex-wrap: wrap;"><button class="btn btn-espresso" type="button" id="dropActivateBtn">' + (d.active ? "Update &amp; Activate Drop" : "Activate Drop") + "</button>" + (d.active ? '<button class="btn btn-outline" type="button" id="dropEndBtn">End Drop</button>' : "") + "</div>" +
-            '<p id="dropBizMsg" style="font-size: 13.5px;"></p></div>';
-          var ab = $("dropActivateBtn");
-          if (ab) ab.addEventListener("click", activateDrop);
-          var eb = $("dropEndBtn");
-          if (eb) eb.addEventListener("click", function () {
-            dropCfg().active = false;
-            renderDrop(); renderPicks(); if (state.view === "shop") renderShop();
-            toast("Drop ended — items are back to regular catalog sale");
-          });
-        }
-        function activateDrop() {
-          var msg = $("dropBizMsg");
-          var name = $("dropNameInput") ? $("dropNameInput").value.trim() : "";
-          var sv = $("dropStartInput") ? $("dropStartInput").value : "";
-          if (!sv) { if (msg) msg.textContent = "Pick the drop date and time first."; return; }
-          var starts = new Date(sv).getTime();
-          if (isNaN(starts)) { if (msg) msg.textContent = "That date/time doesn’t parse — pick it again."; return; }
-          var prev = dropCfg();
-          var items = {};
-          document.querySelectorAll("[data-drop-pick]").forEach(function (cb) {
-            if (!cb.checked) return;
-            var id = cb.getAttribute("data-drop-pick");
-            var qEl = document.querySelector('[data-drop-qty="' + id + '"]');
-            var q = parseInt(qEl ? qEl.value : "0", 10);
-            if (!(q > 0)) q = 0;
-            var old = prev.active ? prev.items[id] : null;
-            items[id] = { qty: q, left: old && old.qty === q ? Math.min(old.left, q) : q };
-          });
-          if (!Object.keys(items).length) { if (msg) msg.textContent = "Pick at least one catalog item for the drop."; return; }
-          state.dropCfg = { active: true, name: name || "Friday Drop", startsAt: starts, items: items };
-          state.dropPhase = dropPhase();
-          renderDrop(); renderPicks(); if (state.view === "shop") renderShop();
-          toast("Drop activated — " + (name || "Friday Drop"));
         }
 
         /* ---------- Gold Truck Giveaway ---------- */
@@ -7215,7 +7026,6 @@
             (latest
               ? '<div class="topup-card" style="margin-top: 14px;"><div class="tc-top"><span class="tc-amt">Latest winner — ' + esc(latest.name) + '</span><span class="status-pill gold">' + esc(monthLabel(latest.month)) + '</span></div><div class="tc-meta">Won ' + esc(latest.prize) + " in the " + esc(monthLabel(latest.month)) + " Gold Truck Giveaway draw.</div></div>"
               : '<p style="margin-top: 12px; font-size: 13.5px; color: var(--ink-soft);">No winner drawn yet — the first winner will be posted right here.</p>');
-          renderGiveBiz();
           renderAcctGive();
         }
         function renderAcctGive() {
@@ -7226,50 +7036,6 @@
           body.innerHTML = '<p style="font-size: 15px;">You have <strong style="color: var(--gold);">' + giveEntriesNow(walletEmail()) + ' entries</strong> this month.</p>' +
             '<p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 4px;">Prize: ' + esc(g.prize) + " · Draw: " + esc(giveDrawDateLabel()) + ' — in <strong style="color: var(--ink);" data-countdown-to="' + giveDrawTargetMs() + '">…</strong>. Every $1 of completed product spend = 1 entry, added automatically when your order completes. Entries reset each month.</p>';
         }
-        function renderGiveBiz() {
-          var box = $("giveBiz");
-          if (!box) return;
-          var g = giveCfg();
-          var entrants = Object.keys(state.giveEntries).filter(function (em) { return giveEntriesNow(em) > 0; }).sort(function (a, b) { return giveEntriesNow(b) - giveEntriesNow(a); });
-          box.innerHTML = '<div class="biz-box"><span class="biz-title">Business controls — Gold Truck Giveaway</span>' +
-            '<p>Total entries this month: <strong style="color: var(--ink);">' + giveTotalEntries() + "</strong> across " + entrants.length + (entrants.length === 1 ? " entrant" : " entrants") + ". The draw picks a random entrant weighted by entries and records the winner publicly on the giveaway section.</p>" +
-            (entrants.length
-              ? "<div>" + entrants.slice(0, 10).map(function (em) { return '<div class="ledger-row"><span class="lr-what">' + esc(nameOf(em)) + "<small>" + esc(em) + '</small></span><span class="lr-amt">' + giveEntriesNow(em) + " entries</span></div>"; }).join("") + "</div>"
-              : "<p>No entries yet this month — entries land automatically when orders complete.</p>") +
-            '<label class="f" style="margin: 0;">Prize text<input type="text" id="givePrizeInput" value="' + esc(g.prize) + '" /></label>' +
-            '<label class="f" style="margin: 0;">Draw date<input type="date" id="giveDateInput" value="' + esc(g.drawDate) + '" /></label>' +
-            '<div style="display: flex; gap: 10px; flex-wrap: wrap;"><button class="btn btn-espresso" type="button" id="giveSaveBtn">Save Prize &amp; Date</button><button class="btn btn-gold" type="button" id="giveDrawBtn">Draw Winner</button></div>' +
-            '<p id="giveBizMsg" style="font-size: 13.5px;"></p></div>';
-          var sv = $("giveSaveBtn");
-          if (sv) sv.addEventListener("click", function () {
-            var p = $("givePrizeInput").value.trim();
-            var dv = $("giveDateInput").value;
-            if (p) g.prize = p;
-            if (dv) g.drawDate = dv;
-            renderGiveaway();
-            toast("Giveaway updated — " + g.prize + " · " + giveDrawDateLabel());
-          });
-          var db = $("giveDrawBtn");
-          if (db) db.addEventListener("click", drawGiveawayWinner);
-        }
-        function drawGiveawayWinner() {
-          var g = giveCfg();
-          var msg = $("giveBizMsg");
-          var total = giveTotalEntries();
-          if (!total) { if (msg) msg.textContent = "No entries this month yet — the draw needs at least one entry."; return; }
-          var x = Math.random() * total, acc = 0, winEmail = "";
-          Object.keys(state.giveEntries).forEach(function (em) {
-            if (winEmail) return;
-            acc += giveEntriesNow(em);
-            if (x < acc) winEmail = em;
-          });
-          if (!winEmail) winEmail = Object.keys(state.giveEntries)[0];
-          var rec = { name: nameOf(winEmail), email: winEmail, month: monthKey(), prize: g.prize, when: nowStamp() };
-          g.winners.unshift(rec);
-          renderGiveaway();
-          toast("Winner drawn — " + rec.name + " takes " + g.prize);
-        }
-
         /* ---------- Order completion hook (referral earnings + giveaway entries) ----------
            Runs exactly once per order, the moment its status becomes
            "completed" — from the tracker controls or the cash-code handoff.
@@ -7310,7 +7076,6 @@
           renderGiveaway();
           renderReferrals();
           renderTopMembers();
-          renderBundleBiz();
           refreshReviewCards();
           if (state.user) renderAcctBalance();
         }
@@ -7342,9 +7107,9 @@
            over VISIBLE reviews) and an expandable reviews list. Only a
            customer with a COMPLETED order containing the product can
            review it — one review per customer per product, editable by
-           its author. Names show as first name + last initial only. The
-           owner Reviews box (account view) can hide/unhide any review:
-           hidden reviews vanish from the store but stay in the box. */
+           its author. Names show as first name + last initial only.
+           Review moderation (hide/unhide) lives in the owner panel —
+           hidden reviews simply vanish from the store. */
         function reviewsFor(pid) { return state.reviews[pid] || []; }
         function visibleReviews(pid) { return reviewsFor(pid).filter(function (r) { return !r.hidden; }); }
         function reviewSummary(pid) {
@@ -7455,41 +7220,12 @@
           }
           delete state.reviewDraft[pid];
           refreshReviewCards();
-          renderReviewsBiz();
         }
         function refreshReviewCards() {
           renderPicks();
           if (state.view === "shop") renderShop();
           renderDrop();
         }
-        function renderReviewsBiz() {
-          var body = $("acctReviewsBody");
-          if (!body) return;
-          var all = [];
-          Object.keys(state.reviews).forEach(function (pid) {
-            state.reviews[pid].forEach(function (r) { all.push({ pid: pid, r: r }); });
-          });
-          all.sort(function (a, b) { return b.r.ts - a.r.ts; });
-          body.innerHTML = '<p style="font-size: 14px; color: var(--ink-soft);">Customer reviews from completed orders. Hidden reviews disappear from the store but stay listed here, marked hidden.</p>' +
-            '<div class="biz-box"><span class="biz-title">Business controls — Reviews</span>' +
-            (all.length ? all.slice(0, 12).map(function (x) {
-              var p = prodById(x.pid);
-              return '<div class="topup-card"><div class="tc-top"><span class="tc-amt">' + esc(p ? p.name : x.pid) + '</span><span class="cred-chip">' + starsStr(x.r.stars) + " · " + x.r.stars + '/5</span></div>' +
-                '<div class="tc-meta">' + esc(shortName(x.r.name)) + " · " + esc(x.r.email) + " · " + esc(x.r.when || "") + (x.r.hidden ? ' · <strong>HIDDEN</strong>' : "") + (x.r.text ? "<br>" + esc(x.r.text) : "") + "</div>" +
-                '<button class="btn btn-espresso" type="button" data-rev-hide="' + esc(x.pid) + "|" + esc(x.r.email) + '">' + (x.r.hidden ? "Unhide review" : "Hide review") + "</button></div>";
-            }).join("") : "<p>No reviews yet — the latest customer reviews will list here for moderation.</p>") + "</div>";
-          body.querySelectorAll("[data-rev-hide]").forEach(function (b) {
-            b.addEventListener("click", function () {
-              var parts = b.getAttribute("data-rev-hide").split("|");
-              var list = reviewsFor(parts[0]);
-              for (var i = 0; i < list.length; i++) if (list[i].email === parts[1]) list[i].hidden = !list[i].hidden;
-              renderReviewsBiz();
-              refreshReviewCards();
-              toast("Review visibility updated");
-            });
-          });
-        }
-
         /* ================= Wave 2: bundle builder UI ================= */
         function bundlePickEntries() {
           var out = [];
@@ -7594,14 +7330,6 @@
             ? "Pack added — " + Math.round(info.pct * 100) + "% bundle savings (" + money(info.disc) + ") applied in your cart"
             : "Pack added at list price — bundle pricing is a member perk; join at checkout to unlock it on this order");
         }
-        function renderBundleBiz() {
-          var box = $("bundleBiz");
-          if (!box) return;
-          var st = bundleStats();
-          box.innerHTML = '<div class="biz-box"><span class="biz-title">Business controls — Bundles</span>' +
-            '<p>Bundles sold: <strong style="color: var(--ink);">' + st.sold + '</strong> · Total bundle savings given: <strong style="color: var(--ink);">' + money(st.given) + "</strong> — bundle discounts land as their own “Bundle savings” line on the order (members only), and pack items are excluded from the membership-percent base: the two discounts apply to different items, never the same item twice.</p></div>";
-        }
-
         /* ================= Wave 2: Top Members wall =================
            Ranked by lifetime COMPLETED product spend (productSpendOf —
            product subtotal on completed orders only; pending and
@@ -7623,14 +7351,6 @@
               var rTier = memberTierByEmail(r.email);
               return '<div class="top-row"><span class="top-rank">#' + (i + 1) + "</span>" + avatarHTML(r.email, "md") + '<span class="top-name">' + esc(publicName(r.email, r.name)) + "</span>" + (rTier ? tierEmblemHTML(rTier.id, "sm") : "") + '<span class="top-spend">' + wallMoney(r.spend) + "</span></div>";
             }).join("") : '<div class="top-empty">No one is on the wall yet — complete an order and your name could be the first up here.</div>';
-          }
-          var biz = $("topBiz");
-          if (biz) {
-            var top10 = topMembersList(10);
-            biz.innerHTML = '<div class="biz-box"><span class="biz-title">Business controls — Top Members</span>' +
-              (top10.length ? top10.map(function (r, i) {
-                return '<div class="ledger-row"><span class="lr-what">#' + (i + 1) + " " + esc(shortName(r.name)) + "<small>" + esc(r.email) + '</small></span><span class="lr-amt">' + money(r.spend) + "</span></div>";
-              }).join("") : "<p>No completed orders yet — the top 10 by lifetime completed product spend will list here.</p>") + "</div>";
           }
           var rankEl = $("acctTopRank");
           if (rankEl) {
@@ -7740,7 +7460,6 @@
           w.ledger.unshift({ type: "wheel", amount: pend.amt, when: nowStamp(), note: "Wheel win" });
           var got = pend.amt;
           wheelSetClaimed();
-          renderPopBiz();
           return got;
         }
         function buildWheelDisc() {
@@ -7888,7 +7607,7 @@
         function syncGift() {
           var g = giftSt();
           var want = popSettings().gift && !giftRemovedSession() && cartSubtotal() >= GIFT_THRESHOLD;
-          if (want && !g.inCart) { g.inCart = true; state.giftsGiven++; renderPopBiz(); }
+          if (want && !g.inCart) { g.inCart = true; state.giftsGiven++; }
           else if (!want && g.inCart) g.inCart = false;
           return g.inCart;
         }
@@ -7980,22 +7699,6 @@
         }
 
         /* ---------- Owner panel: Pop-ups box ---------- */
-        function renderPopBiz() {
-          var box = $("popBiz");
-          if (!box) return;
-          var cfg = popSettings();
-          var wEmails = Object.keys(state.wheelClaims);
-          var wTotal = wEmails.reduce(function (n, em) { return n + (state.wheelClaims[em] || 0); }, 0);
-          box.innerHTML = '<div class="biz-box"><span class="biz-title">Business controls — Pop-ups</span>' +
-            '<label class="pop-tgl"><input type="checkbox" id="popWheelTgl"' + (cfg.wheel ? " checked" : "") + ' /> Spin wheel pop-up (guests)</label>' +
-            '<label class="pop-tgl"><input type="checkbox" id="popGiftTgl"' + (cfg.gift ? " checked" : "") + ' /> Free-gift threshold bar (Gold Route Tray at ' + money(GIFT_THRESHOLD) + ')</label>' +
-            '<p>Wheel prizes given: <strong style="color: var(--ink);">' + wEmails.length + '</strong> totalling <strong style="color: var(--ink);">' + money(wTotal) + '</strong> · Free gifts given: <strong style="color: var(--ink);">' + state.giftsGiven + '</strong><br>Toggles save instantly and apply to new sessions. Frequency caps stay on no matter what: one blocking modal per visit, at most two slide-ins per session, a 7-day quiet period after any dismissal, and nothing during checkout.</p></div>';
-          var wt = $("popWheelTgl");
-          if (wt) wt.addEventListener("change", function () { popSettings().wheel = this.checked; popSaveSettings(); toast(this.checked ? "Spin wheel pop-up ON" : "Spin wheel pop-up OFF"); });
-          var gt = $("popGiftTgl");
-          if (gt) gt.addEventListener("change", function () { popSettings().gift = this.checked; popSaveSettings(); renderCart(); toast(this.checked ? "Free-gift bar ON" : "Free-gift bar OFF"); });
-        }
-
         /* Wheel chrome wiring */
         (function wireWheel() {
           var scrim = $("wheelScrim");
@@ -8078,21 +7781,10 @@
             send(title, false);
           } catch (e) { /* fire-and-forget: an alert failure never touches the order */ }
         }
-        function renderAlertBiz() {
-          var box = $("alertBiz");
-          if (!box) return;
-          var cfg = alertSettings();
-          box.innerHTML = '<div class="biz-box"><span class="biz-title">Business controls — Settings</span>' +
-            '<label class="pop-tgl"><input type="checkbox" id="alertTgl"' + (cfg.enabled ? " checked" : "") + ' /> Order phone alerts</label>' +
-            '<p>Alert topic: <strong style="color: var(--ink);">' + ALERT_TOPIC + '</strong><br>When ON, every placed order posts to the alert topic the moment it lands and is also forwarded to the owner\'s phone as a text message — items, total, fulfillment, customer, and payment, plus the cash acceptance code on cash orders. When OFF, no alert fires. Alerts are fire-and-forget: a failed alert never blocks, delays, or fails an order.</p></div>';
-          var t = $("alertTgl");
-          if (t) t.addEventListener("change", function () { alertSettings().enabled = this.checked; alertSaveSettings(); toast(this.checked ? "Order phone alerts ON" : "Order phone alerts OFF"); });
-        }
-
-        /* ================= Catalog Control (owner panel) =================
-           Every Flower item: an editable listed price (applies to the
-           store on save) and a banked THC % field. THC lives here only —
-           it is never rendered anywhere in the store. */
+        /* ================= Catalog price overrides =================
+           A saved listed price (from the owner panel) applies to the
+           store at startup; the banked THC % is never rendered anywhere
+           in the store. */
         function catalogSettings() {
           if (state.catalogCfg) return state.catalogCfg;
           var d = { prices: {}, thc: {} };
@@ -8100,48 +7792,11 @@
           state.catalogCfg = d;
           return d;
         }
-        function catalogSave() { lsSet("pnpo_catalog", JSON.stringify(catalogSettings())); }
         function applyCatalogOverrides() {
           var cfg = catalogSettings();
           PRODUCTS.forEach(function (p) {
             var v = parseFloat(cfg.prices[p.id]);
             if (isFinite(v) && v > 0 && p.sizes && p.sizes.length) p.sizes[0].p = v;
-          });
-        }
-        function renderCatalogBiz() {
-          var box = $("catalogBiz");
-          if (!box) return;
-          var cfg = catalogSettings();
-          var rows = PRODUCTS.filter(function (p) { return p.cat === "Flower" && p.sku; }).map(function (p) {
-            var thc = cfg.thc[p.sku] != null ? cfg.thc[p.sku] : "";
-            return '<div class="cat-row"><span class="cr-name">' + esc(p.name) + '<small>Item #' + esc(p.sku) + '</small></span>' +
-              '<label>Listed price $<input type="number" step="0.01" min="0" data-cat-price="' + p.id + '" value="' + p.sizes[0].p + '" /></label>' +
-              '<label>THC % — banked<input type="number" step="0.1" min="0" max="100" data-cat-thc="' + p.id + '" value="' + esc(String(thc)) + '" placeholder="—" /></label></div>';
-          }).join("");
-          box.innerHTML = '<div class="biz-box"><span class="biz-title">Business controls — Catalog Control</span>' +
-            '<p>Every Flower item on the shelf. A saved listed price goes live in the store right away. THC % is <strong style="color: var(--ink);">banked in this panel only</strong> — it is never shown in the store.</p>' + rows +
-            '<div><button class="btn btn-espresso" type="button" id="catSaveBtn">Save catalog changes</button></div></div>';
-          var btn = $("catSaveBtn");
-          if (btn) btn.addEventListener("click", function () {
-            box.querySelectorAll("[data-cat-price]").forEach(function (inp) {
-              var v = parseFloat(inp.value);
-              if (isFinite(v) && v > 0) cfg.prices[inp.getAttribute("data-cat-price")] = v;
-              else delete cfg.prices[inp.getAttribute("data-cat-price")];
-            });
-            box.querySelectorAll("[data-cat-thc]").forEach(function (inp) {
-              var p = prodById(inp.getAttribute("data-cat-thc"));
-              if (!p || !p.sku) return;
-              if (inp.value.trim() === "") delete cfg.thc[p.sku];
-              else cfg.thc[p.sku] = inp.value.trim();
-            });
-            catalogSave();
-            applyCatalogOverrides();
-            renderPicks();
-            if (state.view === "shop") renderShop();
-            renderCart();
-            if (state.view === "checkout") renderCheckout();
-            renderCatalogBiz();
-            toast("Catalog saved — prices are live in the store");
           });
         }
         applyCatalogOverrides();
@@ -8156,12 +7811,7 @@
           renderDrop();
           renderGiveaway();
           renderBundle();
-          renderBundleBiz();
           renderTopMembers();
-          renderReviewsBiz();
-          renderPopBiz();
-          renderCatalogBiz();
-          renderAlertBiz();
           updateCreateNotes();
           tickGrowth();
         })();
