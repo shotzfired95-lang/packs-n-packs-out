@@ -125,10 +125,13 @@
       @media (prefers-reduced-motion: reduce) { .ticker-track { animation: none; } }
       /* ---------- Live member announcement ticker ----------
          Sits above the promo ticker at the very top of the store.
-         Names come live from the server (GET /members/diamond) and
-         scroll past like an announcement marquee. The bar stays
-         hidden until at least one name arrives, so a server outage
-         can never break or block the store. */
+         Members come live from the server (GET /members/roll) —
+         every tier, newest member first — and scroll past like an
+         announcement marquee. A second instance of the same bar
+         sits at the top of the account (sign-up / sign-in) view,
+         fed by the same fetch. The bars stay hidden until at least
+         one member arrives, so a server outage can never break or
+         block the store. */
       .member-ticker { background: var(--gold-grad); color: #2a1d08; overflow: hidden; white-space: nowrap; border-bottom: 1px solid rgba(122, 84, 16, 0.45); }
       .member-ticker-track { display: inline-flex; animation: tick 26s linear infinite; will-change: transform; }
       .member-ticker:hover .member-ticker-track { animation-play-state: paused; }
@@ -137,6 +140,8 @@
       .member-ticker .mt-live { background: #241a10; color: var(--gold-pale); border-radius: 5px; padding: 3px 8px; font-size: 10.5px; letter-spacing: 0.22em; }
       .member-ticker .mt-live i { width: 7px; height: 7px; border-radius: 50%; background: #e9c268; display: inline-block; animation: mtpulse 1.6s ease-in-out infinite; }
       @keyframes mtpulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+      .member-ticker .mt-fresh { font-weight: 900; color: #17100a; white-space: nowrap; }
+      .member-ticker .mt-fresh-dot { color: #bc4c1a; }
       .member-ticker .dot { color: #7c5410; padding: 8px 14px; }
       @media (prefers-reduced-motion: reduce) { .member-ticker-track { animation: none; } .member-ticker .mt-live i { animation: none; } }
       .shop-header { position: sticky; top: 0; z-index: 60; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
@@ -1031,7 +1036,7 @@
 
     <!-- Storefront shell -->
     <div id="appShell" hidden>
-      <div class="member-ticker" id="memberTicker" role="marquee" aria-label="Diamond members" hidden>
+      <div class="member-ticker" id="memberTicker" role="marquee" aria-label="Members" hidden>
         <div class="member-ticker-track" id="memberTickerTrack"></div>
       </div>
 
@@ -1568,6 +1573,11 @@
 
         <!-- ============ ACCOUNT VIEW ============ -->
         <div id="viewAccount" hidden>
+          <!-- Members roll on the sign-up / sign-in screens too: same
+               bar, same data, same refresh as the shop-top ticker. -->
+          <div class="member-ticker" id="memberTickerAuth" role="marquee" aria-label="Members" hidden>
+            <div class="member-ticker-track" id="memberTickerAuthTrack"></div>
+          </div>
           <section style="padding-top: 30px;">
             <div class="wrap" style="max-width: 860px;">
               <button class="back-link" type="button" data-nav="home">← Back to home</button>
@@ -2463,33 +2473,61 @@
         })();
 
         /* ================= Live member announcement ticker =================
-           The usernames of members as they join, rolling past at the
-           very top of the store like an announcement. Names come LIVE
-           from the order server — GET /members/diamond returns
-           { names: ["First L.", …] } for every Diamond member (promo
-           redemptions + memberships), already in first-name +
-           last-initial form with test accounts filtered out server-side.
-           The list is re-checked every 60 seconds (and whenever the tab
-           becomes visible again), so the next member who joins rolls in
-           on their own — no rebuild, no reload. Safety: the bar starts
-           hidden and only appears once at least one real name arrives;
-           a failed or empty answer leaves the last good list on screen
-           (or the bar hidden) and never touches the rest of the store. */
+           Every member, every tier, rolling past at the very top of
+           the store like an announcement — and at the top of the
+           account (sign-up / sign-in) view too. Members come LIVE
+           from the order server — GET /members/roll returns
+           { members: [{ name, tier, fresh }, …] } for every member
+           (promo redemptions + memberships), already ordered by the
+           server: the newest member first (fresh: true when they
+           joined within the last 7 days), then Diamond down to
+           Silver. The roll is rendered in the order received — never
+           re-sorted here. Names arrive in first-name + last-initial
+           form with test accounts filtered out server-side. The list
+           is re-checked every 60 seconds (and whenever the tab
+           becomes visible again), so the next member who joins rolls
+           in on their own — no rebuild, no reload. Safety: the bars
+           start hidden and only appear once at least one real member
+           arrives; a failed or empty answer leaves the last good
+           list on screen (or the bars hidden) and never touches the
+           rest of the store. */
+        var MEMBER_TIER_ICONS = { diamond: "💎", platinum: "✨", gold: "🥇", silver: "🥈" };
+        function memberTierIcon(tier) {
+          return MEMBER_TIER_ICONS[String(tier || "").trim().toLowerCase()] || "";
+        }
         var memberTickerSig = "";
-        function renderMemberTicker(names) {
-          var bar = $("memberTicker"), track = $("memberTickerTrack");
-          if (!bar || !track) return;
+        function memberTickerBars() {
+          var pairs = [];
+          var main = $("memberTicker"), mainTrack = $("memberTickerTrack");
+          if (main && mainTrack) pairs.push({ bar: main, track: mainTrack });
+          var auth = $("memberTickerAuth"), authTrack = $("memberTickerAuthTrack");
+          if (auth && authTrack) pairs.push({ bar: auth, track: authTrack });
+          return pairs;
+        }
+        function renderMemberTicker(members) {
+          var pairs = memberTickerBars();
+          if (!pairs.length) return;
           var clean = [];
-          (names || []).forEach(function (n) {
-            var s = String(n == null ? "" : n).trim();
-            if (s && clean.indexOf(s) === -1) clean.push(s);
+          (members || []).forEach(function (m) {
+            if (!m || typeof m !== "object") return;
+            var nm = String(m.name == null ? "" : m.name).trim();
+            if (!nm) return;
+            clean.push({ name: nm, tier: String(m.tier == null ? "" : m.tier).trim(), fresh: m.fresh === true });
           });
-          if (!clean.length) { bar.hidden = true; memberTickerSig = ""; return; }
-          var sig = clean.join("|");
-          if (sig === memberTickerSig && !bar.hidden) return;
+          if (!clean.length) {
+            pairs.forEach(function (p) { p.bar.hidden = true; });
+            memberTickerSig = "";
+            return;
+          }
+          var sig = clean.map(function (m) { return m.name + "|" + m.tier + "|" + (m.fresh ? "1" : "0"); }).join("||");
+          var anyVisible = pairs.some(function (p) { return !p.bar.hidden; });
+          if (sig === memberTickerSig && anyVisible) return;
           memberTickerSig = sig;
-          var items = clean.map(function (n) {
-            return '<span><span class="mt-live"><i></i>Live</span> Diamond member <b>' + esc(n) + "</b> just joined the family</span>";
+          var items = clean.map(function (m) {
+            var icon = memberTierIcon(m.tier);
+            var label = (icon ? icon + " " : "") + "<b>" + esc(m.name) + "</b>" + (m.tier ? " — " + esc(m.tier) : "");
+            if (m.fresh) return '<span><span class="mt-fresh"><span class="mt-fresh-dot">●</span> JUST JOINED</span> — ' + label + "</span>";
+            return "<span>" + label + "</span>";
           });
           /* Repeat the sequence inside each half so even a single name
              fills the screen width and the -50% loop stays seamless. */
@@ -2497,14 +2535,19 @@
           var seq = [];
           for (var r = 0; r < reps; r++) seq = seq.concat(items);
           var half = seq.join('<span class="dot">◆</span>') + '<span class="dot">◆</span>';
-          track.innerHTML = "<div style='display:inline-flex'>" + half + "</div><div style='display:inline-flex'>" + half + "</div>";
-          track.style.animationDuration = Math.max(18, seq.length * 7) + "s";
-          bar.setAttribute("aria-label", "Diamond members: " + clean.join(", "));
-          bar.hidden = false;
+          var html = "<div style='display:inline-flex'>" + half + "</div><div style='display:inline-flex'>" + half + "</div>";
+          var dur = Math.max(18, seq.length * 7) + "s";
+          var aria = "Members: " + clean.map(function (m) { return m.name + (m.tier ? " — " + m.tier : ""); }).join(", ");
+          pairs.forEach(function (p) {
+            p.track.innerHTML = html;
+            p.track.style.animationDuration = dur;
+            p.bar.setAttribute("aria-label", aria);
+            p.bar.hidden = false;
+          });
         }
         function refreshMemberTicker() {
-          api("/members/diamond", { timeout: 5000 }).then(function (r) {
-            if (r && r.status === 200 && r.data && Array.isArray(r.data.names)) renderMemberTicker(r.data.names);
+          api("/members/roll", { timeout: 5000 }).then(function (r) {
+            if (r && r.status === 200 && r.data && Array.isArray(r.data.members)) renderMemberTicker(r.data.members);
           });
         }
         refreshMemberTicker();
@@ -3540,6 +3583,8 @@
             delete state.pendingMemberships[email];
             savePendingMemberships();
             refreshMembershipSurfaces();
+            /* Instant members-roll refresh on activation. */
+            refreshMemberTicker();
             toast("Welcome to " + tier.name + " — your membership is active" + (wcGrant > 0 ? ", and " + wholeMoney(wcGrant) + " welcome credit just landed in your balance — redeemable while your membership stays active" : ""));
           }
           if (p.serverLinked) {
@@ -3631,6 +3676,8 @@
                 if (!isNaN(ed.getTime())) expiryLabel = fmtDate(ed);
               }
               refreshMembershipSurfaces();
+              /* Instant members-roll refresh on promo redemption. */
+              refreshMemberTicker();
               toast("Welcome to " + tier.name + " — your promo membership is active until " + expiryLabel + (wcGrant > 0 ? ", and " + wholeMoney(wcGrant) + " welcome credit just landed in your balance — redeemable while your membership stays active" : ""));
               return;
             }
@@ -6656,6 +6703,9 @@
               order.memberNote = (order.memberNote ? order.memberNote + " " : "") + "Welcome credit: " + wholeMoney(wcAmt) + " just landed in your balance — redeemable while your membership stays active.";
               renderAcctBalance();
             }
+            /* Instant members-roll refresh: this checkout join just
+               activated a membership. */
+            refreshMemberTicker();
             state.joinCharge = null;
           } else {
             var recNow = memberRecord();
@@ -7101,6 +7151,11 @@
           renderMenuAcct();
           renderCoPay();
           refreshDefaultsFromServer();
+          /* Instant members-roll refresh: every successful sign-in —
+             and every successful sign-up, which lands here too —
+             re-fetches the roll at once, so a brand-new member sees
+             their own name lead it right away. */
+          refreshMemberTicker();
           if (!(opts && opts.silent)) toast(approved ? "Signed in — approved member, cash is unlocked" : "Signed in — welcome to the route");
         }
         function renderHistory() {
