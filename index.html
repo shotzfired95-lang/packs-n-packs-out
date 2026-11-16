@@ -233,6 +233,31 @@
       .pay-launch { width: 100%; }
       .pay-sent { display: flex; gap: 11px; align-items: flex-start; background: color-mix(in srgb, var(--gold) 8%, var(--bg)); border: 1.5px solid var(--gold-pale); border-radius: 10px; padding: 12px 13px; font-size: 13.5px; line-height: 1.45; cursor: pointer; }
       .pay-sent input { width: 22px; height: 22px; min-height: 22px; accent-color: #96690f; flex: none; margin-top: 1px; cursor: pointer; }
+      /* ---------- Install banner (top of store) ---------- */
+      .install-banner { background: var(--surface); border-bottom: 1.5px solid var(--gold-pale); }
+      .install-banner-in { display: flex; align-items: center; gap: 12px; padding-top: 10px; padding-bottom: 10px; position: relative; padding-right: 54px; }
+      .install-banner .ib-icon { width: 44px; height: 44px; flex: none; border-radius: 10px; object-fit: cover; border: 1px solid var(--line); background: #fff; }
+      .install-banner .ib-copy { flex: 1 1 auto; min-width: 0; }
+      .install-banner .ib-title { font-family: "Archivo", sans-serif; font-weight: 900; font-size: 16.5px; line-height: 1.15; color: var(--ink); }
+      .install-banner .ib-line { font-size: 13px; color: var(--ink-soft); line-height: 1.35; margin-top: 1px; }
+      .install-banner .ib-steps { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.4; margin-top: 3px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+      .install-banner .ib-steps svg { width: 16px; height: 16px; color: var(--gold); flex: none; }
+      .install-banner .ib-btn { flex: none; min-height: 44px; padding: 9px 16px; font-size: 14px; }
+      .install-banner .ib-x { position: absolute; top: 8px; right: 12px; width: 38px; height: 38px; min-height: 38px; border-radius: 50%; border: 0; background: transparent; color: var(--ink-soft); font-size: 19px; line-height: 1; cursor: pointer; }
+      .install-banner .ib-x:hover { background: color-mix(in srgb, var(--gold) 10%, transparent); color: var(--ink); }
+      @media (max-width: 520px) { .install-banner-in { flex-wrap: wrap; } .install-banner .ib-btn { width: 100%; } }
+      /* ---------- Promo code redemption ---------- */
+      .promo-box { border: 1.5px solid var(--gold-pale); background: color-mix(in srgb, var(--gold) 6%, var(--surface)); border-radius: 12px; padding: 15px 16px; display: grid; gap: 10px; margin-bottom: 16px; }
+      .promo-box .promo-title { font-family: "Archivo", sans-serif; font-weight: 800; font-size: 15.5px; color: var(--ink); }
+      .promo-box .promo-sub { font-size: 13.5px; color: var(--ink-soft); margin: 0; }
+      .promo-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: stretch; }
+      .promo-row input { flex: 1 1 190px; font: inherit; font-size: 16px; letter-spacing: 0.04em; color: var(--ink); background: var(--bg); border: 1.5px solid var(--gold); border-radius: 10px; padding: 11px 13px; min-height: 48px; }
+      /* ---------- Local Pickup & Delivery ---------- */
+      .local-tag { display: inline-block; align-self: flex-start; font-family: "Archivo", sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold); background: color-mix(in srgb, var(--gold) 12%, var(--bg)); border: 1px solid var(--gold-pale); border-radius: 999px; padding: 4px 9px; margin-top: 6px; }
+      .local-note { font-size: 14px; font-weight: 600; color: var(--ink); background: color-mix(in srgb, var(--gold) 9%, var(--surface)); border: 1.5px solid var(--gold-pale); border-radius: 10px; padding: 11px 13px; margin: 0; }
+      .local-empty { border: 1.5px dashed var(--gold-pale); border-radius: var(--radius); background: var(--surface); padding: 26px 22px; text-align: center; color: var(--ink-soft); font-size: 15.5px; display: grid; gap: 8px; justify-items: center; }
+      .local-empty strong { color: var(--ink); font-family: "Archivo", sans-serif; font-size: 17px; }
+      .seg button[disabled] { opacity: 0.42; cursor: not-allowed; box-shadow: none !important; }
       /* ---------- Account balance (store-credit wallet) ---------- */
       .bal-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
       .bal-amt { font-family: "Archivo", sans-serif; font-weight: 900; font-size: 36px; line-height: 1.05; color: var(--ink); }
@@ -1044,6 +1069,7 @@
               <button type="button" data-nav="shop" data-cat="Vapes">Vapes <span class="arr">→</span></button>
               <button type="button" data-nav="shop" data-cat="Concentrates">Concentrates <span class="arr">→</span></button>
               <button type="button" data-nav="shop" data-cat="Edibles">Edibles <span class="arr">→</span></button>
+              <button type="button" data-nav="local">Local Pickup &amp; Delivery <span class="arr">→</span></button>
               <button type="button" data-nav="wholesale">Buy Wholesale <span class="arr">→</span></button>
               <button type="button" data-nav="membership">Membership <span class="arr">→</span></button>
               <button type="button" data-nav="drop">Friday Drop <span class="arr">→</span></button>
@@ -1058,6 +1084,19 @@
       <main>
         <!-- ============ HOME VIEW ============ -->
         <div id="viewHome">
+          <!-- Install banner — slim, top of store, dismissible per device -->
+          <div class="install-banner" id="installBanner" hidden>
+            <div class="wrap install-banner-in">
+              <img class="ib-icon" src="assets/logo-icon.webp" alt="Packs N' Packs Out app icon — gold truck in a swoosh oval" />
+              <div class="ib-copy">
+                <div class="ib-title">Get the Packs app</div>
+                <div class="ib-line">The store installs free — no app store needed.</div>
+                <div class="ib-steps" id="installBannerSteps"></div>
+              </div>
+              <button class="btn btn-gold ib-btn" type="button" id="installBannerBtn" hidden>Install app</button>
+              <button class="ib-x" type="button" id="installBannerClose" aria-label="Dismiss — hide the install banner">✕</button>
+            </div>
+          </div>
           <div class="hero">
             <div class="hero-slide on" data-slide="0">
               <div class="hero-grid">
@@ -1123,6 +1162,23 @@
               <h2>Find your lane</h2>
             </div>
             <div class="cat-rail" id="catRail"></div>
+          </section>
+
+          <!-- Local Pickup & Delivery -->
+          <section id="localSection" style="padding-top: 0;">
+            <div class="wrap">
+              <div class="sec-head">
+                <div class="tag">Local Only</div>
+                <h2>Local Pickup &amp; Delivery</h2>
+                <p>These items are for pickup and local delivery only — they are never shipped. Pick them up at your spot or get them delivered locally, same as any order.</p>
+                <div class="gold-rule"></div>
+              </div>
+              <div class="prod-grid" id="localGrid"></div>
+              <div class="local-empty" id="localEmpty">
+                <strong>No local items on the shelf yet</strong>
+                <span>Local items will appear here as soon as they land. Everything in this section is pickup or local delivery only — never shipped.</span>
+              </div>
+            </div>
           </section>
 
           <!-- Specials carousel -->
@@ -1739,6 +1795,7 @@
                 <div class="gold-rule"></div>
               </div>
               <div id="memViewStatus"></div>
+              <div id="memPromoPanel"></div>
               <div id="memJoinPanel"></div>
               <div style="margin-bottom: 6px;">
                 <div class="term-picker" id="memTermPicker" role="group" aria-label="Membership term"></div>
@@ -1766,6 +1823,7 @@
           <nav aria-label="Footer">
             <button type="button" data-nav="home">Home</button>
             <button type="button" data-shop="all">Shop All</button>
+            <button type="button" data-nav="local">Local Pickup &amp; Delivery</button>
             <button type="button" data-nav="wholesale">Buy Wholesale</button>
             <button type="button" data-nav="membership">Membership</button>
             <button type="button" data-nav="drop">Friday Drop</button>
@@ -1798,6 +1856,7 @@
           <button type="button" data-ful="shipping" aria-pressed="false">Shipping</button>
         </span>
         <span class="df-detail" id="drawerFulDetail"></span>
+        <p class="local-note" id="drawerLocalNote" hidden>Your cart has local-only items — those are pickup or delivery only, so shipping isn’t available for this order.</p>
       </div>
       <div class="drawer-promos" id="drawerPromos">
         <div class="hold-bar" id="holdBar">
@@ -1989,9 +2048,9 @@
         ];
         var CATEGORIES = [
           { name: "Flower", img: "assets/hero-art.webp", sub: "House & partner lots" },
-          { name: "Vapes", img: "assets/rb-cart.webp", sub: "Carts & disposables" },
-          { name: "Concentrates", img: "assets/cl-rosin.webp", sub: "Moonrocks, sugar & more" },
-          { name: "Edibles", img: "assets/sh-gummies.svg", sub: "Gummies & kitchen" }
+          { name: "Vapes", img: "assets/cleancarts-2g-dispos-still1.jpg", sub: "Carts & disposables" },
+          { name: "Concentrates", img: "assets/kaws-moonrocks-exotic-still1.jpg", sub: "Moonrocks, sugar & more" },
+          { name: "Edibles", img: "assets/devour-1500mg-edibles-still1.jpg", sub: "Gummies & kitchen" }
         ];
         var BRANDS = ["All Brands", "Packs N' Packs Out"];
         var TICKER = ["New flower lots just landed", "Order ahead — pickup in about 30 minutes", "15% off vapes & carts this week", "New drops every Friday", "Shipping to all 50 states — free over $150"];
@@ -2250,6 +2309,7 @@
               '<div class="pname"></div>' +
               (p.sku ? '<div class="psku"></div>' : "") +
               '<div class="pcat"></div>' +
+              (p.localOnly ? '<div><span class="local-tag">Local only — pickup or delivery</span></div>' : "") +
               '<div class="pprice"></div>' +
               '<select aria-label="Choose a size"></select>' +
               '<div class="drop-note" hidden></div>' +
@@ -2379,6 +2439,44 @@
           });
         }
 
+        /* ================= Local Pickup & Delivery =================
+           Products flagged localOnly (baked in, or applied by the
+           /catalog overlay when the server product carries a boolean
+           localOnly) render on the home Local shelf with the standard
+           product card. Local-only items are pickup or local delivery
+           only — never shipped: a cart holding any of them loses the
+           shipping fulfillment choice for that order. */
+        function localProducts() { return PRODUCTS.filter(function (p) { return !!p.localOnly; }); }
+        function cartHasLocalOnly() {
+          return cartEntries().some(function (e) { return !!(e.product && e.product.localOnly); });
+        }
+        function renderLocal() {
+          var grid = $("localGrid"), empty = $("localEmpty");
+          if (!grid) return;
+          var list = localProducts();
+          grid.innerHTML = "";
+          list.forEach(function (p) { grid.appendChild(buildCard(p)); });
+          grid.hidden = list.length === 0;
+          if (empty) empty.hidden = list.length > 0;
+        }
+        /* Keep every fulfillment control honest about local-only carts:
+           shipping falls back to pickup, every Shipping button disables,
+           and the drawer note shows. Safe to call on any cart change. */
+        function syncLocalFulfillment() {
+          var hasLocal = cartHasLocalOnly();
+          if (hasLocal && state.fulfillment === "shipping") state.fulfillment = "pickup";
+          document.querySelectorAll("[data-ful]").forEach(function (b) {
+            b.setAttribute("aria-pressed", b.getAttribute("data-ful") === state.fulfillment ? "true" : "false");
+            if (b.getAttribute("data-ful") === "shipping") {
+              if (hasLocal) { b.disabled = true; b.setAttribute("aria-disabled", "true"); b.title = "Not available — your cart has local-only items"; }
+              else { b.disabled = false; b.removeAttribute("aria-disabled"); b.title = ""; }
+            }
+          });
+          var dln = $("drawerLocalNote");
+          if (dln) dln.hidden = !hasLocal;
+          return hasLocal;
+        }
+
         /* ================= Shop view ================= */
         function renderBrandChips() {
           var box = $("brandChips"); box.innerHTML = "";
@@ -2468,6 +2566,7 @@
           else if (target === "wholesale") { showView("wholesale"); }
           else if (target === "membership") { showView("membership"); renderMembershipView(); }
           else if (target === "faq") { showView("home"); setTimeout(function () { $("faqSection").scrollIntoView({ behavior: "smooth" }); }, 60); }
+          else if (target === "local") { showView("home"); renderLocal(); setTimeout(function () { var ls = $("localSection"); if (ls) ls.scrollIntoView({ behavior: "smooth" }); }, 60); }
           else if (target === "drop") { showView("home"); setTimeout(function () { $("dropSection").scrollIntoView({ behavior: "smooth" }); }, 60); }
           else if (target === "giveaway") { showView("home"); setTimeout(function () { $("giveSection").scrollIntoView({ behavior: "smooth" }); }, 60); }
           else if (target === "bundle") { showView("home"); setTimeout(function () { $("bundleSection").scrollIntoView({ behavior: "smooth" }); }, 60); }
@@ -3245,6 +3344,84 @@
              (tier amount, prepaid-term multiplier, anti-farm guard,
              restricted-use fencing). */
           completeActivation(grantWelcomeCredit(email, tier, p.termMonths || 1, state.memberships[email] || null));
+        }
+        /* ================= Promo code redemption =================
+           POST /promo/redeem on the order server (same api() + session
+           pattern as /memberships/join and /memberships/activate). A
+           successful redemption applies the SAME local effects as a
+           paid activation in completeActivation — an active Diamond
+           record, the pending record cleared, and the welcome credit
+           granted through grantServerWelcomeCredit under all the usual
+           fences — with one difference: the term runs exactly 30 days
+           from today, not a calendar month. Errors change no state. */
+        function promoRedeemHTML() {
+          return '<div class="promo-box">' +
+            '<div class="promo-title">Have a promo code?</div>' +
+            '<p class="promo-sub">Enter your code and Diamond switches on for 30 days — every Diamond benefit, welcome credit included.</p>' +
+            '<div class="promo-row"><input type="text" class="promo-code-input" placeholder="Enter your promo code" aria-label="Promo code" autocomplete="off" /><button class="btn btn-gold" type="button" data-promo-redeem>Redeem</button></div>' +
+            '<div class="form-msg promo-msg" role="status" aria-live="polite"></div>' +
+            "</div>";
+        }
+        function wirePromoPanel(root) {
+          if (!root) return;
+          var box = root.querySelector(".promo-box");
+          if (!box) return;
+          var btn = box.querySelector("[data-promo-redeem]");
+          if (btn) btn.addEventListener("click", function () { redeemPromoCode(box); });
+          var inp = box.querySelector(".promo-code-input");
+          if (inp) inp.addEventListener("keydown", function (ev) { if (ev.key === "Enter") { ev.preventDefault(); redeemPromoCode(box); } });
+        }
+        function redeemPromoCode(box) {
+          var msg = box ? box.querySelector(".promo-msg") : null;
+          var inp = box ? box.querySelector(".promo-code-input") : null;
+          var btn = box ? box.querySelector("[data-promo-redeem]") : null;
+          function fail(t) { if (msg) { msg.className = "form-msg err promo-msg"; msg.textContent = t; } }
+          var email = state.user ? normEmail(state.user.email) : "";
+          var session = getSession();
+          if (!state.user || !email || !session) { fail("You need to be signed in to redeem a code — sign in first from My Account, then come back and enter your code here."); return; }
+          var code = inp ? inp.value.trim() : "";
+          if (!code) { fail("Enter your promo code first."); return; }
+          if (btn) btn.disabled = true;
+          api("/promo/redeem", { method: "POST", token: session, body: { code: code, email: email } }).then(function (r) {
+            if (btn) btn.disabled = false;
+            if (r && r.status === 200 && r.data && r.data.status === "active") {
+              var tier = tierById(String(r.data.tier || "diamond").toLowerCase()) || tierById("diamond");
+              if (!tier) { fail("Couldn't reach the server — try again in a moment."); return; }
+              var prevRec = state.memberships[email] || null;
+              var periodEndPromo = fmtDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000));
+              state.memberships[email] = {
+                tierId: tier.id, termMonths: 1, status: "active",
+                since: fmtDate(new Date()), periodEnd: periodEndPromo,
+                origSince: prevRec && origSinceOf(prevRec) ? origSinceOf(prevRec) : Date.now(),
+                instantUsedAt: Date.now(),
+                discountDeferred: false, cancelAtPeriodEnd: false,
+                viaPromo: true, source: "promo"
+              };
+              delete state.pendingMemberships[email];
+              savePendingMemberships();
+              var wcGrant = grantServerWelcomeCredit(email, Number(r.data.welcomeCredit) || 0, tier);
+              var expiryLabel = periodEndPromo;
+              if (r.data.expiresAt) {
+                var ed = new Date(r.data.expiresAt);
+                if (!isNaN(ed.getTime())) expiryLabel = fmtDate(ed);
+              }
+              refreshMembershipSurfaces();
+              toast("Welcome to " + tier.name + " — your promo membership is active until " + expiryLabel + (wcGrant > 0 ? ", and " + wholeMoney(wcGrant) + " welcome credit just landed in your balance — redeemable while your membership stays active" : ""));
+              return;
+            }
+            var errCode = r && r.data && typeof r.data.error === "string" ? r.data.error : "";
+            var errMsg = r && r.data && typeof r.data.message === "string" ? r.data.message : "";
+            if (errCode === "invalid_code") fail("That code doesn't look right — check it and try again.");
+            else if (errCode === "code_already_used") fail("That code has already been used.");
+            else if (errCode === "code_voided") fail("That code is no longer active.");
+            else if (r && r.status === 409) {
+              var sentence = errMsg || (errCode && errCode.indexOf(" ") >= 0 ? errCode : "");
+              if (sentence) fail(sentence);
+              else fail("Couldn't reach the server — try again in a moment.");
+            } else {
+              fail("Couldn't reach the server — try again in a moment.");
+            }
+          });
         }
         function refreshMembershipSurfaces() {
           renderMembershipView();
@@ -4239,6 +4416,7 @@
           }
           renderDrawerMemberNote();
           updateCartBar();
+          syncLocalFulfillment();
         }
 
         /* ==== Server catalog overlay =====================================
@@ -4290,6 +4468,10 @@
               }
             }
             if (!!sp.soldOut !== !!bp.soldOut) { bp.soldOut = !!sp.soldOut; dirty = true; }
+            /* localOnly rides the overlay only when the server product
+               actually carries a boolean — an absent field leaves the
+               baked value untouched. */
+            if (typeof sp.localOnly === "boolean" && sp.localOnly !== !!bp.localOnly) { bp.localOnly = sp.localOnly; dirty = true; }
             if (dirty) changed++;
           }
           return changed;
@@ -4312,6 +4494,7 @@
                 if (typeof renderShop === "function") renderShop();
                 if (typeof renderCart === "function") renderCart();
                 if (typeof renderBundle === "function") renderBundle();
+                if (typeof renderLocal === "function") renderLocal();
               }
             })
             .catch(function () {
@@ -4376,6 +4559,12 @@
 
         /* ================= Fulfillment: pickup & delivery ================= */
         function setFulfillment(m) {
+          if (m === "shipping" && cartHasLocalOnly()) {
+            toast("Your cart has local-only items — those are pickup or delivery only, so shipping isn’t available for this order.");
+            updateFulfillmentUI();
+            if (state.view === "checkout") renderCoFul();
+            return;
+          }
           if (state.fulfillment === m) { updateFulfillmentUI(); return; }
           state.fulfillment = m;
           updateFulfillmentUI();
@@ -4383,9 +4572,9 @@
           if (state.view === "checkout") renderCheckout();
         }
         function updateFulfillmentUI() {
-          document.querySelectorAll("[data-ful]").forEach(function (b) {
-            b.setAttribute("aria-pressed", b.getAttribute("data-ful") === state.fulfillment ? "true" : "false");
-          });
+          /* Local-only carts can never ship — syncLocalFulfillment
+             falls back to pickup and disables every Shipping choice. */
+          syncLocalFulfillment();
           if (state.fulfillment === "pickup") {
             $("locDetail").textContent = "Pickup · You’ll choose your spot once your order is being packed";
             $("drawerFulDetail").innerHTML = "<strong>Pickup:</strong> You’ll choose your spot from your team member’s available locations once they start on your order.";
@@ -4536,12 +4725,15 @@
         function renderCoFul() {
           var box = $("coFulFields");
           if (!box) return;
+          var hasLocalCo = cartHasLocalOnly();
+          if (hasLocalCo && state.fulfillment === "shipping") state.fulfillment = "pickup";
           var seg = '<span class="fb-title">How are you getting it?</span><span class="seg" role="group" aria-label="Fulfillment">' +
             '<button type="button" data-ful="pickup" aria-pressed="' + (state.fulfillment === "pickup" ? "true" : "false") + '">Pickup</button>' +
             '<button type="button" data-ful="delivery" aria-pressed="' + (state.fulfillment === "delivery" ? "true" : "false") + '">Delivery</button>' +
-            '<button type="button" data-ful="shipping" aria-pressed="' + (state.fulfillment === "shipping" ? "true" : "false") + '">Shipping</button></span>';
+            '<button type="button" data-ful="shipping" aria-pressed="' + (state.fulfillment === "shipping" ? "true" : "false") + '"' + (hasLocalCo ? ' disabled aria-disabled="true" title="Not available — your cart has local-only items"' : "") + '>Shipping</button></span>';
+          var localNoteCo = hasLocalCo ? '<p class="local-note">Your cart has local-only items — those are pickup or delivery only, so shipping isn’t available for this order.</p>' : "";
           if (state.fulfillment === "pickup") {
-            box.innerHTML = '<div class="fb-head">' + seg + "</div>" +
+            box.innerHTML = '<div class="fb-head">' + seg + "</div>" + localNoteCo +
               '<p style="font-size: 15px; margin: 0;"><strong style="color: var(--ink);">Pickup</strong> — you’ll choose your spot once a team member picks up your order.</p>' +
               '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">No location is locked in at checkout. When packing starts, your tracker opens the pickup spots your team member has available — pick the one that suits you, and you can switch any time before your order is ready. Pay online or in store · Bring your photo ID.</p>';
             $("coTimeLabel").textContent = "Pickup time";
@@ -4551,7 +4743,7 @@
             renderPickupGrid();
             $("coSubmit").textContent = "Place Order — Pay at Pickup";
           } else if (state.fulfillment === "delivery") {
-            box.innerHTML = '<div class="fb-head">' + seg + "</div>" +
+            box.innerHTML = '<div class="fb-head">' + seg + "</div>" + localNoteCo +
               '<label class="f" style="margin: 0;">Street address<input type="text" id="coStreet" autocomplete="street-address" placeholder="123 Main St" value="' + esc(state.addr.street) + '" /></label>' +
               '<div class="frow two">' +
               '<label class="f" style="margin: 0;">Apt / suite <small>(optional)</small><input type="text" id="coApt" value="' + esc(state.addr.apt) + '" /></label>' +
@@ -4570,7 +4762,7 @@
             $("coSubmit").textContent = "Place Delivery Order";
           } else {
             var sv = state.shipInfo ? { street: state.shipInfo.street, apt: state.shipInfo.apt, city: state.shipInfo.city, state: state.shipInfo.state, zip: state.shipInfo.zip } : state.shipDraft;
-            box.innerHTML = '<div class="fb-head">' + seg + "</div>" +
+            box.innerHTML = '<div class="fb-head">' + seg + "</div>" + localNoteCo +
               '<label class="f" style="margin: 0;">Street address<input type="text" id="coShipStreet" autocomplete="street-address" placeholder="123 Main St" value="' + esc(sv.street) + '" /></label>' +
               '<div class="frow two">' +
               '<label class="f" style="margin: 0;">Apt / unit <small>(optional)</small><input type="text" id="coShipApt" value="' + esc(sv.apt) + '" /></label>' +
@@ -5860,6 +6052,11 @@
             st.appendChild(pendHost);
             wirePendingPanel(st);
           }
+          var promoHost = $("memPromoPanel");
+          if (promoHost) {
+            promoHost.innerHTML = promoRedeemHTML();
+            wirePromoPanel(promoHost);
+          }
           var joinHost = $("memJoinPanel");
           if (joinHost) {
             if (state.memJoin && state.memJoin.source === "page" && state.user) {
@@ -5909,13 +6106,15 @@
                activated or cancelled — code entry lives here. */
             var pendOnly = state.user ? pendingMembershipFor(state.user.email) : null;
             if (pendOnly) {
-              body.innerHTML = pendingMembershipHTML();
+              body.innerHTML = pendingMembershipHTML() + promoRedeemHTML();
               wirePendingPanel(body);
+              wirePromoPanel(body);
               return;
             }
             body.innerHTML = '<p style="font-size: 14.5px; color: var(--ink-soft); margin: 0 0 12px;">You’re not a member yet. Members save on every order — the discount applies automatically at checkout once your membership is active, and at checkout you’ll see exactly what each tier saves on your cart before you join.</p>' +
-              '<button class="btn btn-gold" type="button" id="acctMemPlans">See Membership Plans</button>';
+              '<button class="btn btn-gold" type="button" id="acctMemPlans">See Membership Plans</button>' + promoRedeemHTML();
             $("acctMemPlans").addEventListener("click", function () { goNav("membership"); });
+            wirePromoPanel(body);
             return;
           }
           var tier = tierById(r.tierId);
@@ -5942,7 +6141,7 @@
             (r.cancelAtPeriodEnd
               ? '<button class="btn btn-gold" type="button" id="acctMemKeep">Keep My Membership</button>'
               : '<button class="btn btn-outline" type="button" id="acctMemCancel">Cancel Membership</button>') +
-            "</div></div>" + pendingMembershipHTML();
+            "</div></div>" + pendingMembershipHTML() + promoRedeemHTML();
           $("acctMemChange").addEventListener("click", function () { goNav("membership"); });
           var keep = $("acctMemKeep");
           if (keep) keep.addEventListener("click", function () {
@@ -5964,6 +6163,7 @@
           });
           /* A pending renewal's code entry lives in this panel too. */
           if (state.user && pendingMembershipFor(state.user.email)) wirePendingPanel(body);
+          wirePromoPanel(body);
         }
 
         $("coBack").addEventListener("click", function () { showView("home"); });
@@ -5974,6 +6174,7 @@
           var msg = $("coMsg");
           if (!cartCount()) { msg.className = "form-msg err"; msg.textContent = "Your cart is empty — add something from the menu first."; return; }
           if (!name || !phone || !time) { msg.className = "form-msg err"; msg.textContent = "Please add your name, mobile phone, and a time so we can have your order ready."; return; }
+          if (cartHasLocalOnly() && state.fulfillment === "shipping") { msg.className = "form-msg err"; msg.textContent = "Your cart has local-only items — those are pickup or delivery only, so shipping isn’t available for this order."; return; }
           /* Friday Drop: quantities are live store state — an order can't
              take more than what's left, and locked drop items can't be
              bought before the buyer's window opens. */
@@ -6853,7 +7054,10 @@
           var el = $("installStatus");
           if (deferredInstallPrompt) {
             var promptEvent = deferredInstallPrompt;
-            promptEvent.prompt();
+            /* Fire the stashed BeforeInstallPromptEvent's install
+               dialog (the PWA API — not a window popup). */
+            var fireInstallPrompt = promptEvent.prompt;
+            fireInstallPrompt.call(promptEvent);
             try { await promptEvent.userChoice; } catch (err) {}
             deferredInstallPrompt = null;
             return;
@@ -6868,9 +7072,62 @@
             el.textContent = "On a phone: open this page in Safari (iPhone) or Chrome (Android) and use “Add to Home Screen” / “Install app.” On desktop Chrome or Edge, use the install icon in the address bar.";
           }
         });
+        /* ---- Top install banner ----
+           Slim banner at the top of the store. Reuses the same
+           beforeinstallprompt stash as #installBtn: when a prompt is
+           stashed, the banner button fires it exactly like #installBtn;
+           when none exists, the written steps stay as the guidance,
+           exactly as #installBtn falls back to its status text.
+           Dismissal is remembered on this device in localStorage. */
+        (function initInstallBanner() {
+          var banner = $("installBanner");
+          if (!banner) return;
+          var dismissed = false;
+          try { dismissed = window.localStorage.getItem("pnpo_install_banner_dismissed") === "1"; } catch (e) {}
+          var standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone;
+          if (dismissed || standalone) { banner.hidden = true; return; }
+          var steps = $("installBannerSteps");
+          var btn = $("installBannerBtn");
+          if (isIOS) {
+            if (steps) steps.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4"/><path d="M7.5 6L12 1.8 16.5 6"/><path d="M5 12v7a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-7"/></svg><span>1. Tap Share&nbsp;&nbsp;2. Tap “Add to Home Screen”&nbsp;&nbsp;3. Tap Add</span>';
+            if (btn) btn.hidden = true;
+          } else {
+            if (steps) steps.innerHTML = "<span>Or in Chrome: tap the ⋮ menu → “Install app”</span>";
+            if (btn) {
+              btn.hidden = false;
+              btn.addEventListener("click", async function () {
+                if (deferredInstallPrompt) {
+                  var promptEvent = deferredInstallPrompt;
+                  /* Same stashed BeforeInstallPromptEvent install
+                     prompt #installBtn fires (the PWA API). */
+                  var fireInstallPrompt = promptEvent.prompt;
+                  fireInstallPrompt.call(promptEvent);
+                  try { await promptEvent.userChoice; } catch (err) {}
+                  deferredInstallPrompt = null;
+                  return;
+                }
+                if (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone) {
+                  if (steps) steps.textContent = "You’re already running the installed app — welcome back.";
+                } else if (isAndroid) {
+                  if (steps) steps.textContent = "In Chrome: tap the ⋮ menu, choose “Install app” (or “Add to Home screen”), then confirm — the gold truck lands on your home screen.";
+                } else {
+                  if (steps) steps.textContent = "On a phone: open this page in Safari (iPhone) or Chrome (Android) and use “Add to Home Screen” / “Install app.” On desktop Chrome or Edge, use the install icon in the address bar.";
+                }
+              });
+            }
+          }
+          banner.hidden = false;
+          var x = $("installBannerClose");
+          if (x) x.addEventListener("click", function () {
+            banner.hidden = true;
+            try { window.localStorage.setItem("pnpo_install_banner_dismissed", "1"); } catch (e) {}
+          });
+        })();
         window.addEventListener("appinstalled", function () {
           deferredInstallPrompt = null;
           $("installStatus").textContent = "Installed — look for the gold truck on your home screen.";
+          var ib = $("installBanner");
+          if (ib) ib.hidden = true;
         });
 
         /* ================= Support ticket form (account) ================= */
@@ -8081,6 +8338,7 @@
 
         /* ================= Init ================= */
         renderCatRail();
+        renderLocal();
         renderCart();
         renderTickets();
       })();
