@@ -2764,9 +2764,24 @@
            product card. Local-only items are pickup or local delivery
            only — never shipped: a cart holding any of them loses the
            shipping fulfillment choice for that order. */
+        /* Shipping is paused by Kamrion's order (Nov 16, 2026 — no shipments go out). Flip this one constant to reopen shipping. */
+        var SHIPPING_PAUSED = true;
         function localProducts() { return PRODUCTS.filter(function (p) { return !!p.localOnly; }); }
         function cartHasLocalOnly() {
           return cartEntries().some(function (e) { return !!(e.product && e.product.localOnly); });
+        }
+        function cartHasMainItems() {
+          return cartEntries().some(function (e) { return !(e.product && e.product.localOnly); });
+        }
+        function fulfillmentGate() {
+          var entries = cartEntries();
+          if (!entries.length) return { mode: "empty", allowed: [], blocked: false, notice: "" };
+          var hasLocal = cartHasLocalOnly();
+          var hasMain = cartHasMainItems();
+          if (hasLocal && hasMain) return { mode: "mixed", allowed: [], blocked: true, notice: "Your cart mixes Local items with regular items. Local items are pickup or delivery only, and regular items ship only — please split this into two separate orders." };
+          if (hasLocal) return { mode: "local", allowed: ["pickup", "delivery"], blocked: false, notice: "Your cart has local-only items — those are pickup or delivery only, so shipping isn’t available for this order." };
+          if (SHIPPING_PAUSED) return { mode: "main", allowed: [], blocked: true, notice: "Shipping is temporarily paused — pickup & local delivery are available for Local section items. The items in your cart ship only, so they can’t be ordered until shipping returns." };
+          return { mode: "main", allowed: ["shipping"], blocked: false, notice: "Regular items ship only — pickup & local delivery are for items in the Local Pickup & Delivery section." };
         }
         function renderLocal() {
           var grid = $("localGrid"), empty = $("localEmpty");
@@ -2781,8 +2796,10 @@
            shipping falls back to pickup, every Shipping button disables,
            and the drawer note shows. Safe to call on any cart change. */
         function syncLocalFulfillment() {
+          var gate = fulfillmentGate();
           var hasLocal = cartHasLocalOnly();
           if (hasLocal && state.fulfillment === "shipping") state.fulfillment = "pickup";
+          if (gate.mode === "main" && (state.fulfillment === "pickup" || state.fulfillment === "delivery")) state.fulfillment = "shipping";
           document.querySelectorAll("[data-ful]").forEach(function (b) {
             b.setAttribute("aria-pressed", b.getAttribute("data-ful") === state.fulfillment ? "true" : "false");
             if (b.getAttribute("data-ful") === "shipping") {
@@ -2791,7 +2808,10 @@
             }
           });
           var dln = $("drawerLocalNote");
-          if (dln) dln.hidden = !hasLocal;
+          if (dln) {
+            if (gate.notice) { dln.textContent = gate.notice; dln.hidden = false; }
+            else { dln.hidden = true; }
+          }
           return hasLocal;
         }
 
@@ -2809,6 +2829,8 @@
         }
         function shopList() {
           var list = PRODUCTS.filter(function (p) {
+            if (state.fulfillment === "pickup" || state.fulfillment === "delivery") { if (!p.localOnly) return false; }
+            else if (state.fulfillment === "shipping") { if (p.localOnly) return false; }
             if (state.shopCat !== "all" && p.cat !== state.shopCat) return false;
             if (state.shopBrand !== "all" && p.brand !== state.shopBrand) return false;
             if (state.shopQuery) {
@@ -2837,7 +2859,15 @@
           $("shopCount").textContent = list.length + (list.length === 1 ? " product" : " products");
           var g = $("shopGrid"); g.innerHTML = "";
           list.forEach(function (p) { g.appendChild(buildCard(p)); });
-          $("shopEmpty").hidden = list.length > 0;
+          var se = $("shopEmpty");
+          if (list.length === 0 && (state.fulfillment === "pickup" || state.fulfillment === "delivery")) {
+            se.textContent = state.shopQuery
+              ? "No Local items match that search. Pickup & delivery carry Local section items only — switch to Shipping up top to search the full menu."
+              : "Local Pickup & Delivery items are coming soon — switch to Shipping up top to browse the full menu.";
+          } else {
+            se.textContent = "Nothing matches that search — try a different term or browse the full menu.";
+          }
+          se.hidden = list.length > 0;
         }
         function openShop(cat, brand, query) {
           state.shopCat = cat || "all";
@@ -4887,6 +4917,19 @@
             if (state.view === "checkout") renderCoFul();
             return;
           }
+          var gateSF = fulfillmentGate();
+          if ((m === "pickup" || m === "delivery") && gateSF.mode === "main") {
+            toast("Regular items ship only — pickup & local delivery are for items in the Local Pickup & Delivery section.");
+            updateFulfillmentUI();
+            if (state.view === "checkout") renderCoFul();
+            return;
+          }
+          if (m === "shipping" && gateSF.mode === "main" && SHIPPING_PAUSED) {
+            toast("Shipping is temporarily paused — pickup & local delivery are available for Local section items.");
+            updateFulfillmentUI();
+            if (state.view === "checkout") renderCoFul();
+            return;
+          }
           if (state.fulfillment === m) { updateFulfillmentUI(); return; }
           state.fulfillment = m;
           /* Choosing Delivery / Shipping prefills the address fields from
@@ -4900,6 +4943,7 @@
           }
           updateFulfillmentUI();
           renderCart();
+          if (state.view === "shop") renderShop();
           if (state.view === "checkout") renderCheckout();
         }
         function updateFulfillmentUI() {
@@ -4987,7 +5031,7 @@
             $("zipInput").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); checkZip(); } });
           } else {
             body.innerHTML =
-              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">We ship to all 50 states — ' + money(SHIPPING_FEE) + ' flat shipping, free on orders over ' + money(SHIPPING_FREE_OVER) + '. Your mailing address is collected at checkout' + (state.shipInfo ? ' — your saved address (' + esc(state.shipInfo.city) + ', ' + esc(state.shipInfo.state) + ') will be filled in for you' : '') + '.</p>' +
+              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">We ship to all 50 states — ' + money(SHIPPING_FEE) + ' flat shipping, free on orders over ' + money(SHIPPING_FREE_OVER) + '. Your mailing address is collected at checkout' + (state.shipInfo ? ' — your saved address (' + esc(state.shipInfo.city) + ', ' + esc(state.shipInfo.state) + ') will be filled in for you' : '') + '.' + (SHIPPING_PAUSED ? ' Shipping is temporarily paused — pickup & local delivery are available for Local section items.' : '') + '</p>' +
               marketRowHTML();
           }
           var mb = $("panelMarketBtn");
@@ -5081,15 +5125,44 @@
         function renderCoFul() {
           var box = $("coFulFields");
           if (!box) return;
+          var gate = fulfillmentGate();
           var hasLocalCo = cartHasLocalOnly();
           if (hasLocalCo && state.fulfillment === "shipping") state.fulfillment = "pickup";
+          if (gate.mode === "main" && (state.fulfillment === "pickup" || state.fulfillment === "delivery")) state.fulfillment = "shipping";
+          var mainOnlyCo = gate.mode === "main";
+          var shipDisCo = hasLocalCo || SHIPPING_PAUSED;
+          var shipTitleCo = hasLocalCo ? "Not available — your cart has local-only items" : (SHIPPING_PAUSED ? "Shipping is temporarily paused" : "");
           var seg = '<span class="fb-title">How are you getting it?</span><span class="seg" role="group" aria-label="Fulfillment">' +
-            '<button type="button" data-ful="pickup" aria-pressed="' + (state.fulfillment === "pickup" ? "true" : "false") + '">Pickup</button>' +
-            '<button type="button" data-ful="delivery" aria-pressed="' + (state.fulfillment === "delivery" ? "true" : "false") + '">Delivery</button>' +
-            '<button type="button" data-ful="shipping" aria-pressed="' + (state.fulfillment === "shipping" ? "true" : "false") + '"' + (hasLocalCo ? ' disabled aria-disabled="true" title="Not available — your cart has local-only items"' : "") + '>Shipping</button></span>';
-          var localNoteCo = hasLocalCo ? '<p class="local-note">Your cart has local-only items — those are pickup or delivery only, so shipping isn’t available for this order.</p>' : "";
+            '<button type="button" data-ful="pickup" aria-pressed="' + (state.fulfillment === "pickup" ? "true" : "false") + '"' + (mainOnlyCo ? ' disabled aria-disabled="true" title="Not available — regular items ship only"' : "") + '>Pickup</button>' +
+            '<button type="button" data-ful="delivery" aria-pressed="' + (state.fulfillment === "delivery" ? "true" : "false") + '"' + (mainOnlyCo ? ' disabled aria-disabled="true" title="Not available — regular items ship only"' : "") + '>Delivery</button>' +
+            '<button type="button" data-ful="shipping" aria-pressed="' + (state.fulfillment === "shipping" ? "true" : "false") + '"' + (shipDisCo ? ' disabled aria-disabled="true" title="' + shipTitleCo + '"' : "") + '>Shipping</button></span>';
+          var gateNote = gate.notice ? '<p class="local-note">' + gate.notice + "</p>" : "";
+          if (gate.blocked) {
+            var helperCo = gate.mode === "mixed"
+              ? "Remove either the Local items or the regular items from your cart to check out."
+              : "The Local Pickup & Delivery section is still open — those items can be picked up or delivered locally.";
+            box.innerHTML = '<div class="fb-head">' + seg + "</div>" + gateNote +
+              '<p style="font-size: 14px; color: var(--ink-soft); margin: 0;">' + helperCo + "</p>";
+            box.querySelectorAll("[data-ful]").forEach(function (b) {
+              b.addEventListener("click", function () { setFulfillment(b.getAttribute("data-ful")); });
+            });
+            var ctB = $("coTitle"), ciB = $("coIntro");
+            if (ctB) ctB.textContent = "Checkout";
+            if (ciB) ciB.textContent = gate.notice;
+            var tsB = $("coTimeSelect");
+            if (tsB) { tsB.hidden = true; if (tsB.parentElement) tsB.parentElement.hidden = true; }
+            var pgB = $("coPickupGrid");
+            if (pgB) pgB.hidden = true;
+            renderCoTip();
+            renderCoPay();
+            var sbB = $("coSubmit");
+            if (sbB) { sbB.disabled = true; sbB.textContent = "Checkout Unavailable"; }
+            return;
+          }
+          var tsU = $("coTimeSelect");
+          if (tsU && tsU.parentElement) tsU.parentElement.hidden = false;
           if (state.fulfillment === "pickup") {
-            box.innerHTML = '<div class="fb-head">' + seg + "</div>" + localNoteCo +
+            box.innerHTML = '<div class="fb-head">' + seg + "</div>" + gateNote +
               '<p style="font-size: 15px; margin: 0;"><strong style="color: var(--ink);">Pickup</strong> — you’ll choose your spot once a team member picks up your order.</p>' +
               '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">No location is locked in at checkout. When packing starts, your tracker opens the pickup spots your team member has available — pick the one that suits you, and you can switch any time before your order is ready. Pay online or in store · Bring your photo ID.</p>';
             $("coTimeLabel").textContent = "Pickup time";
@@ -5099,7 +5172,7 @@
             renderPickupGrid();
             $("coSubmit").textContent = "Place Order — Pay at Pickup";
           } else if (state.fulfillment === "delivery") {
-            box.innerHTML = '<div class="fb-head">' + seg + "</div>" + localNoteCo +
+            box.innerHTML = '<div class="fb-head">' + seg + "</div>" + gateNote +
               '<label class="f" style="margin: 0;">Street address<input type="text" id="coStreet" autocomplete="street-address" placeholder="123 Main St" value="' + esc(state.addr.street) + '" /></label>' +
               '<div class="frow two">' +
               '<label class="f" style="margin: 0;">Apt / suite <small>(optional)</small><input type="text" id="coApt" value="' + esc(state.addr.apt) + '" /></label>' +
@@ -5121,7 +5194,7 @@
           } else {
             var sv = state.shipInfo ? { street: state.shipInfo.street, apt: state.shipInfo.apt, city: state.shipInfo.city, state: state.shipInfo.state, zip: state.shipInfo.zip } : state.shipDraft;
             state.shipDraft = { street: sv.street || "", apt: sv.apt || "", city: sv.city || "", state: sv.state || "", zip: sv.zip || "" };
-            box.innerHTML = '<div class="fb-head">' + seg + "</div>" + localNoteCo +
+            box.innerHTML = '<div class="fb-head">' + seg + "</div>" + gateNote +
               '<label class="f" style="margin: 0;">Street address<input type="text" id="coShipStreet" autocomplete="street-address" placeholder="123 Main St" value="' + esc(sv.street) + '" /></label>' +
               '<div class="frow two">' +
               '<label class="f" style="margin: 0;">Apt / unit <small>(optional)</small><input type="text" id="coShipApt" value="' + esc(sv.apt) + '" /></label>' +
@@ -5161,6 +5234,8 @@
           }
           renderCoTip();
           renderCoPay();
+          var sbU = $("coSubmit");
+          if (sbU) sbU.disabled = false;
         }
 
         /* ================= Delivery tip ================= */
@@ -6546,6 +6621,10 @@
           if (!cartCount()) { msg.className = "form-msg err"; msg.textContent = "Your cart is empty — add something from the menu first."; return; }
           if (!name || !phone || !time) { msg.className = "form-msg err"; msg.textContent = "Please add your name, mobile phone, and a time so we can have your order ready."; return; }
           if (cartHasLocalOnly() && state.fulfillment === "shipping") { msg.className = "form-msg err"; msg.textContent = "Your cart has local-only items — those are pickup or delivery only, so shipping isn’t available for this order."; return; }
+          var gateSub = fulfillmentGate();
+          if (gateSub.mode === "mixed") { msg.className = "form-msg err"; msg.textContent = gateSub.notice; return; }
+          if (state.fulfillment === "shipping" && SHIPPING_PAUSED) { msg.className = "form-msg err"; msg.textContent = "Shipping is temporarily paused — pickup & local delivery are available for Local section items."; return; }
+          if (gateSub.mode === "main" && state.fulfillment !== "shipping") { msg.className = "form-msg err"; msg.textContent = "Regular items ship only — pickup & local delivery are for items in the Local Pickup & Delivery section."; return; }
           /* Friday Drop: quantities are live store state — an order can't
              take more than what's left, and locked drop items can't be
              bought before the buyer's window opens. */
