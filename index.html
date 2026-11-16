@@ -2309,6 +2309,56 @@
             }
           });
         }
+        /* Refresh the local membership record for the signed-in account
+           from the server (GET /memberships/me). The server is the
+           source of truth for memberships: a member who activates or
+           redeems on one device/browser and signs in on another gets
+           their tier, discount, and term here, instead of the empty
+           local record this device started with. Server-authoritative
+           for the signed-in email only — a null membership clears the
+           local record. Best-effort: when the server is unreachable
+           the on-device copy already in place stands. This sync never
+           grants welcome credit and never touches balances, the
+           ledger, or credit lines: it only mirrors the membership
+           record itself. */
+        function refreshMembershipFromServer() {
+          var token = getSession();
+          if (!token || !state.user) return;
+          var email = normEmail(state.user.email);
+          if (!email) return;
+          api("/memberships/me", { token: token }).then(function (r) {
+            if (!r || r.status !== 200 || !r.data || !state.user) return;
+            if (normEmail(state.user.email) !== email) return;
+            var m = r.data.membership || null;
+            var prevRec = state.memberships[email] || null;
+            if (!m) {
+              if (prevRec) { delete state.memberships[email]; refreshMembershipSurfaces(); }
+              return;
+            }
+            var tier = tierById(String(m.tier || "").trim().toLowerCase());
+            if (!tier) return;
+            var months = Number(m.termMonths) || 1;
+            var startMs = Date.parse(m.termStart || m.createdAt || "");
+            if (isNaN(startMs)) startMs = Date.now();
+            var endDate = null;
+            if (m.expiresAt) { var ed = new Date(m.expiresAt); if (!isNaN(ed.getTime())) endDate = ed; }
+            if (!endDate) endDate = periodEndDate(months, new Date(startMs));
+            var rec = {
+              tierId: tier.id, termMonths: months,
+              status: m.status === "active" ? "active" : "pending",
+              since: fmtDate(new Date(startMs)), periodEnd: fmtDate(endDate),
+              origSince: prevRec && origSinceOf(prevRec) ? origSinceOf(prevRec) : startMs,
+              instantUsedAt: prevRec && prevRec.instantUsedAt ? prevRec.instantUsedAt : startMs,
+              discountDeferred: prevRec ? !!prevRec.discountDeferred : false,
+              cancelAtPeriodEnd: prevRec ? !!prevRec.cancelAtPeriodEnd : false
+            };
+            if (m.source === "promo") { rec.viaPromo = true; rec.source = "promo"; }
+            if (JSON.stringify(prevRec || null) === JSON.stringify(rec)) return;
+            state.memberships[email] = rec;
+            if (rec.status === "active" && state.pendingMemberships[email]) { delete state.pendingMemberships[email]; savePendingMemberships(); }
+            refreshMembershipSurfaces();
+          });
+        }
         /* Cash approval: ask the server first (short timeout); its answer
            is cached per email and wins over the baked list. When the
            server doesn't respond, the baked list decides, as before. */
@@ -7151,6 +7201,7 @@
           renderMenuAcct();
           renderCoPay();
           refreshDefaultsFromServer();
+          refreshMembershipFromServer();
           /* Instant members-roll refresh: every successful sign-in —
              and every successful sign-up, which lands here too —
              re-fetches the roll at once, so a brand-new member sees
