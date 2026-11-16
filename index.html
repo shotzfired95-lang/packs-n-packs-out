@@ -181,6 +181,18 @@
       .pickup-pick .pp-final { font-family: "Archivo", sans-serif; font-size: 11.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); margin: 0; }
       .pickup-pick .pp-spot { font-size: 15.5px; font-weight: 700; margin: 0; }
       .pickup-pick .loc-list.pp-list { max-height: min(46vh, 400px); padding: 2px; }
+      /* ---------- Saved defaults (addresses + favorite pickup spot) ---------- */
+      .def-block { border: 1.5px solid var(--line); border-radius: 12px; padding: 14px; background: var(--bg); display: grid; gap: 10px; margin-top: 12px; text-align: left; }
+      .def-block h4 { font-family: "Archivo", sans-serif; font-size: 15.5px; font-weight: 800; margin: 0; }
+      .def-block .def-cur { font-size: 13.5px; color: var(--ink-soft); margin: 0; }
+      .def-block .def-cur strong { color: var(--ink); }
+      .def-tag { font-family: "Archivo", sans-serif; font-weight: 700; font-size: 11.5px; color: var(--gold); background: color-mix(in srgb, var(--gold) 13%, var(--bg)); border: 1px solid var(--gold-pale); border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+      .save-def-row { display: flex; gap: 10px; align-items: flex-start; background: color-mix(in srgb, var(--gold) 8%, var(--bg)); border: 1.5px solid var(--gold-pale); border-radius: 10px; padding: 11px 12px; font-size: 14px; line-height: 1.4; cursor: pointer; }
+      .save-def-row input { width: 22px; height: 22px; min-height: 22px; accent-color: #96690f; flex: none; margin-top: 1px; cursor: pointer; }
+      .def-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+      .def-clear-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+      .def-clear-row button { background: none; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; padding: 7px 13px; min-height: 38px; }
+      .def-clear-row button:hover { color: var(--ember); border-color: var(--ember); }
       .dir-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-family: "Archivo", sans-serif; font-weight: 800; font-size: 13.5px; letter-spacing: 0.02em; background: var(--gold-grad); color: #2a1d08; border-radius: 10px; padding: 10px 16px; min-height: 44px; text-decoration: none; box-shadow: 0 6px 14px rgba(150, 105, 15, 0.25); white-space: nowrap; transition: filter 0.15s ease, transform 0.15s ease; }
       .dir-btn:hover { filter: brightness(1.07); }
       .dir-btn:active { transform: scale(0.98); }
@@ -1657,9 +1669,19 @@
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Membership</h3>
                   <div id="acctMemberBody"></div>
                 </div>
+                <div class="panel" style="margin-top: 18px;" id="signupDefaultsPanel" hidden>
+                  <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Save your defaults so checkout is one tap</h3>
+                  <p style="font-size: 14px; color: var(--ink-soft); margin: 0;">Optional — save a default delivery address, a default shipping address, and a favorite pickup spot now, and checkout fills them in for you. Every block is skippable, and you can change them anytime in My Addresses.</p>
+                  <div id="signupDefaultsBody"></div>
+                </div>
                 <div class="panel" style="margin-top: 18px;" id="shipAcctPanel">
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Shipping information</h3>
                   <div id="shipAcctBody"></div>
+                </div>
+                <div class="panel" style="margin-top: 18px;" id="myAddrPanel">
+                  <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">My Addresses</h3>
+                  <p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Your defaults — checkout fills these in for you, and your favorite pickup spot is starred at the top of your spot picker. Clear a block completely and save to remove that default.</p>
+                  <div id="myAddrBody"></div>
                 </div>
                 <div class="panel" style="margin-top: 18px;" id="acctRefPanel">
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Invite &amp; earn — referrals</h3>
@@ -2115,6 +2137,7 @@
           fulfillment: "pickup", locationId: null, deliveryZip: "", locQuery: "",
           addr: { street: "", apt: "", city: "" },
           shipInfo: null, shipDraft: { street: "", apt: "", city: "", state: "", zip: "" },
+          defaults: { deliveryAddress: null, shippingAddress: null, favoriteSpotId: null }, showSignupDefaults: false,
           payMethod: "cashapp", pendingCode: null,
           tipChoice: "5", tipCustom: "", ticketSeq: 0, currentOrderNum: null,
           memberships: {}, pendingMemberships: {}, memJoin: null, joinCharge: null, memTerm: 1, coTerm: 1, instantPayKeys: {}, welcomeGrants: {},
@@ -2160,6 +2183,102 @@
         }
         function getSession() { try { return lsGet("pnpo_session") || ""; } catch (e) { return ""; } }
         function setSession(t) { try { if (t) lsSet("pnpo_session", t); else window.localStorage.removeItem("pnpo_session"); } catch (e) {} }
+        /* ---------- Saved defaults: delivery / shipping / favorite pickup ----------
+           The account record carries deliveryAddress {street, apt, city, zip},
+           shippingAddress {street, apt, city, state, zip}, and favoriteSpotId —
+           the customer's defaults. They arrive on the signup response, the
+           login response's account object, and GET /accounts/me; they are
+           saved with POST /accounts/addresses (session Bearer token, only
+           the keys being changed; null clears one). The on-device account
+           copy (state.accounts) mirrors them exactly like the rest of the
+           account record, so a server outage falls back to the device copy. */
+        function cleanDelAddr(v) {
+          if (!v || typeof v !== "object") return null;
+          var d = { street: String(v.street || "").trim(), apt: String(v.apt || "").trim(), city: String(v.city || "").trim(), zip: String(v.zip || "").trim() };
+          return (d.street || d.city || d.zip) ? d : null;
+        }
+        function cleanShipAddr(v) {
+          if (!v || typeof v !== "object") return null;
+          var d = { street: String(v.street || "").trim(), apt: String(v.apt || "").trim(), city: String(v.city || "").trim(), state: String(v.state || "").trim(), zip: String(v.zip || "").trim() };
+          return (d.street || d.city || d.zip) ? d : null;
+        }
+        function defaultsOf(src) {
+          if (!src || typeof src !== "object") return null;
+          if (!("deliveryAddress" in src) && !("shippingAddress" in src) && !("favoriteSpotId" in src)) return null;
+          return { deliveryAddress: cleanDelAddr(src.deliveryAddress), shippingAddress: cleanShipAddr(src.shippingAddress), favoriteSpotId: src.favoriteSpotId ? String(src.favoriteSpotId) : null };
+        }
+        function syncDraftsFromDefaults() {
+          var d = state.defaults;
+          if (d.deliveryAddress) {
+            state.addr = { street: d.deliveryAddress.street, apt: d.deliveryAddress.apt, city: d.deliveryAddress.city };
+            if (d.deliveryAddress.zip) state.deliveryZip = d.deliveryAddress.zip;
+          }
+          if (d.shippingAddress) {
+            state.shipDraft = { street: d.shippingAddress.street, apt: d.shippingAddress.apt, city: d.shippingAddress.city, state: d.shippingAddress.state, zip: d.shippingAddress.zip };
+            if (state.shipInfo) {
+              state.shipInfo.street = d.shippingAddress.street; state.shipInfo.apt = d.shippingAddress.apt;
+              state.shipInfo.city = d.shippingAddress.city; state.shipInfo.state = d.shippingAddress.state; state.shipInfo.zip = d.shippingAddress.zip;
+            }
+          }
+        }
+        function setLocalDefaults(d, email) {
+          state.defaults = {
+            deliveryAddress: cleanDelAddr(d && d.deliveryAddress),
+            shippingAddress: cleanShipAddr(d && d.shippingAddress),
+            favoriteSpotId: d && d.favoriteSpotId ? String(d.favoriteSpotId) : null
+          };
+          var em = normEmail(email || (state.user ? state.user.email : ""));
+          if (em) {
+            var a = ensureAccount(em, state.user ? state.user.name : "");
+            if (a) {
+              a.deliveryAddress = state.defaults.deliveryAddress;
+              a.shippingAddress = state.defaults.shippingAddress;
+              a.favoriteSpotId = state.defaults.favoriteSpotId;
+              saveAccounts();
+            }
+          }
+          syncDraftsFromDefaults();
+        }
+        function loadLocalDefaults(email) {
+          var a = state.accounts[normEmail(email)];
+          var d = a ? defaultsOf(a) : null;
+          if (d) setLocalDefaults(d, email);
+          else { state.defaults = { deliveryAddress: null, shippingAddress: null, favoriteSpotId: null }; }
+        }
+        function applyServerDefaults(src, email) {
+          var d = defaultsOf(src);
+          if (d) setLocalDefaults(d, email);
+        }
+        /* Save defaults: only the keys in `partial` are sent. The local
+           copy updates immediately; when the server answers, its returned
+           values win and are reflected everywhere. */
+        function saveDefaults(partial) {
+          var merged = { deliveryAddress: state.defaults.deliveryAddress, shippingAddress: state.defaults.shippingAddress, favoriteSpotId: state.defaults.favoriteSpotId };
+          Object.keys(partial || {}).forEach(function (k) { merged[k] = partial[k]; });
+          setLocalDefaults(merged, state.user ? state.user.email : "");
+          var token = getSession();
+          if (!token || !state.user) return Promise.resolve(null);
+          return api("/accounts/addresses", { method: "POST", token: token, body: partial }).then(function (r) {
+            if (r && (r.status === 200 || r.status === 201) && r.data && state.user) {
+              applyServerDefaults(r.data.account || r.data, state.user.email);
+            }
+            return r;
+          });
+        }
+        /* Refresh the local copy of the three defaults from the server
+           account (GET /accounts/me). Best-effort: when the server is
+           unreachable the on-device copy already in place stands. */
+        function refreshDefaultsFromServer() {
+          var token = getSession();
+          if (!token || !state.user) return;
+          api("/accounts/me", { token: token }).then(function (r) {
+            if (r && r.status === 200 && r.data && state.user) {
+              applyServerDefaults(r.data.account || r.data, state.user.email);
+              if (state.view === "account") { renderMyAddresses(); }
+              if (state.view === "checkout") { renderCoFul(); }
+            }
+          });
+        }
         /* Cash approval: ask the server first (short timeout); its answer
            is cached per email and wins over the baked list. When the
            server doesn't respond, the baked list decides, as before. */
@@ -2538,7 +2657,7 @@
           window.scrollTo({ top: 0 });
           updateCartBar();
           syncNavActive();
-          if (v === "account") { renderHistory(); renderCreditCard(); renderAcctBalance(); renderAcctMembership(); renderAcctIdentity(); renderReferrals(); renderAcctGive(); renderTopMembers(); updateCreateNotes(); }
+          if (v === "account") { renderHistory(); renderCreditCard(); renderAcctBalance(); renderAcctMembership(); renderAcctIdentity(); renderReferrals(); renderAcctGive(); renderTopMembers(); updateCreateNotes(); renderMyAddresses(); renderSignupDefaults(); }
         }
         /* Main navigation lit state: the menu + footer item for the
            view (or shop category) you're on carries .nav-active. */
@@ -4567,6 +4686,15 @@
           }
           if (state.fulfillment === m) { updateFulfillmentUI(); return; }
           state.fulfillment = m;
+          /* Choosing Delivery / Shipping prefills the address fields from
+             the saved defaults (fields stay editable). */
+          if (m === "delivery" && state.defaults.deliveryAddress) {
+            state.addr = { street: state.defaults.deliveryAddress.street, apt: state.defaults.deliveryAddress.apt, city: state.defaults.deliveryAddress.city };
+            if (state.defaults.deliveryAddress.zip) state.deliveryZip = state.defaults.deliveryAddress.zip;
+          }
+          if (m === "shipping" && state.defaults.shippingAddress) {
+            state.shipDraft = { street: state.defaults.shippingAddress.street, apt: state.defaults.shippingAddress.apt, city: state.defaults.shippingAddress.city, state: state.defaults.shippingAddress.state, zip: state.defaults.shippingAddress.zip };
+          }
           updateFulfillmentUI();
           renderCart();
           if (state.view === "checkout") renderCheckout();
@@ -4722,6 +4850,31 @@
             b.addEventListener("click", function () { sel.value = b.getAttribute("data-ptime"); renderPickupGrid(); });
           });
         }
+        /* "Make this my default" row at checkout: shown only to signed-in
+           customers, only when the address in the fields is a complete
+           address that differs from the saved default. Pre-checked; at
+           order placement a checked box saves the address via
+           POST /accounts/addresses (see the submit handler). */
+        function updateSaveDefRow() {
+          var wrap = $("coSaveDefWrap");
+          if (!wrap) return;
+          if (!state.user) { wrap.innerHTML = ""; return; }
+          var prev = wrap.querySelector("#coSaveDef");
+          var wasChecked = prev ? prev.checked : true;
+          if (state.fulfillment === "delivery") {
+            var curD = cleanDelAddr({ street: state.addr.street, apt: state.addr.apt, city: state.addr.city, zip: state.deliveryZip });
+            var okD = !!(curD && curD.street && curD.city && /^\d{5}$/.test(curD.zip));
+            if (!okD || JSON.stringify(curD) === JSON.stringify(state.defaults.deliveryAddress)) { wrap.innerHTML = ""; return; }
+            wrap.innerHTML = '<label class="save-def-row"><input type="checkbox" id="coSaveDef"' + (wasChecked ? " checked" : "") + ' /><span>Make this my default delivery address</span></label>';
+          } else if (state.fulfillment === "shipping") {
+            var curS = cleanShipAddr(state.shipDraft);
+            var okS = !!(curS && curS.street && curS.city && curS.state && /^\d{5}$/.test(curS.zip));
+            if (!okS || JSON.stringify(curS) === JSON.stringify(state.defaults.shippingAddress)) { wrap.innerHTML = ""; return; }
+            wrap.innerHTML = '<label class="save-def-row"><input type="checkbox" id="coSaveDef"' + (wasChecked ? " checked" : "") + ' /><span>Make this my default shipping address</span></label>';
+          } else {
+            wrap.innerHTML = "";
+          }
+        }
         function renderCoFul() {
           var box = $("coFulFields");
           if (!box) return;
@@ -4749,12 +4902,14 @@
               '<label class="f" style="margin: 0;">Apt / suite <small>(optional)</small><input type="text" id="coApt" value="' + esc(state.addr.apt) + '" /></label>' +
               '<label class="f" style="margin: 0;">City<input type="text" id="coCity" autocomplete="address-level2" value="' + esc(state.addr.city) + '" /></label></div>' +
               '<label class="f" style="margin: 0;">ZIP code<input type="text" id="coZip" inputmode="numeric" maxlength="5" value="' + esc(state.deliveryZip) + '" /></label>' +
+              '<div id="coSaveDefWrap"></div>' +
               '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">$35 minimum · ' + money(DELIVERY_FEE) + " delivery fee (free over $75) · Pay by Apple Pay, Cash App, Chime, Current, or Bitcoin — or cash on delivery · Photo ID (21+) at the door.</p>" +
               '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Runs from our pickup hub — <strong style="color: var(--ink);">' + esc((homeBaseLocation() || {}).name || "") + " · " + esc((homeBaseLocation() || {}).detail || "") + "</strong></p>";
             [["coStreet", "street"], ["coApt", "apt"], ["coCity", "city"]].forEach(function (pair) {
-              $(pair[0]).addEventListener("input", function () { state.addr[pair[1]] = this.value; });
+              $(pair[0]).addEventListener("input", function () { state.addr[pair[1]] = this.value; updateSaveDefRow(); });
             });
-            $("coZip").addEventListener("input", function () { state.deliveryZip = this.value; });
+            $("coZip").addEventListener("input", function () { state.deliveryZip = this.value; updateSaveDefRow(); });
+            updateSaveDefRow();
             $("coTimeLabel").textContent = "Delivery window";
             setTimeOptions(["As soon as possible (60–90 min)", "Today — 2:00–4:00 PM", "Today — 4:00–6:00 PM", "Today — 6:00–8:00 PM", "Tomorrow — 10:00 AM–12:00 PM"]);
             $("coTimeSelect").hidden = false;
@@ -4762,6 +4917,7 @@
             $("coSubmit").textContent = "Place Delivery Order";
           } else {
             var sv = state.shipInfo ? { street: state.shipInfo.street, apt: state.shipInfo.apt, city: state.shipInfo.city, state: state.shipInfo.state, zip: state.shipInfo.zip } : state.shipDraft;
+            state.shipDraft = { street: sv.street || "", apt: sv.apt || "", city: sv.city || "", state: sv.state || "", zip: sv.zip || "" };
             box.innerHTML = '<div class="fb-head">' + seg + "</div>" + localNoteCo +
               '<label class="f" style="margin: 0;">Street address<input type="text" id="coShipStreet" autocomplete="street-address" placeholder="123 Main St" value="' + esc(sv.street) + '" /></label>' +
               '<div class="frow two">' +
@@ -4770,12 +4926,14 @@
               '<div class="frow two">' +
               '<label class="f" style="margin: 0;">State<select id="coShipState">' + stateOptionsHTML(sv.state) + "</select></label>" +
               '<label class="f" style="margin: 0;">ZIP code<input type="text" id="coShipZip" inputmode="numeric" maxlength="5" value="' + esc(sv.zip) + '" /></label></div>' +
+              '<div id="coSaveDefWrap"></div>' +
               '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">We ship to all 50 states · ' + money(SHIPPING_FEE) + " flat shipping (free over " + money(SHIPPING_FREE_OVER) + ") · Pay by Apple Pay, Cash App, Chime, Current, or Bitcoin — or cash if you’re an approved member.</p>" +
               '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Ships from our pickup hub — <strong style="color: var(--ink);">' + esc((homeBaseLocation() || {}).name || "") + " · " + esc((homeBaseLocation() || {}).detail || "") + "</strong></p>";
             [["coShipStreet", "street"], ["coShipApt", "apt"], ["coShipCity", "city"], ["coShipZip", "zip"]].forEach(function (pair) {
-              $(pair[0]).addEventListener("input", function () { state.shipDraft[pair[1]] = this.value; });
+              $(pair[0]).addEventListener("input", function () { state.shipDraft[pair[1]] = this.value; updateSaveDefRow(); });
             });
-            $("coShipState").addEventListener("change", function () { state.shipDraft.state = this.value; });
+            $("coShipState").addEventListener("change", function () { state.shipDraft.state = this.value; updateSaveDefRow(); });
+            updateSaveDefRow();
             $("coTimeLabel").textContent = "Arrival estimate";
             setTimeOptions(["Standard — arrives in 3–5 business days", "Priority — arrives in 2 business days"]);
             $("coTimeSelect").hidden = false;
@@ -5478,9 +5636,16 @@
           var q = (o._spotQuery || "").trim().toLowerCase();
           var list = (spots || []).filter(function (l) { return locMatches(l, q); });
           if (!list.length) return '<p class="loc-empty">No pickup spots match that search</p>';
+          /* The customer's default pickup spot floats to the top of the
+             claiming team member's available list, starred and tagged. */
+          var favId = state.defaults && state.defaults.favoriteSpotId;
+          if (favId) {
+            list = list.slice().sort(function (a, b) { return (b.id === favId ? 1 : 0) - (a.id === favId ? 1 : 0); });
+          }
           return list.map(function (l) {
             var isCur = !!(o.fulfillment && o.fulfillment.spotId === l.id);
-            return '<div class="loc-row' + (isCur ? " sel" : "") + '"><button type="button" class="loc-opt" data-spot-pick="' + l.id + '" data-order="' + esc(o.num) + '" aria-pressed="' + (isCur ? "true" : "false") + '"><span class="ln">' + esc(l.name) + '</span><span class="leta">' + esc(l.eta) + '</span><span class="ld">' + esc(l.detail) + (l.type ? " · " + esc(l.type) : "") + (l.area ? " · " + esc(l.area) : "") + "</span></button>" + dirBtnHTML(l.detail, "Get Directions", "loc-dir") + "</div>";
+            var isFav = !!(favId && l.id === favId);
+            return '<div class="loc-row' + (isCur ? " sel" : "") + '"><button type="button" class="loc-opt" data-spot-pick="' + l.id + '" data-order="' + esc(o.num) + '" aria-pressed="' + (isCur ? "true" : "false") + '"><span class="ln">' + (isFav ? "★ " : "") + esc(l.name) + '</span><span class="leta">' + esc(l.eta) + "</span>" + (isFav ? '<span class="def-tag">Your default</span>' : "") + '<span class="ld">' + esc(l.detail) + (l.type ? " · " + esc(l.type) : "") + (l.area ? " · " + esc(l.area) : "") + "</span></button>" + dirBtnHTML(l.detail, "Get Directions", "loc-dir") + "</div>";
           }).join("");
         }
         function pickupSectionServerHTML(o, stage) {
@@ -6209,6 +6374,8 @@
             state.deliveryZip = zip;
             state.addr = { street: street, apt: apt, city: city };
             ful.address = street + (apt ? ", " + apt : "") + ", " + city + " " + zip;
+            var coSaveDel = $("coSaveDef");
+            if (coSaveDel && coSaveDel.checked && state.user) saveDefaults({ deliveryAddress: { street: street, apt: apt, city: city, zip: zip } });
             var hbD = homeBaseLocation();
             ful.originId = hbD ? hbD.id : HOME_BASE_ID;
             ful.originName = hbD ? hbD.name : "";
@@ -6222,6 +6389,8 @@
             if (!sStreet || !sCity || !sState || !/^\d{5}$/.test(sZip)) { msg.className = "form-msg err"; msg.textContent = "For shipping we need your street address, city, state, and a 5-digit ZIP code."; return; }
             state.shipDraft = { street: sStreet, apt: sApt, city: sCity, state: sState, zip: sZip };
             ful.address = sStreet + (sApt ? ", " + sApt : "") + ", " + sCity + ", " + sState + " " + sZip;
+            var coSaveShip = $("coSaveDef");
+            if (coSaveShip && coSaveShip.checked && state.user) saveDefaults({ shippingAddress: { street: sStreet, apt: sApt, city: sCity, state: sState, zip: sZip } });
             ful.ship = { name: name, phone: phone, street: sStreet, apt: sApt, city: sCity, state: sState, zip: sZip };
             var hbS = homeBaseLocation();
             ful.originId = hbS ? hbS.id : HOME_BASE_ID;
@@ -6618,6 +6787,131 @@
             toast("Shipping information saved");
           });
         }
+        /* ================= Saved defaults forms (signup step + My Addresses) =================
+           One form builder serves both surfaces: three labeled blocks —
+           Default delivery address, Default shipping address, Default
+           pickup spot — each independently skippable (leave it blank). */
+        function delAddrLine(v) { return v.street + (v.apt ? ", " + v.apt : "") + ", " + v.city + " " + v.zip; }
+        function defaultsFormHTML(p, d) {
+          d = d || {};
+          var dv = d.deliveryAddress || {}, sv = d.shippingAddress || {};
+          var fav = d.favoriteSpotId || "";
+          var spotOpts = '<option value="">No favorite — skip</option>' + locationsForMarket().map(function (l) {
+            return '<option value="' + esc(l.id) + '"' + (fav === l.id ? " selected" : "") + ">" + esc(l.name) + " — " + esc(l.detail) + "</option>";
+          }).join("");
+          return '<div class="def-block"><h4>Default delivery address</h4>' +
+            (d.deliveryAddress ? '<p class="def-cur">Saved: <strong>' + esc(delAddrLine(d.deliveryAddress)) + "</strong></p>" : "") +
+            '<label class="f" style="margin: 0;">Street address<input type="text" id="' + p + 'DelStreet" autocomplete="street-address" placeholder="123 Main St" value="' + esc(dv.street || "") + '" /></label>' +
+            '<div class="frow two">' +
+            '<label class="f" style="margin: 0;">Apt / suite <small>(optional)</small><input type="text" id="' + p + 'DelApt" value="' + esc(dv.apt || "") + '" /></label>' +
+            '<label class="f" style="margin: 0;">City<input type="text" id="' + p + 'DelCity" autocomplete="address-level2" value="' + esc(dv.city || "") + '" /></label></div>' +
+            '<label class="f" style="margin: 0;">ZIP code<input type="text" id="' + p + 'DelZip" inputmode="numeric" maxlength="5" value="' + esc(dv.zip || "") + '" /></label></div>' +
+            '<div class="def-block"><h4>Default shipping address</h4>' +
+            (d.shippingAddress ? '<p class="def-cur">Saved: <strong>' + esc(shipAddrLine(d.shippingAddress)) + "</strong></p>" : "") +
+            '<label class="f" style="margin: 0;">Street address<input type="text" id="' + p + 'ShipStreet" autocomplete="street-address" placeholder="123 Main St" value="' + esc(sv.street || "") + '" /></label>' +
+            '<div class="frow two">' +
+            '<label class="f" style="margin: 0;">Apt / unit <small>(optional)</small><input type="text" id="' + p + 'ShipApt" value="' + esc(sv.apt || "") + '" /></label>' +
+            '<label class="f" style="margin: 0;">City<input type="text" id="' + p + 'ShipCity" autocomplete="address-level2" value="' + esc(sv.city || "") + '" /></label></div>' +
+            '<div class="frow two">' +
+            '<label class="f" style="margin: 0;">State<select id="' + p + 'ShipState">' + stateOptionsHTML(sv.state || "") + "</select></label>" +
+            '<label class="f" style="margin: 0;">ZIP code<input type="text" id="' + p + 'ShipZip" inputmode="numeric" maxlength="5" value="' + esc(sv.zip || "") + '" /></label></div></div>' +
+            '<div class="def-block"><h4>Default pickup spot</h4>' +
+            (fav && locationById(fav) ? '<p class="def-cur">Saved: <strong>★ ' + esc(locationById(fav).name) + "</strong> — " + esc(locationById(fav).detail) + "</p>" : "") +
+            '<label class="f" style="margin: 0;">Favorite pickup spot<select id="' + p + 'Spot">' + spotOpts + "</select></label>" +
+            '<p style="font-size: 13px; color: var(--ink-soft); margin: 0;">When your spot picker opens on an order, your default is starred and floated to the top whenever it’s one of your team member’s available spots.</p></div>';
+        }
+        function readDefaultsForm(p) {
+          function g(id) { var el = $(p + id); return el ? el.value.trim() : ""; }
+          var out = { partial: {}, error: "" };
+          var delRaw = { street: g("DelStreet"), apt: g("DelApt"), city: g("DelCity"), zip: g("DelZip") };
+          if (delRaw.street || delRaw.apt || delRaw.city || delRaw.zip) {
+            if (!delRaw.street || !delRaw.city || !/^\d{5}$/.test(delRaw.zip)) { out.error = "Default delivery address needs a street address, city, and 5-digit ZIP code — or clear the whole block to skip it."; return out; }
+            out.partial.deliveryAddress = delRaw;
+          } else out.partial.deliveryAddress = null;
+          var shipRaw = { street: g("ShipStreet"), apt: g("ShipApt"), city: g("ShipCity"), state: g("ShipState"), zip: g("ShipZip") };
+          if (shipRaw.street || shipRaw.apt || shipRaw.city || shipRaw.state || shipRaw.zip) {
+            if (!shipRaw.street || !shipRaw.city || !shipRaw.state || !/^\d{5}$/.test(shipRaw.zip)) { out.error = "Default shipping address needs a street address, city, state, and 5-digit ZIP code — or clear the whole block to skip it."; return out; }
+            out.partial.shippingAddress = shipRaw;
+          } else out.partial.shippingAddress = null;
+          out.partial.favoriteSpotId = g("Spot") || null;
+          return out;
+        }
+        /* Only the keys whose value actually changed go to the server. */
+        function changedDefaults(partial) {
+          var out = {};
+          ["deliveryAddress", "shippingAddress", "favoriteSpotId"].forEach(function (k) {
+            if (!(k in partial)) return;
+            if (JSON.stringify(partial[k]) !== JSON.stringify(state.defaults[k])) out[k] = partial[k];
+          });
+          return out;
+        }
+        function renderSignupDefaults() {
+          var panel = $("signupDefaultsPanel"), body = $("signupDefaultsBody");
+          if (!panel || !body) return;
+          if (!state.user || !state.showSignupDefaults) { panel.hidden = true; return; }
+          panel.hidden = false;
+          body.innerHTML = defaultsFormHTML("sd", state.defaults) +
+            '<div class="form-msg" id="sdMsg" role="status" aria-live="polite"></div>' +
+            '<div class="def-actions"><button class="btn btn-gold" type="button" id="sdSave">Save My Defaults</button>' +
+            '<button class="btn btn-outline" type="button" id="sdSkip">Skip</button></div>';
+          $("sdSkip").addEventListener("click", function () {
+            state.showSignupDefaults = false;
+            panel.hidden = true;
+            toast("Skipped — add your defaults anytime in My Addresses");
+          });
+          $("sdSave").addEventListener("click", function () {
+            var rd = readDefaultsForm("sd");
+            var m = $("sdMsg");
+            if (rd.error) { m.className = "form-msg err"; m.textContent = rd.error; return; }
+            var part = changedDefaults(rd.partial);
+            state.showSignupDefaults = false;
+            if (!Object.keys(part).length) { panel.hidden = true; toast("No defaults saved — add them anytime in My Addresses"); return; }
+            saveDefaults(part).then(function () {
+              panel.hidden = true;
+              renderMyAddresses();
+              toast("Defaults saved — checkout is one tap now");
+            });
+          });
+        }
+        function renderMyAddresses() {
+          var body = $("myAddrBody");
+          if (!body) return;
+          if (!state.user) { body.innerHTML = ""; return; }
+          var d = state.defaults;
+          var clears = "";
+          if (d.deliveryAddress || d.shippingAddress || d.favoriteSpotId) {
+            clears = '<div class="def-clear-row">' +
+              (d.deliveryAddress ? '<button type="button" data-clear-def="deliveryAddress">Clear delivery default</button>' : "") +
+              (d.shippingAddress ? '<button type="button" data-clear-def="shippingAddress">Clear shipping default</button>' : "") +
+              (d.favoriteSpotId ? '<button type="button" data-clear-def="favoriteSpotId">Clear pickup default</button>' : "") +
+              "</div>";
+          }
+          body.innerHTML = defaultsFormHTML("ma", d) +
+            '<div class="form-msg" id="maMsg" role="status" aria-live="polite"></div>' +
+            '<div class="def-actions"><button class="btn btn-gold" type="button" id="maSave">Save My Addresses</button></div>' + clears;
+          $("maSave").addEventListener("click", function () {
+            var rd = readDefaultsForm("ma");
+            var m = $("maMsg");
+            if (rd.error) { m.className = "form-msg err"; m.textContent = rd.error; return; }
+            var part = changedDefaults(rd.partial);
+            if (!Object.keys(part).length) { m.className = "form-msg"; m.textContent = "No changes — your defaults are already saved as shown."; return; }
+            saveDefaults(part).then(function () {
+              renderMyAddresses();
+              if (state.view === "checkout") renderCoFul();
+              toast("Your defaults are saved");
+            });
+          });
+          body.querySelectorAll("[data-clear-def]").forEach(function (b) {
+            b.addEventListener("click", function () {
+              var part = {};
+              part[b.getAttribute("data-clear-def")] = null;
+              saveDefaults(part).then(function () {
+                renderMyAddresses();
+                toast("Default cleared");
+              });
+            });
+          });
+        }
         function wireShipInfo(root) {
           if (!root) return;
           root.querySelectorAll("[data-ship-info]").forEach(function (b) {
@@ -6657,13 +6951,17 @@
         }
         $("tabCreate").addEventListener("click", function () { setAcctTab("create"); });
         $("tabLogin").addEventListener("click", function () { setAcctTab("login"); });
-        function signIn(name, email) {
+        function signIn(name, email, opts) {
           if (state.joinCharge && state.joinCharge.email !== String(email || "").trim().toLowerCase()) state.joinCharge = null;
           state.memJoin = null;
           var approved = CASH_APPROVED_EMAILS.indexOf(String(email || "").trim().toLowerCase()) >= 0;
           state.user = { name: name, email: email, cashApproved: approved };
           refreshCashApproval();
           var myAcct = ensureAccount(String(email).trim().toLowerCase(), name);
+          /* Defaults: start from the on-device account copy (the login
+             fallback), then refresh from the server account when a
+             session is live — the server's values win. */
+          loadLocalDefaults(email);
           if (myAcct && myAcct._new) {
             myAcct._new = false;
             saveAccounts();
@@ -6679,6 +6977,8 @@
           $("acctMeta").textContent = email + " · Shopping the " + (state.market || "Illinois") + " market" + (approved ? " · Approved member — cash payment is unlocked on your account" : " · Cash payment is reserved for approved members");
           renderHistory();
           renderAcctShip();
+          renderMyAddresses();
+          renderSignupDefaults();
           renderAcctMembership();
           renderAcctIdentity();
           renderAcctBalance();
@@ -6689,7 +6989,8 @@
           renderScratch();
           renderMenuAcct();
           renderCoPay();
-          toast(approved ? "Signed in — approved member, cash is unlocked" : "Signed in — welcome to the route");
+          refreshDefaultsFromServer();
+          if (!(opts && opts.silent)) toast(approved ? "Signed in — approved member, cash is unlocked" : "Signed in — welcome to the route");
         }
         function renderHistory() {
           var box = $("orderHistory");
@@ -6772,14 +7073,22 @@
              server is unreachable the local account is created exactly
              as before. */
           api("/accounts", { method: "POST", body: { name: name, email: email, password: pw } }).then(function (r) {
-            if (r && r.status === 201 && r.data && r.data.token) { setSession(r.data.token); return; }
+            if (r && r.status === 201 && r.data && r.data.token) {
+              setSession(r.data.token);
+              applyServerDefaults(r.data.account || r.data, email);
+              return;
+            }
             if (r && r.status === 409) {
               return api("/login", { method: "POST", body: { email: email, password: pw } }).then(function (r2) {
-                if (r2 && r2.status === 200 && r2.data && r2.data.token) setSession(r2.data.token);
+                if (r2 && r2.status === 200 && r2.data && r2.data.token) {
+                  setSession(r2.data.token);
+                  applyServerDefaults(r2.data.account || r2.data, email);
+                }
               });
             }
           }).then(function () {
             createFormEl.reset();
+            state.showSignupDefaults = true;
             signIn(name, email);
             var newAcct = state.accounts[normEmail(email)];
             if (newAcct && !newAcct.pwHash) setAccountPassword(newAcct, pw);
@@ -6805,6 +7114,7 @@
           api("/login", { method: "POST", body: { email: email, password: pw } }).then(function (r) {
             if (r && r.status === 200 && r.data && r.data.token) {
               setSession(r.data.token);
+              applyServerDefaults(r.data.account, email);
               var srvName = (r.data.account && r.data.account.name) || (acct && acct.name) || derivedName(email);
               var srvEmail = (r.data.account && r.data.account.email) || email;
               loginFormEl.reset();
@@ -6908,6 +7218,8 @@
         $("signOutBtn").addEventListener("click", function () {
           state.user = null;
           setSession("");
+          state.defaults = { deliveryAddress: null, shippingAddress: null, favoriteSpotId: null };
+          state.showSignupDefaults = false;
           state.joinCharge = null;
           state.memJoin = null;
           if (state.payMethod === "cash") state.payMethod = "cashapp";
@@ -8336,6 +8648,26 @@
           tickGrowth();
         })();
 
+
+        /* ================= Session restore =================
+           A stored session restores the account from GET /accounts/me —
+           name, email, and the three defaults — so a returning customer
+           lands signed in with checkout prefilled. If the server is
+           unreachable, nothing is forced: the customer signs in as usual
+           and the login fallback uses the on-device account copy. */
+        (function restoreSession() {
+          var token = getSession();
+          if (!token) return;
+          api("/accounts/me", { token: token }).then(function (r) {
+            if (r && r.status === 200 && r.data) {
+              var src = r.data.account || r.data;
+              if (src && src.email) {
+                applyServerDefaults(src, src.email);
+                signIn(src.name || derivedName(src.email), src.email, { silent: true });
+              }
+            }
+          });
+        })();
 
         /* ================= Init ================= */
         renderCatRail();
