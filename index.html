@@ -6324,7 +6324,8 @@
             fulfillment: ful.method, pickupTimePref: time,
             customer: { name: name, email: order.email || "", phone: phone },
             paymentMethod: payment.brand || payment.method || "",
-            paidFromBalance: t.balanceApplied || 0
+            paidFromBalance: t.balanceApplied || 0,
+            fulfillmentAddress: ful.address || null
           };
           if (payment.method === "cash" && payment.cashCode) serverPayload.cashCode = payment.cashCode;
           api("/orders", { method: "POST", token: getSession() || undefined, body: serverPayload }).then(function (srv) {
