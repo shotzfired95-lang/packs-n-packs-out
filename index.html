@@ -92,6 +92,12 @@
       .news-banner .nb-main:hover { color: var(--gold-pale); }
       .news-banner .nb-x { flex: none; width: 38px; height: 38px; min-height: 38px; border-radius: 50%; border: 0; background: transparent; color: #c9bda6; font-size: 17px; line-height: 1; cursor: pointer; }
       .news-banner .nb-x:hover { background: #382818; color: #fff; }
+      /* ---------- Maintenance mode ---------- */
+      .maintenance-banner { background: var(--ember); color: #fff; border-bottom: 2px solid #8f3410; }
+      .maintenance-banner-in { padding-top: 12px; padding-bottom: 12px; text-align: center; font-family: "Archivo", sans-serif; font-weight: 700; font-size: 15px; line-height: 1.45; }
+      @media (max-width: 520px) { .maintenance-banner-in { font-size: 14px; text-align: left; } }
+      .maintenance-notice { background: color-mix(in srgb, var(--ember) 9%, var(--surface)); border: 1.5px solid var(--ember); border-radius: 12px; padding: 14px 16px; font-size: 15px; font-weight: 600; line-height: 1.5; color: var(--ink); margin-bottom: 16px; }
+      .maintenance-notice--drawer { margin: 0 0 12px; font-size: 14px; padding: 12px 13px; text-align: left; }
       .news-item, .notif-item { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px; }
       .news-item h3 { font-size: 19px; font-weight: 800; }
       .news-when { font-size: 12.5px; color: var(--ink-soft); margin-top: 3px; }
@@ -1087,6 +1093,9 @@
 
     <!-- Storefront shell -->
     <div id="appShell" hidden>
+      <div class="maintenance-banner" id="maintenanceBanner" role="alert" hidden>
+        <div class="wrap maintenance-banner-in">🛠️ We’re still putting the finishing touches on — the store is under maintenance. Ordering opens the moment we announce we’re officially OPEN. Thanks for rocking with us while we build this right.</div>
+      </div>
       <div class="member-ticker" id="memberTicker" role="marquee" aria-label="Members" hidden>
         <div class="member-ticker-track" id="memberTickerTrack"></div>
       </div>
@@ -1576,6 +1585,7 @@
                 <p id="coIntro">Reserve your products now — pay by Apple Pay, Cash App, Chime, Current, Bitcoin, or your account balance — or cash at the counter if you’re an approved member. Bring your ID — we check it on every pickup.</p>
                 <div class="gold-rule"></div>
               </div>
+              <div class="maintenance-notice" id="coMaintenanceNotice" role="alert" hidden>🛠️ We’re still putting the finishing touches on — the store is under maintenance. Ordering opens the moment we announce we’re officially OPEN. Thanks for rocking with us while we build this right.</div>
               <div class="co-grid">
                 <form class="stack panel" id="coForm" novalidate>
                   <div class="ful-box" id="coFulFields"></div>
@@ -2032,6 +2042,7 @@
       </div>
       <div class="drawer-foot" id="drawerFoot">
         <div id="drawerTotals"></div>
+        <p class="maintenance-notice maintenance-notice--drawer" id="drawerMaintenanceNotice" role="alert" hidden>🛠️ We’re still putting the finishing touches on — the store is under maintenance. Ordering opens the moment we announce we’re officially OPEN. Thanks for rocking with us while we build this right.</p>
         <button class="btn btn-gold" type="button" id="checkoutBtn">Checkout — Order Ahead</button>
         <p class="drawer-note">Apple Pay · Cash App · Chime · Current · Bitcoin · Cash (approved members only) — pay your way at checkout · ID checked on every order</p>
       </div>
@@ -3016,6 +3027,30 @@
            Half Pound / Quarter Pound) and the pen/cart small-order fee.
            Flip this one constant to pause shipping again. */
         var SHIPPING_PAUSED = false;
+        /* ================= Maintenance mode =================
+           Flip MAINTENANCE_MODE to false in this one place when the
+           store officially opens. While it is true: a maintenance
+           banner shows at the top of the store, a matching notice
+           shows in the cart drawer and at checkout, the Checkout
+           button stops with the maintenance message instead of
+           opening checkout, and the checkout form refuses to place
+           an order (nothing is sent to the server). Browsing,
+           accounts, balances, memberships, tickets, news/bell, and
+           Connect Messenger all keep working as normal. */
+        var MAINTENANCE_MODE = true;
+        var MAINTENANCE_MESSAGE = "🛠️ We’re still putting the finishing touches on — the store is under maintenance. Ordering opens the moment we announce we’re officially OPEN. Thanks for rocking with us while we build this right.";
+        function applyMaintenanceMode() {
+          var on = !!MAINTENANCE_MODE;
+          ["maintenanceBanner", "coMaintenanceNotice", "drawerMaintenanceNotice"].forEach(function (id) {
+            var el = $(id);
+            if (el) el.hidden = !on;
+          });
+          if (on) {
+            var sbM = $("coSubmit");
+            if (sbM) { sbM.disabled = true; sbM.textContent = "Ordering Paused — Under Maintenance"; }
+          }
+        }
+        applyMaintenanceMode();
         function localProducts() { return PRODUCTS.filter(function (p) { return !!p.localOnly; }); }
         function cartHasLocalOnly() {
           return cartEntries().some(function (e) { return !!(e.product && e.product.localOnly); });
@@ -5231,6 +5266,12 @@
         $("drawerScrim").addEventListener("click", closeDrawer);
         $("checkoutBtn").addEventListener("click", function () {
           if (!cartCount()) return;
+          if (MAINTENANCE_MODE) {
+            var dmn = $("drawerMaintenanceNotice");
+            if (dmn) dmn.hidden = false;
+            toast(MAINTENANCE_MESSAGE);
+            return;
+          }
           showView("checkout");
           renderCheckout();
         });
@@ -5562,6 +5603,7 @@
           renderCoPay();
           var sbU = $("coSubmit");
           if (sbU) sbU.disabled = false;
+          if (MAINTENANCE_MODE) applyMaintenanceMode();
         }
 
         /* ================= Delivery tip ================= */
@@ -6718,6 +6760,7 @@
           $("coTotals").innerHTML = totalsHTML(totals());
           renderCoFul();
           renderCoMember();
+          applyMaintenanceMode();
         }
         function refreshCheckoutMoney() {
           renderCart();
@@ -7008,9 +7051,10 @@
         $("coBack").addEventListener("click", function () { showView("home"); });
         $("coForm").addEventListener("submit", function (ev) {
           ev.preventDefault();
+          var msg = $("coMsg");
+          if (MAINTENANCE_MODE) { msg.className = "form-msg err"; msg.textContent = MAINTENANCE_MESSAGE; return; }
           var f = this.elements;
           var name = f.name.value.trim(), phone = f.phone.value.trim(), time = f.time.value;
-          var msg = $("coMsg");
           if (!cartCount()) { msg.className = "form-msg err"; msg.textContent = "Your cart is empty — add something from the menu first."; return; }
           if (!name || !phone || !time) { msg.className = "form-msg err"; msg.textContent = "Please add your name, mobile phone, and a time so we can have your order ready."; return; }
           if (cartHasLocalOnly() && state.fulfillment === "shipping") { msg.className = "form-msg err"; msg.textContent = "Your cart has local-only items — those are pickup or delivery only, so shipping isn’t available for this order."; return; }
