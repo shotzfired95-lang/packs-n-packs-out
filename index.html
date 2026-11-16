@@ -2203,14 +2203,14 @@
 
         /* ================= State ================= */
         var state = {
-          market: null, user: null, cart: {}, history: [], tickets: [],
+          market: null, user: null, cart: {}, history: [], serverTickets: [],
           view: "home", shopCat: "all", shopBrand: "all", shopSort: "featured", shopQuery: "",
           fulfillment: "pickup", locationId: null, deliveryZip: "", locQuery: "",
           addr: { street: "", apt: "", city: "" },
           shipInfo: null, shipDraft: { street: "", apt: "", city: "", state: "", zip: "" },
           defaults: { deliveryAddress: null, shippingAddress: null, favoriteSpotId: null }, showSignupDefaults: false,
           payMethod: "cashapp", pendingCode: null,
-          tipChoice: "5", tipCustom: "", ticketSeq: 0, currentOrderNum: null,
+          tipChoice: "5", tipCustom: "", currentOrderNum: null,
           memberships: {}, pendingMemberships: {}, memJoin: null, joinCharge: null, memTerm: 1, coTerm: 1, instantPayKeys: {}, welcomeGrants: {},
           balances: {}, topupSeq: 0, useBalance: true, cashServer: {}, cashFetch: {},
           topupOpen: false, topupAmt: 100, topupCustom: "", topupMethod: "cashapp",
@@ -2929,7 +2929,7 @@
           window.scrollTo({ top: 0 });
           updateCartBar();
           syncNavActive();
-          if (v === "account") { renderHistory(); renderCreditCard(); renderAcctBalance(); renderAcctMembership(); renderAcctIdentity(); renderReferrals(); renderAcctGive(); renderTopMembers(); updateCreateNotes(); renderMyAddresses(); renderSignupDefaults(); }
+          if (v === "account") { renderHistory(); renderCreditCard(); renderAcctBalance(); renderAcctMembership(); renderAcctIdentity(); renderReferrals(); renderAcctGive(); renderTopMembers(); updateCreateNotes(); renderMyAddresses(); renderSignupDefaults(); loadServerTickets(); }
         }
         /* Main navigation lit state: the menu + footer item for the
            view (or shop category) you're on carries .nav-active. */
@@ -6295,20 +6295,83 @@
           if (state.currentOrderNum === o.num && state.view === "confirm") renderConfirm(o);
         }
 
-        /* ================= Support tickets ================= */
+        /* ================= Support tickets =================
+           Tickets live on the order server: POST /tickets opens one,
+           GET /tickets/mine returns the signed-in customer's tickets,
+           and POST /tickets/<num>/reply adds a message to a thread.
+           The page keeps only a render cache (state.serverTickets) of
+           what the server returned — no ticket is created or kept in
+           the browser, so every ticket reaches the business and the
+           business's replies show in the same thread. */
         function ticketStatusPill(st) {
           var cls = st === "Resolved" ? "gold" : (st === "In progress" ? "dark" : "ember");
           return '<span class="status-pill ' + cls + '">' + esc(st) + "</span>";
         }
         function nowStamp() { return new Date().toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); }
-        function createTicket(cat, orderNum, subject, message) {
-          state.ticketSeq += 1;
-          var tk = { num: "TKT-" + (1040 + state.ticketSeq), category: cat, orderNum: orderNum || "", subject: subject, status: "Open", when: nowStamp(),
-            messages: [{ who: "Customer", text: message, when: nowStamp() }] };
-          state.tickets.unshift(tk);
-          return tk;
+        function ticketTime(iso) {
+          if (!iso) return "";
+          var d = new Date(iso);
+          if (isNaN(d.getTime())) return "";
+          return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
         }
-        function ticketByNum(num) { for (var i = 0; i < state.tickets.length; i++) if (state.tickets[i].num === num) return state.tickets[i]; return null; }
+        function ticketSignedIn() { return !!(state.user && getSession()); }
+        /* The form only works signed in — tickets are tied to the
+           account so the team can reply. Signed out, the form area
+           says so instead of taking a ticket that goes nowhere. */
+        function renderTicketGate() {
+          var form = $("ticketForm");
+          if (!form) return;
+          var note = $("ticketGateNote");
+          if (!note) {
+            note = document.createElement("div");
+            note.id = "ticketGateNote";
+            note.className = "mem-note";
+            note.style.marginTop = "16px";
+            form.parentNode.insertBefore(note, form);
+          }
+          if (ticketSignedIn()) { note.hidden = true; form.hidden = false; }
+          else {
+            form.hidden = true;
+            note.hidden = false;
+            note.innerHTML = "<strong>Sign in first.</strong> Tickets are tied to your account so the team can reply to you — sign in or create an account above, then open your ticket here and the whole thread stays in your account.";
+          }
+        }
+        function loadServerTickets() {
+          var token = getSession();
+          if (!state.user || !token) { state.serverTickets = []; renderTickets(); return; }
+          api("/tickets/mine", { token: token }).then(function (r) {
+            if (r && r.status === 200 && r.data && r.data.tickets) state.serverTickets = r.data.tickets;
+            renderTickets();
+          });
+        }
+        function upsertServerTicket(tk) {
+          var rest = state.serverTickets.filter(function (t) { return t.num !== tk.num; });
+          rest.unshift(tk);
+          state.serverTickets = rest;
+        }
+        function openServerTicket(cat, orderNum, subject, message) {
+          return api("/tickets", { method: "POST", token: getSession(), body: { category: cat, orderNum: orderNum || "", subject: subject, message: message } }).then(function (r) {
+            if (r && (r.status === 201 || r.status === 200) && r.data && r.data.ticket) {
+              upsertServerTicket(r.data.ticket);
+              renderTickets();
+              return r.data.ticket;
+            }
+            return null;
+          });
+        }
+        function replyServerTicket(tk, text, btn) {
+          if (btn) btn.disabled = true;
+          api("/tickets/" + encodeURIComponent(tk.num) + "/reply", { method: "POST", token: getSession(), body: { text: text } }).then(function (r) {
+            if (r && r.status === 200 && r.data && r.data.ticket) {
+              upsertServerTicket(r.data.ticket);
+              renderTickets();
+              toast("Message added to " + tk.num);
+            } else {
+              if (btn) btn.disabled = false;
+              toast("That message didn't go through — check your connection and try again");
+            }
+          });
+        }
         function refreshTicketOrderOptions() {
           var sel = $("ticketOrderSel");
           if (!sel) return;
@@ -6318,29 +6381,29 @@
         }
         function renderTickets() {
           refreshTicketOrderOptions();
+          renderTicketGate();
           var box = $("ticketList");
           if (!box) return;
-          if (!state.tickets.length) { box.innerHTML = "<p style='color: var(--ink-soft); font-size: 14.5px; margin-top: 12px;'>No tickets yet — open one above and it will live here with its full thread.</p>"; return; }
+          if (!ticketSignedIn()) { box.innerHTML = ""; return; }
+          if (!state.serverTickets.length) { box.innerHTML = "<p style='color: var(--ink-soft); font-size: 14.5px; margin-top: 12px;'>No tickets yet — open one above and it will live here with its full thread.</p>"; return; }
           box.innerHTML = "";
-          state.tickets.forEach(function (tk) {
+          state.serverTickets.forEach(function (tk) {
             var card = document.createElement("div");
             card.className = "ticket-card";
-            var thread = tk.messages.map(function (m) {
-              return '<div class="thread-msg' + (m.who === "Business" ? " biz" : "") + '"><div class="tm-who">' + esc(m.who) + '<span class="tm-when">' + esc(m.when) + '</span></div><div>' + esc(m.text) + "</div></div>";
+            var thread = (tk.messages || []).map(function (m) {
+              return '<div class="thread-msg' + (m.who === "Customer" ? "" : " biz") + '"><div class="tm-who">' + esc(m.who) + '<span class="tm-when">' + esc(ticketTime(m.at)) + '</span></div><div>' + esc(m.text) + "</div></div>";
             }).join("");
             card.innerHTML =
               '<div class="ticket-head"><span class="tk-num">' + esc(tk.num) + "</span>" + ticketStatusPill(tk.status) + "</div>" +
               '<div class="ticket-subject">' + esc(tk.subject) + "</div>" +
-              '<div class="ticket-meta">' + esc(tk.category) + (tk.orderNum ? " · Order " + esc(tk.orderNum) : "") + " · Opened " + esc(tk.when) + "</div>" +
+              '<div class="ticket-meta">' + esc(tk.category) + (tk.orderNum ? " · Order " + esc(tk.orderNum) : "") + " · Opened " + esc(ticketTime(tk.createdAt)) + "</div>" +
               '<div class="thread">' + thread + "</div>" +
               '<div class="ticket-reply"><label class="f" style="margin:0;">Add a message<textarea data-tk-reply placeholder="Write a follow-up…"></textarea></label>' +
               '<button class="btn btn-outline" type="button" data-tk-add style="justify-self:start;">Add Message</button></div>';
             card.querySelector("[data-tk-add]").addEventListener("click", function () {
               var ta = card.querySelector("[data-tk-reply]"); var v = ta.value.trim();
               if (!v) { toast("Write a message first"); return; }
-              tk.messages.push({ who: "Customer", text: v, when: nowStamp() });
-              if (tk.status === "Resolved") tk.status = "Open";
-              renderTickets(); toast("Message added to " + tk.num);
+              replyServerTicket(tk, v, this);
             });
             box.appendChild(card);
           });
@@ -6360,11 +6423,15 @@
           $("ordTkBtn").addEventListener("click", function () {
             var subj = $("ordTkSubject").value.trim(), mtxt = $("ordTkMsg").value.trim(), fm = $("ordTkFormMsg");
             if (!subj || !mtxt) { fm.className = "form-msg err"; fm.textContent = "Add a subject and a message so we can work your ticket."; return; }
-            var tk = createTicket($("ordTkCat").value, o.num, subj, mtxt);
-            renderTickets();
-            fm.className = "form-msg ok"; fm.textContent = "Ticket " + tk.num + " is open — track it and reply in My Account → Support tickets.";
-            $("ordTkSubject").value = ""; $("ordTkMsg").value = "";
-            toast("Ticket " + tk.num + " opened");
+            if (!ticketSignedIn()) { fm.className = "form-msg err"; fm.textContent = "Sign in or create an account first so the team can reply to you — tickets live in My Account → Support tickets."; return; }
+            var btn = this; btn.disabled = true;
+            openServerTicket($("ordTkCat").value, o.num, subj, mtxt).then(function (tk) {
+              btn.disabled = false;
+              if (!tk) { fm.className = "form-msg err"; fm.textContent = "That ticket didn't go through — check your connection and try again."; return; }
+              fm.className = "form-msg ok"; fm.textContent = "Ticket " + tk.num + " is open — track it and reply in My Account → Support tickets.";
+              $("ordTkSubject").value = ""; $("ordTkMsg").value = "";
+              toast("Ticket " + tk.num + " opened");
+            });
           });
         }
 
@@ -7342,6 +7409,7 @@
           renderCoPay();
           refreshDefaultsFromServer();
           refreshMembershipFromServer();
+          loadServerTickets();
           /* Instant members-roll refresh: every successful sign-in —
              and every successful sign-up, which lands here too —
              re-fetches the roll at once, so a brand-new member sees
@@ -7583,6 +7651,8 @@
           $("acctOut").hidden = false;
           $("acctIn").hidden = true;
           $("acctTitle").textContent = "Join the route";
+          state.serverTickets = [];
+          renderTickets();
           renderHistory();
           renderMenuAcct();
           renderAcctIdentity();
@@ -7804,15 +7874,17 @@
         var ticketFormEl = $("ticketForm");
         if (ticketFormEl) ticketFormEl.addEventListener("submit", function (ev) {
           ev.preventDefault();
-          var f = this.elements, msg = $("ticketMsg");
+          var form = this, f = form.elements, msg = $("ticketMsg");
           var cat = f.category.value, subj = f.subject.value.trim(), mtxt = f.message.value.trim();
           var ord = $("ticketOrderSel") ? $("ticketOrderSel").value : "";
           if (!cat || !subj || !mtxt) { msg.className = "form-msg err"; msg.textContent = "Pick a category and add a subject and message so we can work your ticket."; return; }
-          var tk = createTicket(cat, ord, subj, mtxt);
-          this.reset(); refreshTicketOrderOptions();
-          msg.className = "form-msg ok"; msg.textContent = "Ticket " + tk.num + " is open — its thread is below, and status updates will show there.";
-          renderTickets();
-          toast("Ticket " + tk.num + " opened");
+          if (!ticketSignedIn()) { msg.className = "form-msg err"; msg.textContent = "Sign in or create an account first so the team can reply to you."; renderTicketGate(); return; }
+          openServerTicket(cat, ord, subj, mtxt).then(function (tk) {
+            if (!tk) { msg.className = "form-msg err"; msg.textContent = "That ticket didn't go through — check your connection and try again."; return; }
+            form.reset(); refreshTicketOrderOptions();
+            msg.className = "form-msg ok"; msg.textContent = "Ticket " + tk.num + " is open — its thread is below, and status updates will show there.";
+            toast("Ticket " + tk.num + " opened");
+          });
         });
 
 
