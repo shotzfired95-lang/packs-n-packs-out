@@ -2190,11 +2190,12 @@
         var DELIVERY_ZONES = { "Illinois": ["60", "61", "62"] };
         var DELIVERY_FEE = 4.95, DELIVERY_FREE_OVER = 75, DELIVERY_MIN = 35;
         var SHIPPING_FEE = 9.95, SHIPPING_FREE_OVER = 150;
-        /* Pens & carts (Vapes category) on a shipping order: under 25
-           pieces total, the shipping fee is a flat $30 — it replaces the
-           standard fee calculation and is never waived, member perks
-           included. At 25+ pieces (or no pens/carts at all) the standard
-           fee rules above apply unchanged. */
+        /* Pens, carts & edibles (Vapes + Edibles categories) on a
+           shipping order: under 25 pieces total, the shipping fee is a
+           flat $30 — it replaces the standard fee calculation and is
+           never waived, member perks included. At 25+ pieces (or no
+           pens/carts/edibles at all) the standard fee rules above apply
+           unchanged. */
         var PEN_SHIP_FEE = 30, PEN_FREE_COUNT = 25;
         var US_STATES = [["AL", "Alabama"], ["AK", "Alaska"], ["AZ", "Arizona"], ["AR", "Arkansas"], ["CA", "California"], ["CO", "Colorado"], ["CT", "Connecticut"], ["DE", "Delaware"], ["FL", "Florida"], ["GA", "Georgia"], ["HI", "Hawaii"], ["ID", "Idaho"], ["IL", "Illinois"], ["IN", "Indiana"], ["IA", "Iowa"], ["KS", "Kansas"], ["KY", "Kentucky"], ["LA", "Louisiana"], ["ME", "Maine"], ["MD", "Maryland"], ["MA", "Massachusetts"], ["MI", "Michigan"], ["MN", "Minnesota"], ["MS", "Mississippi"], ["MO", "Missouri"], ["MT", "Montana"], ["NE", "Nebraska"], ["NV", "Nevada"], ["NH", "New Hampshire"], ["NJ", "New Jersey"], ["NM", "New Mexico"], ["NY", "New York"], ["NC", "North Carolina"], ["ND", "North Dakota"], ["OH", "Ohio"], ["OK", "Oklahoma"], ["OR", "Oregon"], ["PA", "Pennsylvania"], ["RI", "Rhode Island"], ["SC", "South Carolina"], ["SD", "South Dakota"], ["TN", "Tennessee"], ["TX", "Texas"], ["UT", "Utah"], ["VT", "Vermont"], ["VA", "Virginia"], ["WA", "Washington"], ["WV", "West Virginia"], ["WI", "Wisconsin"], ["WY", "Wyoming"]];
         function stateOptionsHTML(sel) {
@@ -3046,10 +3047,10 @@
           });
         }
         function cartCount() { return cartEntries().reduce(function (n, e) { return n + e.qty; }, 0); }
-        /* Pens & carts = the whole Vapes category, counted in pieces
-           across every cart line — the count the $30 small-order
-           shipping fee turns on. */
-        function cartPenCount() { return cartEntries().reduce(function (n, e) { return n + (e.product && e.product.cat === "Vapes" ? e.qty : 0); }, 0); }
+        /* Pens, carts & edibles = the Vapes and Edibles categories,
+           counted in pieces across every cart line — the count the
+           $30 small-order shipping fee turns on. */
+        function cartPenCount() { return cartEntries().reduce(function (n, e) { return n + (e.product && (e.product.cat === "Vapes" || e.product.cat === "Edibles") ? e.qty : 0); }, 0); }
         function cartSubtotal() { return cartEntries().reduce(function (n, e) { return n + e.size.p * e.qty; }, 0); }
         /* The cart persists on this device, the same way accounts and
            pending memberships do: every mutation flows through
@@ -4063,10 +4064,11 @@
             fee = (sub - disc) >= DELIVERY_FREE_OVER ? 0 : DELIVERY_FEE;
             if (tier && tier.freeDelivery && fee > 0) { fee = 0; feeWaived = true; }
           } else if (state.fulfillment === "shipping") {
-            /* Pens rule: 1–24 Vapes pieces in the cart makes the shipping
-               fee a flat $30 — it replaces the standard calculation and
-               member free-shipping perks never waive it. 0 pieces or 25+
-               falls through to the standard rules unchanged. */
+            /* Small-order rule: 1–24 Vapes + Edibles pieces combined in
+               the cart makes the shipping fee a flat $30 — it replaces
+               the standard calculation and member free-shipping perks
+               never waive it. 0 pieces or 25+ falls through to the
+               standard rules unchanged. */
             var penCount = cartPenCount();
             if (penCount > 0 && penCount < PEN_FREE_COUNT) {
               fee = PEN_SHIP_FEE; penFee = true;
@@ -4732,7 +4734,7 @@
             html += '<div class="trow"><span>Delivery fee</span><span>' + (t.fee > 0 ? money(t.fee) : (t.feeWaived ? "FREE — member perk" : "FREE")) + "</span></div>";
           }
           if (state.fulfillment === "shipping") {
-            html += '<div class="trow"><span>' + (t.penFee ? "Shipping (pen/cart order under 25 pieces)" : "Shipping") + '</span><span>' + (t.fee > 0 ? money(t.fee) : (t.feeWaived ? "FREE — member perk" : "FREE")) + "</span></div>";
+            html += '<div class="trow"><span>' + (t.penFee ? "Shipping (small order — under 25 pieces)" : "Shipping") + '</span><span>' + (t.fee > 0 ? money(t.fee) : (t.feeWaived ? "FREE — member perk" : "FREE")) + "</span></div>";
           }
           if (t.memFee > 0) html += '<div class="trow"><span>' + esc(t.memFeeTier) + " membership — " + termFeeLabel(t.memFeeTerm) + '</span><span>' + money(t.memFee) + "</span></div>";
           var totalLabels = {
@@ -5705,7 +5707,7 @@
           if (mPart > 0) html += '<div class="trow"><span>' + esc(b.memTier || "Member") + ' membership savings</span><span class="neg">−' + money(mPart) + "</span></div>";
           if (b.memFee > 0) html += '<div class="trow"><span>' + esc(b.memFeeTier || "Membership") + " membership — " + termFeeLabel(b.memFeeTerm || (b.memFeePeriod === "yearly" ? 12 : 1)) + '</span><span>' + money(b.memFee) + "</span></div>";
           if (o.fulfillment && o.fulfillment.method === "delivery") html += '<div class="trow"><span>Delivery fee</span><span>' + (b.fee > 0 ? money(b.fee) : "FREE") + "</span></div>";
-          if (o.fulfillment && o.fulfillment.method === "shipping") html += '<div class="trow"><span>' + (b.penFee ? "Shipping (pen/cart order under 25 pieces)" : "Shipping") + '</span><span>' + (b.fee > 0 ? money(b.fee) : "FREE") + "</span></div>";
+          if (o.fulfillment && o.fulfillment.method === "shipping") html += '<div class="trow"><span>' + (b.penFee ? "Shipping (small order — under 25 pieces)" : "Shipping") + '</span><span>' + (b.fee > 0 ? money(b.fee) : "FREE") + "</span></div>";
           if (o.fulfillment && o.fulfillment.method === "delivery") html += '<div class="trow"><span>' + esc(o.tipLabel || "Driver tip") + '</span><span>' + ((b.tip || 0) > 0 ? money(b.tip) : "—") + "</span></div>";
           if (b.balancePaid > 0) {
             html += '<div class="trow"><span>Paid from account balance</span><span class="neg">−' + money(b.balancePaid) + "</span></div>";
