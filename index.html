@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#faf7f0" />
-    <meta name="description" content="Packs N' Packs Out. Shop flower, pre-rolls, vapes, concentrates, and edibles. Order ahead for pickup, delivery, or shipping — pay by Apple Pay, Cash App, Chime, Current, Bitcoin, or cash. Adults 21+." />
+    <meta name="description" content="Packs N' Packs Out. Shop flower, vapes, concentrates, and edibles. Order ahead for pickup, delivery, or shipping — pay by Apple Pay, Cash App, Chime, Current, Bitcoin, or cash. Adults 21+." />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -589,16 +589,12 @@
       .drop-flash .df-label b { color: #fff; font-size: 16px; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
       .drop-flash .df-pct { font-family: "Archivo", sans-serif; font-weight: 800; font-size: 13px; color: #fff; white-space: nowrap; }
       .drop-flash .prog-track { background: rgba(245, 236, 217, 0.16); border-color: rgba(245, 236, 217, 0.25); }
-      /* Cart drawer promo stack: free-gift bar + price-hold timer */
+      /* Cart drawer promo stack: price-hold timer */
       .drawer-promos { border-bottom: 1px solid var(--line); padding: 13px 20px; display: grid; gap: 9px; background: var(--bg-soft); }
-      .gift-bar .gb-text { font-size: 13.5px; font-weight: 600; color: var(--ink); margin-bottom: 7px; }
-      .gift-bar .gb-text strong { color: var(--gold); }
-      .gift-bar.got .gb-text { color: var(--gold); font-weight: 700; }
       .hold-bar { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
       .hold-bar .hb-label { font-size: 13px; color: var(--ink-soft); font-weight: 600; }
       .hold-bar .hb-clock { font-family: "Archivo", sans-serif; font-weight: 900; font-size: 17px; color: var(--gold); font-variant-numeric: tabular-nums; }
       .hold-bar .hb-fine { flex-basis: 100%; font-size: 11.5px; color: var(--ink-soft); }
-      .ditem .gift-chip { display: inline-block; font-family: "Archivo", sans-serif; font-weight: 800; font-size: 10.5px; letter-spacing: 0.1em; background: var(--gold-grad); color: #2a1d08; border-radius: 999px; padding: 2.5px 8px; margin-left: 6px; vertical-align: 2px; }
       /* Spin wheel modal — the one blocking pop-up */
       .wheel-scrim { position: fixed; inset: 0; z-index: 195; background: rgba(20, 13, 5, 0.62); display: flex; align-items: center; justify-content: center; padding: 20px 16px; overflow-y: auto; }
       .wheel-modal { position: relative; background: var(--surface); border: 2px solid var(--gold-bright); border-radius: 18px; box-shadow: var(--shadow); max-width: 430px; width: 100%; padding: 28px 24px 24px; text-align: center; margin: auto; }
@@ -1025,7 +1021,7 @@
         </div>
         <div class="searchbar" id="searchBar" hidden>
           <div class="wrap searchbar-in">
-            <input type="text" id="searchInput" placeholder="Search flower, pre-rolls, vapes…" aria-label="Search products" />
+            <input type="text" id="searchInput" placeholder="Search flower, vapes, edibles…" aria-label="Search products" />
             <button class="btn btn-espresso" id="searchGo" type="button">Search</button>
           </div>
         </div>
@@ -1045,7 +1041,6 @@
               <button type="button" data-nav="home">Home <span class="arr">→</span></button>
               <button type="button" data-nav="shop" data-cat="all">Shop All <span class="arr">→</span></button>
               <button type="button" data-nav="shop" data-cat="Flower">Flower <span class="arr">→</span></button>
-              <button type="button" data-nav="shop" data-cat="Pre-Rolls">Pre-Rolls <span class="arr">→</span></button>
               <button type="button" data-nav="shop" data-cat="Vapes">Vapes <span class="arr">→</span></button>
               <button type="button" data-nav="shop" data-cat="Concentrates">Concentrates <span class="arr">→</span></button>
               <button type="button" data-nav="shop" data-cat="Edibles">Edibles <span class="arr">→</span></button>
@@ -1069,7 +1064,7 @@
                 <div class="hero-copy">
                   <div class="kicker">Packs N’ Packs Out — Retail Store</div>
                   <h1>Packs N'. <span class="gold-text">Packs out.</span></h1>
-                  <p class="lede">Flower, pre-rolls, vapes, concentrates, and edibles — order ahead, pay your way — Cash App, Chime, Current, Bitcoin, or cash — and pick up in as little as 30 minutes, get it delivered to your door, or have it shipped anywhere in the U.S.</p>
+                  <p class="lede">Flower, vapes, concentrates, and edibles — order ahead, pay your way — Cash App, Chime, Current, Bitcoin, or cash — and pick up in as little as 30 minutes, get it delivered to your door, or have it shipped anywhere in the U.S.</p>
                   <div class="hero-actions">
                     <button class="btn btn-gold" type="button" data-shop="all">Shop Now</button>
                     <button class="btn btn-outline-light" type="button" data-shop="Flower">Shop Flower</button>
@@ -1098,11 +1093,6 @@
                 <div class="dpct gold-text">ORDER AHEAD</div>
                 <div class="dname">Pickup Orders</div>
                 <div class="ddet">Order now, pick up at your time</div>
-              </button>
-              <button class="deal" type="button" data-shop="Pre-Rolls">
-                <div class="dpct gold-text">BOGO 50%</div>
-                <div class="dname">Pre-Roll Packs</div>
-                <div class="ddet">Weekends — mix &amp; match</div>
               </button>
             </div>
           </div>
@@ -1163,21 +1153,6 @@
             </div>
           </section>
 
-          <!-- Top picks -->
-          <section>
-            <div class="wrap">
-              <div class="sec-head">
-                <div class="tag">Customer Favorites</div>
-                <h2>Top Picks</h2>
-                <p>The products our regulars reach for first.</p>
-                <div class="gold-rule"></div>
-              </div>
-              <div class="prod-grid" id="picksGrid"></div>
-              <div style="text-align: center; margin-top: 28px;">
-                <button class="btn btn-espresso" type="button" data-shop="all">Shop All Products</button>
-              </div>
-            </div>
-          </section>
 
           <!-- Friday Drop -->
           <section id="dropSection" style="padding-top: 0;">
@@ -1248,10 +1223,9 @@
                 <ul>
                   <li><button type="button" data-shop="all">Shop the full menu <span>→</span></button></li>
                   <li><button type="button" data-shop="Flower">Best-selling flower <span>→</span></button></li>
-                  <li><button type="button" data-shop="Pre-Rolls">Pre-rolls for the weekend <span>→</span></button></li>
                   <li><button type="button" data-shop="Edibles">Edibles &amp; gummies <span>→</span></button></li>
                   <li><button type="button" data-shop="Vapes">Carts &amp; disposables <span>→</span></button></li>
-                  <li><button type="button" data-shop="Concentrates">Concentrates &amp; rosin <span>→</span></button></li>
+                  <li><button type="button" data-shop="Concentrates">Concentrates &amp; moonrocks <span>→</span></button></li>
                 </ul>
               </div>
             </div>
@@ -1268,7 +1242,7 @@
               <div class="reviews-row">
                 <div class="review">
                   <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
-                  <p>“Ordered from the parking lot and my bag was ready before I finished my coffee. The Ash rolls are the best burn I’ve had all year.”</p>
+                  <p>“Ordered from the parking lot and my bag was ready before I finished my coffee. The Galactic Runtz is the best burn I’ve had all year.”</p>
                   <div class="who">Regular — Illinois</div>
                 </div>
                 <div class="review">
@@ -1826,7 +1800,6 @@
         <span class="df-detail" id="drawerFulDetail"></span>
       </div>
       <div class="drawer-promos" id="drawerPromos">
-        <div class="gift-bar" id="giftBar" hidden></div>
         <div class="hold-bar" id="holdBar">
           <span class="hb-label">Your prices are held while you shop</span>
           <span class="hb-clock" id="holdClock">10:00</span>
@@ -1970,24 +1943,6 @@
             video: "assets/s1022ick-ice-cream-cake.mp4", poster: "assets/s1022ick-ice-cream-cake-poster.jpg", img: "assets/s1022ick-ice-cream-cake-poster.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 715 } ] },
           { id: "s1024rp", brand: "Packs N' Packs Out", name: "Royal Platinum", sku: "S1024RP", cat: "Flower",
             video: "assets/s1024rp-royal-platinum.mp4", poster: "assets/s1024rp-royal-platinum-poster.jpg", img: "assets/s1024rp-royal-platinum-poster.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 1040 } ] },
-          { id: "ash-preroll", brand: "Packs N' Packs Out", name: "Whole-Flower Pre-Rolls", cat: "Pre-Rolls", img: "assets/ash-preroll.svg", badge: "Best Seller", pick: true,
-            sizes: [ { l: "5-Pack", p: 28 }, { l: "10-Pack", p: 52 } ] },
-          { id: "ash-infused", brand: "Packs N' Packs Out", name: "Hash-Infused Pre-Roll", cat: "Pre-Rolls", img: "assets/ash-infused.svg", badge: "Limited Lot", pick: true,
-            sizes: [ { l: "Single", p: 16 }, { l: "3-Pack", p: 44 } ] },
-          { id: "rb-cart", brand: "Packs N' Packs Out", name: "Live Resin Cartridge", cat: "Vapes", img: "assets/rb-cart.webp", badge: "New", pick: true,
-            sizes: [ { l: "0.5g", p: 28 }, { l: "1g", p: 45 } ] },
-          { id: "rb-dispo", brand: "Packs N' Packs Out", name: "All-in-One Disposable", cat: "Vapes", img: "assets/rb-cart.webp", badge: "", pick: false,
-            sizes: [ { l: "1g", p: 42 }, { l: "2g", p: 74 } ] },
-          { id: "cl-rosin", brand: "Packs N' Packs Out", name: "Cold Cure Live Rosin", cat: "Concentrates", img: "assets/cl-rosin.webp", badge: "Small Batch", pick: true,
-            sizes: [ { l: "1g", p: 68 } ] },
-          { id: "cl-badder", brand: "Packs N' Packs Out", name: "Whipped Badder", cat: "Concentrates", img: "assets/cl-rosin.webp", badge: "", pick: false,
-            sizes: [ { l: "1g", p: 48 }, { l: "3.5g", p: 150 } ] },
-          { id: "sh-gummies", brand: "Packs N' Packs Out", name: "Honey Orchard Gummies — 10-Pack", cat: "Edibles", img: "assets/sh-gummies.svg", badge: "New", pick: true,
-            sizes: [ { l: "100mg Pack", p: 22 } ] },
-          { id: "po-tray", brand: "Packs N' Packs Out", name: "Gold Route Rolling Tray Kit", cat: "Accessories", img: "assets/po-tray.svg", badge: "", pick: false,
-            sizes: [ { l: "Standard", p: 18 } ] },
-          { id: "po-tee", brand: "Packs N' Packs Out", name: "Gold Truck Tee — House Colors", cat: "Apparel", img: "assets/po-tee.webp", badge: "House Colors", pick: true,
-            sizes: [ { l: "M", p: 30 }, { l: "L", p: 30 }, { l: "XL", p: 30 } ] },
           /* ---- Batch 3 (2026-11-15 listing assignments) ---- */
           { id: "s1101bz", brand: "Packs N' Packs Out", name: "BEZOS 2G Dispos", sku: "S1101BZ", cat: "Vapes",
             video: "assets/bezos-2g-dispos.mp4", poster: "assets/bezos-2g-dispos-still1.jpg", img: "assets/bezos-2g-dispos-still1.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 18.9 } ] },
@@ -2034,12 +1989,9 @@
         ];
         var CATEGORIES = [
           { name: "Flower", img: "assets/hero-art.webp", sub: "House & partner lots" },
-          { name: "Pre-Rolls", img: "assets/ash-preroll.svg", sub: "Singles & packs" },
           { name: "Vapes", img: "assets/rb-cart.webp", sub: "Carts & disposables" },
-          { name: "Concentrates", img: "assets/cl-rosin.webp", sub: "Rosin, badder & more" },
-          { name: "Edibles", img: "assets/sh-gummies.svg", sub: "Gummies & kitchen" },
-          { name: "Accessories", img: "assets/po-tray.svg", sub: "Trays, gear & more" },
-          { name: "Apparel", img: "assets/po-tee.webp", sub: "House colors" }
+          { name: "Concentrates", img: "assets/cl-rosin.webp", sub: "Moonrocks, sugar & more" },
+          { name: "Edibles", img: "assets/sh-gummies.svg", sub: "Gummies & kitchen" }
         ];
         var BRANDS = ["All Brands", "Packs N' Packs Out"];
         var TICKER = ["New flower lots just landed", "Order ahead — pickup in about 30 minutes", "15% off vapes & carts this week", "New drops every Friday", "Shipping to all 50 states — free over $150"];
@@ -2112,7 +2064,7 @@
           creditLines: {}, repayOpen: false, repayMethod: "cashapp",
           accounts: {}, referrals: {}, pendingRef: "", dropCfg: null, dropPhase: "",
           giveaway: null, giveEntries: {}, giveNames: {}, scratchClaims: {},
-          wheelClaims: {}, giftsGiven: 0, popCfg: null,
+          wheelClaims: {}, popCfg: null,
           reviews: {}, reviewOpen: {}, reviewDraft: {},
           bundlePicks: {}, bundle: null, annivGrants: {}, alertCfg: null, catalogCfg: null
         };
@@ -2411,10 +2363,6 @@
           });
           fillCardReviews(card, p);
           return card;
-        }
-        function renderPicks() {
-          var g = $("picksGrid"); g.innerHTML = "";
-          PRODUCTS.forEach(function (p) { if (p.pick) g.appendChild(buildCard(p)); });
         }
         function renderCatRail() {
           var rail = $("catRail"); rail.innerHTML = "";
@@ -4287,30 +4235,8 @@
               });
               box.appendChild(row);
             });
-            /* Wave 3 free gift: a $0 line that lives OUTSIDE state.cart,
-               so it can never enter the subtotal, the member-discount
-               base, bundle counts, minimums, or any earnings math. */
-            if (giftInCart()) {
-              var gp = prodById(GIFT_PRODUCT_ID);
-              var grow = document.createElement("div");
-              grow.className = "ditem";
-              grow.innerHTML =
-                '<img alt="" />' +
-                "<div>" +
-                  '<div class="dn"></div><div class="ds"></div>' +
-                  '<div class="drow"><span style="font-size: 13px; color: var(--ink-soft);">On the house — thanks for riding the Gold Route.</span><span class="dp">$0.00</span></div>' +
-                  '<button class="drm" type="button" id="giftRemoveBtn">Remove free gift</button>' +
-                "</div>";
-              grow.querySelector("img").src = gp ? gp.img : "";
-              grow.querySelector(".dn").innerHTML = esc(gp ? gp.name : "Gold Route Tray") + '<span class="gift-chip">FREE GIFT</span>';
-              grow.querySelector(".ds").textContent = (gp ? gp.brand : "") + " · Standard · $0.00";
-              box.appendChild(grow);
-              var grb = $("giftRemoveBtn");
-              if (grb) grb.addEventListener("click", function () { removeGiftByCustomer(); });
-            }
             $("drawerTotals").innerHTML = totalsHTML(totals());
           }
-          renderGiftBar();
           renderDrawerMemberNote();
           updateCartBar();
         }
@@ -5757,15 +5683,7 @@
             line.lastElementChild.textContent = money(e.size.p * e.qty);
             box.appendChild(line);
           });
-          if (giftInCart()) {
-            var gp2 = prodById(GIFT_PRODUCT_ID);
-            var gline = document.createElement("div");
-            gline.className = "sum-line";
-            gline.innerHTML = '<span class="sl-n"><span class="sl-name"></span><small>Standard × 1 · FREE GIFT</small></span><span>$0.00</span>';
-            gline.querySelector(".sl-name").textContent = gp2 ? gp2.name : "Gold Route Tray";
-            box.appendChild(gline);
-          }
-          if (!entries.length && !giftInCart()) box.innerHTML = "<p style='color: var(--ink-soft);'>Your cart is empty — add something from the menu first.</p>";
+          if (!entries.length) box.innerHTML = "<p style='color: var(--ink-soft);'>Your cart is empty — add something from the menu first.</p>";
           $("coTotals").innerHTML = totalsHTML(totals());
           renderCoFul();
           renderCoMember();
@@ -6177,7 +6095,7 @@
             num: state.pendingCode || ("PNPO-" + Math.floor(10000 + Math.random() * 90000)),
             name: name, phone: phone, email: state.user ? String(state.user.email).trim().toLowerCase() : "", time: time, market: state.market || "Illinois",
             fulfillment: ful, payment: payment,
-            items: cartEntries().map(function (e) { return { id: e.product.id, name: e.product.name, sku: e.product.sku || "", size: e.size.l, qty: e.qty, price: e.size.p }; }).concat(giftInCart() ? [{ id: GIFT_PRODUCT_ID, name: (prodById(GIFT_PRODUCT_ID) || {}).name || "Gold Route Tray", size: "Standard", qty: 1, price: 0, gift: true }] : []),
+            items: cartEntries().map(function (e) { return { id: e.product.id, name: e.product.name, sku: e.product.sku || "", size: e.size.l, qty: e.qty, price: e.size.p }; }),
             total: t.total,
             breakdown: { sub: t.sub, disc: t.disc, discKind: t.discKind || null, memTier: (t.memDisc || 0) > 0 ? t.tierName : "", memDisc: t.memDisc || 0, bundleDisc: t.bundleDisc || 0, bundlePct: t.bundlePct || 0, memFee: t.memFee || 0, memFeeTier: t.memFeeTier || "", memFeeTerm: t.memFeeTerm || 1, fee: t.fee, tip: t.tip || 0, balancePaid: t.balanceApplied || 0, dueNow: t.dueNow != null ? t.dueNow : t.total, creditFee: payment.creditFee || 0, creditTotal: payment.creditTotal || 0 },
             memberNote: jc ? ((tierById(jc.tierId) || {}).name || "") + " membership started with this order — " + (jc.deferred ? "your member discount applies from your next order." : "your member discount was applied to this order.") + ((jc.termMonths || 1) > 1 ? " " + (jc.termMonths || 1) + "-month term — " + money(jc.price) + " charged up front (" + money(termPerMonth(tierById(jc.tierId), jc.termMonths || 1)) + "/mo; you save " + money(termSave(tierById(jc.tierId), jc.termMonths || 1)) + " vs paying monthly). Cancelling stops renewal — benefits run to the end of the paid term and fees aren’t refunded mid-term." : " Billed monthly as its own line · Cancel anytime in My Account.") : "",
@@ -7482,7 +7400,7 @@
           });
           var ph = dropPhase();
           if (state.dropPhase && ph !== state.dropPhase) {
-            renderDrop(); renderPicks();
+            renderDrop();
             if (state.view === "shop") renderShop();
           }
           state.dropPhase = ph;
@@ -7609,7 +7527,6 @@
           refreshReviewCards();
         }
         function refreshReviewCards() {
-          renderPicks();
           if (state.view === "shop") renderShop();
           renderDrop();
         }
@@ -7763,21 +7680,17 @@
              card's weighted prize pool and restricted credit pool.
            • Slide-ins/toasts: at most 2 per session, never two at once,
              never during checkout, nothing before the age gate. Dismissing
-             one hides it for 7 days (persisted timestamps).
-           • The free gift lives OUTSIDE the cart math entirely ($0 line,
-             rendered separately), so it touches no discount base, bundle
-             count, minimum, or earnings figure anywhere in the store. */
+             one hides it for 7 days (persisted timestamps). */
         var WHEEL_SEGS = [5, 10, 5, 15, 5, 25, 10, 5];
         var WHEEL_COLORS = ["#c1902a", "#382818", "#b9821e", "#241a10", "#c1902a", "#7c5410", "#382818", "#b9821e"];
         var WHEEL_TXT = ["#2a1d08", "#efd9a0", "#2a1d08", "#efd9a0", "#2a1d08", "#f5ecd9", "#efd9a0", "#2a1d08"];
         var WHEEL_CLAIM_MS = 15 * 60 * 1000;
-        var GIFT_THRESHOLD = 150, GIFT_PRODUCT_ID = "po-tray";
         var POP_WEEK = 7 * 24 * 60 * 60 * 1000;
 
         function popSettings() {
           if (state.popCfg) return state.popCfg;
-          var d = { wheel: true, gift: true };
-          try { var v = JSON.parse(lsGet("pnpo_pop_settings") || "null"); if (v) { d.wheel = v.wheel !== false; d.gift = v.gift !== false; } } catch (e) {}
+          var d = { wheel: true };
+          try { var v = JSON.parse(lsGet("pnpo_pop_settings") || "null"); if (v) { d.wheel = v.wheel !== false; } } catch (e) {}
           state.popCfg = d;
           return d;
         }
@@ -7987,46 +7900,6 @@
           showWheel();
         }
 
-        /* ---------- Free-gift threshold (cart) ---------- */
-        function giftSt() { if (!state._gift) state._gift = { inCart: false, removedMem: false }; return state._gift; }
-        function giftRemovedSession() {
-          try { if (window.sessionStorage.getItem("pnpo_gift_removed") === "1") return true; } catch (e) {}
-          return !!giftSt().removedMem;
-        }
-        function syncGift() {
-          var g = giftSt();
-          var want = popSettings().gift && !giftRemovedSession() && cartSubtotal() >= GIFT_THRESHOLD;
-          if (want && !g.inCart) { g.inCart = true; state.giftsGiven++; }
-          else if (!want && g.inCart) g.inCart = false;
-          return g.inCart;
-        }
-        function giftInCart() { return syncGift(); }
-        function removeGiftByCustomer() {
-          giftSt().removedMem = true;
-          try { window.sessionStorage.setItem("pnpo_gift_removed", "1"); } catch (e) {}
-          giftSt().inCart = false;
-          renderCart();
-          toast("Free gift removed — it won’t be added again this visit");
-        }
-        function renderGiftBar() {
-          var bar = $("giftBar");
-          if (!bar) return;
-          if (!popSettings().gift) { bar.hidden = true; bar.innerHTML = ""; return; }
-          var sub = cartSubtotal();
-          var pct = Math.max(0, Math.min(100, sub / GIFT_THRESHOLD * 100));
-          bar.hidden = false;
-          if (giftInCart()) {
-            bar.className = "gift-bar got";
-            bar.innerHTML = '<div class="gb-text">Your FREE Gold Route Tray is in the cart — $0.00, on us.</div><div class="prog-track"><div class="prog-fill" style="width: 100%;"></div></div>';
-          } else if (giftRemovedSession() && sub >= GIFT_THRESHOLD) {
-            bar.className = "gift-bar";
-            bar.innerHTML = '<div class="gb-text">You removed the free gift — it stays out for this visit.</div><div class="prog-track"><div class="prog-fill" style="width: ' + pct.toFixed(1) + '%;"></div></div>';
-          } else {
-            bar.className = "gift-bar";
-            bar.innerHTML = '<div class="gb-text">You’re <strong>' + money(Math.max(0, GIFT_THRESHOLD - sub)) + '</strong> away from a FREE Gold Route Tray</div><div class="prog-track"><div class="prog-fill" style="width: ' + pct.toFixed(1) + '%;"></div></div>';
-          }
-        }
-
         /* ---------- Cart price-hold timer (display only — prices never move) ---------- */
         var holdTimer = null, holdLeft = 600;
         function startHoldTimer() {
@@ -8207,7 +8080,6 @@
 
 
         /* ================= Init ================= */
-        renderPicks();
         renderCatRail();
         renderCart();
         renderTickets();
