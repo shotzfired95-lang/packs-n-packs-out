@@ -447,6 +447,10 @@
       @media (min-width: 760px) { .prod-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
       @media (min-width: 1080px) { .prod-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
       .prod { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+      /* Product deep link (?p=<id>): temporary gold highlight on the linked card */
+      .prod.link-focus { outline: 3px solid var(--gold-bright); outline-offset: 3px; box-shadow: 0 0 0 6px rgba(193, 144, 42, 0.22), 0 18px 40px rgba(150, 105, 15, 0.35); animation: link-pulse 1s ease-in-out 3; position: relative; z-index: 2; }
+      @keyframes link-pulse { 0%, 100% { outline-offset: 3px; } 50% { outline-offset: 7px; } }
+      @media (prefers-reduced-motion: reduce) { .prod.link-focus { animation: none; } }
       .prod .pimg { position: relative; aspect-ratio: 4 / 3; background: var(--bg-soft); }
       .prod .pimg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
       .prod .pimg video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; cursor: pointer; background: var(--bg-soft); }
@@ -2009,7 +2013,7 @@
           { id: "s1078clc", brand: "Packs N' Packs Out", name: "Cherry Limeade Cake", sku: "S1078CLC", cat: "Flower",
             video: "assets/s1078clc-cherry-limeade-cake.mp4", poster: "assets/s1078clc-cherry-limeade-cake-poster.jpg", img: "assets/s1078clc-cherry-limeade-cake-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 812.5 }, { l: "Half Pound", p: 447 }, { l: "Quarter Pound", p: 243.75 } ] },
           { id: "s1078clc-local", brand: "Packs N' Packs Out", name: "Cherry Limeade Cake", sku: "S1078CLC", cat: "Flower",
-            video: "assets/s1078clc-cherry-limeade-cake.mp4", poster: "assets/s1078clc-cherry-limeade-cake-poster.jpg", img: "assets/s1078clc-cherry-limeade-cake-poster.jpg", badge: "", pick: false, localOnly: true, sizes: [ { l: "1 oz", p: 80 }, { l: "14g", p: 45 }, { l: "7g", p: 25 }, { l: "3.5g", p: 15 } ] },
+            video: "assets/s1078clc-cherry-limeade-cake.mp4", poster: "assets/s1078clc-cherry-limeade-cake-poster.jpg", img: "assets/s1078clc-cherry-limeade-cake-poster.jpg", badge: "NEW", pick: false, localOnly: true, sizes: [ { l: "1 oz", p: 80 }, { l: "14g", p: 45 }, { l: "7g", p: 25 }, { l: "3.5g", p: 15 } ] },
           { id: "s1075tl", brand: "Packs N' Packs Out", name: "Tropical Infusion", sku: "S1075TL", cat: "Flower",
             video: "assets/s1075tl-tropical-infusion.mp4", poster: "assets/s1075tl-tropical-infusion-poster.jpg", img: "assets/s1075tl-tropical-infusion-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 812.5 }, { l: "Half Pound", p: 447 }, { l: "Quarter Pound", p: 243.75 } ] },
           { id: "s1074ti", brand: "Packs N' Packs Out", name: "Tahiti Lime", sku: "S1074TI", cat: "Flower",
@@ -2062,47 +2066,47 @@
             video: "assets/s1024rp-royal-platinum.mp4", poster: "assets/s1024rp-royal-platinum-poster.jpg", img: "assets/s1024rp-royal-platinum-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1040 }, { l: "Half Pound", p: 572 }, { l: "Quarter Pound", p: 312 } ] },
           /* ---- Batch 3 (2026-11-15 listing assignments) ---- */
           { id: "s1101bz", brand: "Packs N' Packs Out", name: "BEZOS 2G Dispos", sku: "S1101BZ", cat: "Vapes",
-            video: "assets/bezos-2g-dispos.mp4", poster: "assets/bezos-2g-dispos-still1.jpg", img: "assets/bezos-2g-dispos-still1.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 18.9 } ] },
+            video: "assets/bezos-2g-dispos.mp4", poster: "assets/bezos-2g-dispos-still1.jpg", img: "assets/bezos-2g-dispos-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Each", p: 18.9 } ] },
           { id: "s1102lg", brand: "Packs N' Packs Out", name: "Luigi 2G Dispos + 0.5g Preroll", sku: "S1102LG", cat: "Vapes",
-            video: "assets/luigi-2g-dispos-preroll.mp4", poster: "assets/luigi-2g-dispos-preroll-still1.jpg", img: "assets/luigi-2g-dispos-preroll-still1.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 20.25 } ] },
+            video: "assets/luigi-2g-dispos-preroll.mp4", poster: "assets/luigi-2g-dispos-preroll-still1.jpg", img: "assets/luigi-2g-dispos-preroll-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Each", p: 20.25 } ] },
           { id: "s1103dv", brand: "Packs N' Packs Out", name: "Devour 1500mg Edibles", sku: "S1103DV", cat: "Edibles",
-            video: "assets/devour-1500mg-edibles.mp4", poster: "assets/devour-1500mg-edibles-still1.jpg", img: "assets/devour-1500mg-edibles-still1.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 17.55 } ] },
+            video: "assets/devour-1500mg-edibles.mp4", poster: "assets/devour-1500mg-edibles-still1.jpg", img: "assets/devour-1500mg-edibles-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Each", p: 17.55 } ] },
           { id: "s1104ke", brand: "Packs N' Packs Out", name: "Kaws Moonrocks Exotic Editions", sku: "S1104KE", cat: "Concentrates",
-            video: "assets/kaws-moonrocks-exotic.mp4", poster: "assets/kaws-moonrocks-exotic-still1.jpg", img: "assets/kaws-moonrocks-exotic-still1.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1500 }, { l: "Half Pound", p: 825 }, { l: "Quarter Pound", p: 450 } ] },
+            video: "assets/kaws-moonrocks-exotic.mp4", poster: "assets/kaws-moonrocks-exotic-still1.jpg", img: "assets/kaws-moonrocks-exotic-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Pound", p: 1500 }, { l: "Half Pound", p: 825 }, { l: "Quarter Pound", p: 450 } ] },
           { id: "s1105bb", brand: "Packs N' Packs Out", name: "Buzz Bar Live Diamonds 2G Dispos", sku: "S1105BB", cat: "Vapes",
-            video: "assets/buzzbar-live-diamonds-2g-dispos.mp4", poster: "assets/buzzbar-live-diamonds-2g-dispos-still1.jpg", img: "assets/buzzbar-live-diamonds-2g-dispos-still1.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 18.9 } ] },
+            video: "assets/buzzbar-live-diamonds-2g-dispos.mp4", poster: "assets/buzzbar-live-diamonds-2g-dispos-still1.jpg", img: "assets/buzzbar-live-diamonds-2g-dispos-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Each", p: 18.9 } ] },
           { id: "s1106wp", brand: "Packs N' Packs Out", name: "Whole Melt Live Resin Sugar Playa", sku: "S1106WP", cat: "Concentrates", soldOut: true,
-            video: "assets/wholemelt-live-resin-sugar-playa.mp4", poster: "assets/wholemelt-live-resin-sugar-playa-still1.jpg", img: "assets/wholemelt-live-resin-sugar-playa-still1.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1750 }, { l: "Half Pound", p: 962.5 }, { l: "Quarter Pound", p: 525 } ] },
+            video: "assets/wholemelt-live-resin-sugar-playa.mp4", poster: "assets/wholemelt-live-resin-sugar-playa-still1.jpg", img: "assets/wholemelt-live-resin-sugar-playa-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Pound", p: 1750 }, { l: "Half Pound", p: 962.5 }, { l: "Quarter Pound", p: 525 } ] },
           { id: "s1107kc", brand: "Packs N' Packs Out", name: "Kaws Moonrocks Cake Edition", sku: "S1107KC", cat: "Concentrates",
-            video: "assets/kaws-moonrocks-cake.mp4", poster: "assets/kaws-moonrocks-cake-still1.jpg", img: "assets/kaws-moonrocks-cake-still1.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1500 }, { l: "Half Pound", p: 825 }, { l: "Quarter Pound", p: 450 } ] },
+            video: "assets/kaws-moonrocks-cake.mp4", poster: "assets/kaws-moonrocks-cake-still1.jpg", img: "assets/kaws-moonrocks-cake-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Pound", p: 1500 }, { l: "Half Pound", p: 825 }, { l: "Quarter Pound", p: 450 } ] },
           { id: "s1108cc", brand: "Packs N' Packs Out", name: "Clean Carts 2G Dispos", sku: "S1108CC", cat: "Vapes",
-            video: "assets/cleancarts-2g-dispos.mp4", poster: "assets/cleancarts-2g-dispos-still1.jpg", img: "assets/cleancarts-2g-dispos-still1.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 18.9 } ] },
+            video: "assets/cleancarts-2g-dispos.mp4", poster: "assets/cleancarts-2g-dispos-still1.jpg", img: "assets/cleancarts-2g-dispos-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Each", p: 18.9 } ] },
           { id: "s1109dw", brand: "Packs N' Packs Out", name: "Dabwoods Liquid Diamond Series 2G Dispos", sku: "S1109DW", cat: "Vapes",
-            video: "assets/dabwoods-liquid-diamond-2g-dispos.mp4", poster: "assets/dabwoods-liquid-diamond-2g-dispos-still1.jpg", img: "assets/dabwoods-liquid-diamond-2g-dispos-still1.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 18.9 } ] },
+            video: "assets/dabwoods-liquid-diamond-2g-dispos.mp4", poster: "assets/dabwoods-liquid-diamond-2g-dispos-still1.jpg", img: "assets/dabwoods-liquid-diamond-2g-dispos-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Each", p: 18.9 } ] },
           { id: "s1110cf", brand: "Packs N' Packs Out", name: "Cookies x Freak LIQUID Diamonds Live Resin+ 2G Dispos", sku: "S1110CF", cat: "Vapes",
-            video: "assets/cookies-freak-liquid-diamonds-2g.mp4", poster: "assets/cookies-freak-liquid-diamonds-2g-still1.jpg", img: "assets/cookies-freak-liquid-diamonds-2g-still1.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 18.9 } ] },
+            video: "assets/cookies-freak-liquid-diamonds-2g.mp4", poster: "assets/cookies-freak-liquid-diamonds-2g-still1.jpg", img: "assets/cookies-freak-liquid-diamonds-2g-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Each", p: 18.9 } ] },
           { id: "s1111ib", brand: "Packs N' Packs Out", name: "Ice Box Extracts Fruit Basket Snow Balls", sku: "S1111IB", cat: "Concentrates",
-            video: "assets/icebox-fruit-basket-snowballs.mp4", poster: "assets/icebox-fruit-basket-snowballs-still1.jpg", img: "assets/icebox-fruit-basket-snowballs-still1.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 2125 }, { l: "Half Pound", p: 1168.75 }, { l: "Quarter Pound", p: 637.5 } ] },
+            video: "assets/icebox-fruit-basket-snowballs.mp4", poster: "assets/icebox-fruit-basket-snowballs-still1.jpg", img: "assets/icebox-fruit-basket-snowballs-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Pound", p: 2125 }, { l: "Half Pound", p: 1168.75 }, { l: "Quarter Pound", p: 637.5 } ] },
           { id: "s1112wm", brand: "Packs N' Packs Out", name: "Whole Melt Live Resin Sugar", sku: "S1112WM", cat: "Concentrates", soldOut: true,
-            video: "assets/wholemelt-live-resin-sugar.mp4", poster: "assets/wholemelt-live-resin-sugar-still1.jpg", img: "assets/wholemelt-live-resin-sugar-still1.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1750 }, { l: "Half Pound", p: 962.5 }, { l: "Quarter Pound", p: 525 } ] },
+            video: "assets/wholemelt-live-resin-sugar.mp4", poster: "assets/wholemelt-live-resin-sugar-still1.jpg", img: "assets/wholemelt-live-resin-sugar-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Pound", p: 1750 }, { l: "Half Pound", p: 962.5 }, { l: "Quarter Pound", p: 525 } ] },
           { id: "s1113bi", brand: "Packs N' Packs Out", name: "Blinkers Ice Cream 2G Dispos", sku: "S1113BI", cat: "Vapes", soldOut: true,
-            video: "assets/blinkers-ice-cream-2g.mp4", poster: "assets/blinkers-ice-cream-2g-still1.jpg", img: "assets/blinkers-ice-cream-2g-still1.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 18.9 } ] },
+            video: "assets/blinkers-ice-cream-2g.mp4", poster: "assets/blinkers-ice-cream-2g-still1.jpg", img: "assets/blinkers-ice-cream-2g-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Each", p: 18.9 } ] },
           { id: "s1114bs", brand: "Packs N' Packs Out", name: "Boutiq Switch 2G Dispos", sku: "S1114BS", cat: "Vapes",
-            video: "assets/boutiq-switch-2g.mp4", poster: "assets/boutiq-switch-2g-still1.jpg", img: "assets/boutiq-switch-2g-still1.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 27 } ] },
+            video: "assets/boutiq-switch-2g.mp4", poster: "assets/boutiq-switch-2g-still1.jpg", img: "assets/boutiq-switch-2g-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Each", p: 27 } ] },
           { id: "s1115wc", brand: "Packs N' Packs Out", name: "Whole Melt Live Resin Sugar Caviar", sku: "S1115WC", cat: "Concentrates", soldOut: true,
-            video: "assets/wholemelt-live-resin-sugar-caviar.mp4", poster: "assets/wholemelt-live-resin-sugar-caviar-still1.jpg", img: "assets/wholemelt-live-resin-sugar-caviar-still1.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1875 }, { l: "Half Pound", p: 1031.25 }, { l: "Quarter Pound", p: 562.5 } ] },
+            video: "assets/wholemelt-live-resin-sugar-caviar.mp4", poster: "assets/wholemelt-live-resin-sugar-caviar-still1.jpg", img: "assets/wholemelt-live-resin-sugar-caviar-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Pound", p: 1875 }, { l: "Half Pound", p: 1031.25 }, { l: "Quarter Pound", p: 562.5 } ] },
           { id: "s1116bp", brand: "Packs N' Packs Out", name: "Backpackboyz All in One 2G Vape", sku: "S1116BP", cat: "Vapes",
-            video: "assets/backpackboyz-all-in-one-2g.mp4", poster: "assets/backpackboyz-all-in-one-2g-still1.jpg", img: "assets/backpackboyz-all-in-one-2g-still1.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 18.9 } ] },
+            video: "assets/backpackboyz-all-in-one-2g.mp4", poster: "assets/backpackboyz-all-in-one-2g-still1.jpg", img: "assets/backpackboyz-all-in-one-2g-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Each", p: 18.9 } ] },
           { id: "s1117fd", brand: "Packs N' Packs Out", name: "Fusion Liquid Diamond 2G Dispos", sku: "S1117FD", cat: "Vapes", soldOut: true,
-            video: "assets/fusion-liquid-diamond-2g.mp4", poster: "assets/fusion-liquid-diamond-2g-still1.jpg", img: "assets/fusion-liquid-diamond-2g-still1.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 21.6 } ] },
+            video: "assets/fusion-liquid-diamond-2g.mp4", poster: "assets/fusion-liquid-diamond-2g-still1.jpg", img: "assets/fusion-liquid-diamond-2g-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Each", p: 21.6 } ] },
           { id: "s1118wv", brand: "Packs N' Packs Out", name: "Whole Melt V5 Dual Chamber 2G Dispos", sku: "S1118WV", cat: "Vapes", soldOut: true,
-            video: "assets/wholemelt-v5-dual-chamber-2g.mp4", poster: "assets/wholemelt-v5-dual-chamber-2g-still1.jpg", img: "assets/wholemelt-v5-dual-chamber-2g-still1.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 18.9 } ] },
+            video: "assets/wholemelt-v5-dual-chamber-2g.mp4", poster: "assets/wholemelt-v5-dual-chamber-2g-still1.jpg", img: "assets/wholemelt-v5-dual-chamber-2g-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Each", p: 18.9 } ] },
           { id: "s1119sb", brand: "Packs N' Packs Out", name: "Smoothie Bar Blend 3.0 Liquid Live Diamonds 2G Dispos", sku: "S1119SB", cat: "Vapes", soldOut: true,
-            video: "assets/smoothiebar-blend-3-liquid-live-diamonds-2g.mp4", poster: "assets/smoothiebar-blend-3-liquid-live-diamonds-2g-still1.jpg", img: "assets/smoothiebar-blend-3-liquid-live-diamonds-2g-still1.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 18.9 } ] },
+            video: "assets/smoothiebar-blend-3-liquid-live-diamonds-2g.mp4", poster: "assets/smoothiebar-blend-3-liquid-live-diamonds-2g-still1.jpg", img: "assets/smoothiebar-blend-3-liquid-live-diamonds-2g-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Each", p: 18.9 } ] },
           { id: "s1120sd", brand: "Packs N' Packs Out", name: "Sherb x Doja 2G Live Resin Vape", sku: "S1120SD", cat: "Vapes",
-            video: "assets/sherb-doja-2g-live-resin.mp4", poster: "assets/sherb-doja-2g-live-resin-still1.jpg", img: "assets/sherb-doja-2g-live-resin-still1.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 52.65 } ] },
+            video: "assets/sherb-doja-2g-live-resin.mp4", poster: "assets/sherb-doja-2g-live-resin-still1.jpg", img: "assets/sherb-doja-2g-live-resin-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Each", p: 52.65 } ] },
           { id: "s1121rg", brand: "Packs N' Packs Out", name: "Raw Garden Refined Live Resin 2G Dispos", sku: "S1121RG", cat: "Vapes", soldOut: true,
-            video: "assets/rawgarden-refined-live-resin-2g.mp4", poster: "assets/rawgarden-refined-live-resin-2g-still1.jpg", img: "assets/rawgarden-refined-live-resin-2g-still1.jpg", badge: "", pick: false, sizes: [ { l: "Each", p: 18.9 } ] }
+            video: "assets/rawgarden-refined-live-resin-2g.mp4", poster: "assets/rawgarden-refined-live-resin-2g-still1.jpg", img: "assets/rawgarden-refined-live-resin-2g-still1.jpg", badge: "NEW", pick: false, sizes: [ { l: "Each", p: 18.9 } ] }
         ];
         /* ================= Bulk ladder (Flower & Concentrates) ==========
            Every Flower and Concentrates product sells in exactly three
@@ -2223,7 +2227,7 @@
           balances: {}, topupSeq: 0, useBalance: true, cashServer: {}, cashFetch: {},
           topupOpen: false, topupAmt: 100, topupCustom: "", topupMethod: "cashapp",
           creditLines: {}, repayOpen: false, repayMethod: "cashapp",
-          accounts: {}, referrals: {}, pendingRef: "", dropCfg: null, dropPhase: "",
+          accounts: {}, referrals: {}, pendingRef: "", pendingProduct: "", dropCfg: null, dropPhase: "",
           giveaway: null, giveEntries: {}, giveNames: {}, scratchClaims: {},
           wheelClaims: {}, popCfg: null,
           reviews: {}, reviewOpen: {}, reviewDraft: {},
@@ -2756,6 +2760,7 @@
         function buildCard(p) {
           var card = document.createElement("article");
           card.className = "prod";
+          card.setAttribute("data-pid", p.id);
           var badge = p.badge ? '<span class="pbadge"></span>' : "";
           var mediaHtml = p.video ? '<video muted loop playsinline preload="metadata"></video><img class="gimg" alt="" hidden />' + badge : '<img alt="" />' + badge;
           if (p.sku) mediaHtml += '<span class="pgal-item">Item #' + p.sku + '</span>';
@@ -3018,6 +3023,59 @@
           state.shopQuery = query || "";
           showView("shop");
           renderShop();
+        }
+
+        /* ================= Product deep links (?p=<id>) =================
+           Announcement links of the form ?p=<product-id> land the
+           visitor on that product: the matching card is scrolled to
+           center screen with a brief gold highlight. An id that matches
+           no baked product is ignored — the store opens normally.
+           The store sits behind the age gate + market picker, so the
+           focus completes once the shop is actually entered; if the
+           server catalog overlay later rebuilds the grids, the focus
+           re-applies to the rebuilt card. */
+        var linkFocusTimer = null;
+        var linkCardNode = null;
+        function linkedProduct() {
+          if (!state.pendingProduct) return null;
+          for (var i = 0; i < PRODUCTS.length; i++) if (PRODUCTS[i].id === state.pendingProduct) return PRODUCTS[i];
+          return null;
+        }
+        function focusLinkedProduct() {
+          var p = linkedProduct();
+          if (!p) return;
+          var card = null;
+          if (p.localOnly) {
+            if (state.view !== "home") showView("home");
+            renderLocal();
+            var lg = $("localGrid");
+            card = lg ? lg.querySelector('[data-pid="' + p.id + '"]') : null;
+          } else {
+            openShop("all", "all", "");
+            var sg = $("shopGrid");
+            card = sg ? sg.querySelector('[data-pid="' + p.id + '"]') : null;
+            if (!card && state.fulfillment !== "shipping" && !cartHasLocalOnly()) {
+              /* The shop grid follows the fulfillment choice — pickup /
+                 delivery list Local items only — so a regular product
+                 renders in the grid only under Shipping. */
+              state.fulfillment = "shipping";
+              updateFulfillmentUI();
+              renderShop();
+              card = sg ? sg.querySelector('[data-pid="' + p.id + '"]') : null;
+            }
+          }
+          if (!card) return;
+          var shell = $("appShell");
+          if (!shell || shell.hidden) return; /* view staged behind the gate — the scroll + highlight fire on store entry */
+          linkCardNode = card;
+          card.scrollIntoView({ behavior: "smooth", block: "center" });
+          card.classList.add("link-focus");
+          if (linkFocusTimer) clearTimeout(linkFocusTimer);
+          linkFocusTimer = setTimeout(function () { card.classList.remove("link-focus"); }, 3000);
+        }
+        function refocusLinkedProduct() {
+          /* Only when a re-render replaced the card we already focused. */
+          if (linkCardNode && !document.contains(linkCardNode)) focusLinkedProduct();
         }
 
         /* ================= Views & navigation ================= */
@@ -5010,6 +5068,7 @@
                 if (typeof renderCart === "function") renderCart();
                 if (typeof renderBundle === "function") renderBundle();
                 if (typeof renderLocal === "function") renderLocal();
+                if (typeof refocusLinkedProduct === "function") refocusLinkedProduct();
               }
             })
             .catch(function () {
@@ -7915,6 +7974,7 @@
             updateCartBar();
             window.scrollTo({ top: 0 });
             popStoreEntered();
+            setTimeout(focusLinkedProduct, 120);
           });
         });
         $("locChange").addEventListener("click", function () { togglePanel(); });
@@ -9246,11 +9306,21 @@
           });
         })();
 
+        /* Product deep link (?p=<id>): remember the requested product
+           (read independently of ?ref= — both may ride the same link).
+           focusLinkedProduct stages its grid now; the scroll + highlight
+           land when the store is entered. Unknown ids stay inert. */
+        try {
+          var linkParam = new URLSearchParams(window.location.search).get("p");
+          if (linkParam) state.pendingProduct = String(linkParam).trim();
+        } catch (e) {}
+
         /* ================= Init ================= */
         renderCatRail();
         renderLocal();
         renderCart();
         renderTickets();
+        focusLinkedProduct();
       })();
     </script>
   </body>
