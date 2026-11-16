@@ -1115,7 +1115,7 @@
     <!-- Storefront shell -->
     <div id="appShell" hidden>
       <div class="maintenance-banner" id="maintenanceBanner" role="alert" hidden>
-        <div class="wrap maintenance-banner-in">🛠️ We’re still putting the finishing touches on — the store is under maintenance. Ordering opens the moment we announce we’re officially OPEN. Thanks for rocking with us while we build this right.</div>
+        <div class="wrap maintenance-banner-in">🛠️ We’re still putting the finishing touches on — the store is under maintenance and ordering is paused. Opening Tuesday, November 24. Thanks for rocking with us while we build this right.</div>
       </div>
       <div class="member-ticker" id="memberTicker" role="marquee" aria-label="Members" hidden>
         <div class="member-ticker-track" id="memberTickerTrack"></div>
@@ -1629,7 +1629,7 @@
                 <p id="coIntro">Reserve your products now — pay by Apple Pay, Cash App, Chime, Current, Bitcoin, or your account balance — or cash at the counter if you’re an approved member. Bring your ID — we check it on every pickup.</p>
                 <div class="gold-rule"></div>
               </div>
-              <div class="maintenance-notice" id="coMaintenanceNotice" role="alert" hidden>🛠️ We’re still putting the finishing touches on — the store is under maintenance. Ordering opens the moment we announce we’re officially OPEN. Thanks for rocking with us while we build this right.</div>
+              <div class="maintenance-notice" id="coMaintenanceNotice" role="alert" hidden>🛠️ We’re still putting the finishing touches on — the store is under maintenance and ordering is paused. Opening Tuesday, November 24. Thanks for rocking with us while we build this right.</div>
               <p class="local-note cart-save-note" id="coCartSaveNote" hidden style="margin-bottom: 12px;">Build your cart now — ordering opens the moment we announce we're OPEN, and your cart will be saved and waiting.</p>
               <p class="local-note cart-save-note" id="coSigninNote" hidden style="margin-bottom: 12px;">Sign in to save your cart for opening day.</p>
               <div class="co-grid">
@@ -2091,7 +2091,7 @@
         <div id="drawerTotals"></div>
         <p class="local-note cart-save-note" id="drawerCartSaveNote" hidden>Build your cart now — ordering opens the moment we announce we're OPEN, and your cart will be saved and waiting.</p>
         <p class="local-note cart-save-note" id="drawerSigninNote" hidden>Sign in to save your cart for opening day.</p>
-        <p class="maintenance-notice maintenance-notice--drawer" id="drawerMaintenanceNotice" role="alert" hidden>🛠️ We’re still putting the finishing touches on — the store is under maintenance. Ordering opens the moment we announce we’re officially OPEN. Thanks for rocking with us while we build this right.</p>
+        <p class="maintenance-notice maintenance-notice--drawer" id="drawerMaintenanceNotice" role="alert" hidden>🛠️ We’re still putting the finishing touches on — the store is under maintenance and ordering is paused. Opening Tuesday, November 24. Thanks for rocking with us while we build this right.</p>
         <button class="btn btn-gold" type="button" id="checkoutBtn">Checkout — Order Ahead</button>
         <div class="clear-cart-row"><button class="clear-cart-btn" type="button" id="clearCartBtn">Clear cart — remove everything</button></div>
         <p class="drawer-note">Apple Pay · Cash App · Chime · Current · Bitcoin · Cash (approved members only) — pay your way at checkout · ID checked on every order</p>
@@ -3132,7 +3132,7 @@
            accounts, balances, memberships, tickets, news/bell, and
            Connect Messenger all keep working as normal. */
         var MAINTENANCE_MODE = true;
-        var MAINTENANCE_MESSAGE = "🛠️ We’re still putting the finishing touches on — the store is under maintenance. Ordering opens the moment we announce we’re officially OPEN. Thanks for rocking with us while we build this right.";
+        var MAINTENANCE_MESSAGE = "🛠️ We’re still putting the finishing touches on — the store is under maintenance and ordering is paused. Opening Tuesday, November 24. Thanks for rocking with us while we build this right.";
         function applyMaintenanceMode() {
           var on = !!MAINTENANCE_MODE;
           ["maintenanceBanner", "coMaintenanceNotice", "drawerMaintenanceNotice"].forEach(function (id) {
@@ -5664,13 +5664,20 @@
           toast("Cart cleared");
         });
         $("checkoutBtn").addEventListener("click", function () {
-          if (!cartCount()) return;
+          /* Maintenance answers every tap — even with an empty cart —
+             so the button never looks dead: surface the drawer's
+             maintenance notice and toast the dated message. No order
+             is placed and checkout never opens while it is on. */
           if (MAINTENANCE_MODE) {
             var dmn = $("drawerMaintenanceNotice");
-            if (dmn) dmn.hidden = false;
+            if (dmn) {
+              dmn.hidden = false;
+              if (dmn.scrollIntoView) dmn.scrollIntoView({ block: "nearest" });
+            }
             toast(MAINTENANCE_MESSAGE);
             return;
           }
+          if (!cartCount()) return;
           showView("checkout");
           renderCheckout();
         });
@@ -8399,17 +8406,57 @@
           state.showSignupDefaults = false;
           state.joinCharge = null;
           state.memJoin = null;
+          state.currentOrderNum = null;
+          state.topupOpen = false;
+          state.repayOpen = false;
           if (state.payMethod === "cash") state.payMethod = "cashapp";
           $("acctOut").hidden = false;
           $("acctIn").hidden = true;
           $("acctTitle").textContent = "Join the route";
+          /* Privacy: signing out wipes every account-scoped cache from
+             this device, so nothing from the signed-out account can
+             render for the next visitor — the on-device order history
+             (state.history + pnpo_history), the notifications / inbox
+             cache and channel prefs, the Messenger link state, the
+             account cart sync state (pnpo_cart_synced), the saved
+             shipping info and address drafts, tickets, and every
+             account panel's rendered view state (repainted below in
+             its signed-out form). The device cart (pnpo_cart) and
+             device favorites stay: both are signed-out features by
+             design — build your cart and heart items before you ever
+             sign in — and neither holds account data. */
+          state.history = [];
+          try { window.localStorage.removeItem("pnpo_history"); } catch (e) {}
+          try { window.localStorage.removeItem("pnpo_cart_synced"); } catch (e) {}
+          if (cartSaveTimer) { clearTimeout(cartSaveTimer); cartSaveTimer = null; }
+          state.shipInfo = null;
+          state.shipDraft = { street: "", apt: "", city: "", state: "", zip: "" };
+          state.addr = { street: "", apt: "", city: "" };
+          state.deliveryZip = "";
           state.serverTickets = [];
-          NOTIF.prefs = null; NOTIF.items = []; NOTIF.pushMsg = ""; setBellBadge(0); updateNewsDot();
+          NOTIF.prefs = null; NOTIF.items = []; NOTIF.unread = 0; NOTIF.pushMsg = ""; NOTIF.pushOnDevice = false;
+          NOTIF.messengerLinked = false; NOTIF.messengerPending = false; NOTIF.messengerCode = "";
+          setBellBadge(0); updateNewsDot();
+          var ib = $("inboxList"); if (ib) ib.innerHTML = "";
+          var im = $("inboxMsg"); if (im) im.textContent = "";
+          var oh = $("orderHistory"); if (oh) oh.innerHTML = "";
+          var gh = $("guestOrderHistory"); if (gh) gh.innerHTML = "";
+          var gp = $("guestOrdersPanel"); if (gp) gp.hidden = true;
+          var rn = $("reorderNote"); if (rn) rn.textContent = "";
           renderTickets();
           renderHistory();
           renderMenuAcct();
           renderAcctIdentity();
+          renderAcctBalance();
+          renderWalletHistory();
+          renderAcctMembership();
           renderCreditCard();
+          renderAcctShip();
+          renderMyAddresses();
+          renderSignupDefaults();
+          renderReferrals();
+          renderGiveaway();
+          renderNotifyPrefs();
           renderCoPay();
           renderCart();
           if (state.view === "checkout") renderCheckout();
