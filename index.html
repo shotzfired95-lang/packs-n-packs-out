@@ -2008,6 +2008,8 @@
             video: "assets/s1067pc-platinum-cookies.mp4", poster: "assets/s1067pc-platinum-cookies-poster.jpg", img: "assets/s1067pc-platinum-cookies-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1007.5 }, { l: "Half Pound", p: 554.25 }, { l: "Quarter Pound", p: 302.25 } ] },
           { id: "s1078clc", brand: "Packs N' Packs Out", name: "Cherry Limeade Cake", sku: "S1078CLC", cat: "Flower",
             video: "assets/s1078clc-cherry-limeade-cake.mp4", poster: "assets/s1078clc-cherry-limeade-cake-poster.jpg", img: "assets/s1078clc-cherry-limeade-cake-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 812.5 }, { l: "Half Pound", p: 447 }, { l: "Quarter Pound", p: 243.75 } ] },
+          { id: "s1078clc-local", brand: "Packs N' Packs Out", name: "Cherry Limeade Cake", sku: "S1078CLC", cat: "Flower",
+            video: "assets/s1078clc-cherry-limeade-cake.mp4", poster: "assets/s1078clc-cherry-limeade-cake-poster.jpg", img: "assets/s1078clc-cherry-limeade-cake-poster.jpg", badge: "", pick: false, localOnly: true, sizes: [ { l: "1 oz", p: 80 }, { l: "14g", p: 45 }, { l: "7g", p: 25 }, { l: "3.5g", p: 15 } ] },
           { id: "s1075tl", brand: "Packs N' Packs Out", name: "Tropical Infusion", sku: "S1075TL", cat: "Flower",
             video: "assets/s1075tl-tropical-infusion.mp4", poster: "assets/s1075tl-tropical-infusion-poster.jpg", img: "assets/s1075tl-tropical-infusion-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 812.5 }, { l: "Half Pound", p: 447 }, { l: "Quarter Pound", p: 243.75 } ] },
           { id: "s1074ti", brand: "Packs N' Packs Out", name: "Tahiti Lime", sku: "S1074TI", cat: "Flower",
@@ -2129,6 +2131,7 @@
         function normalizeBulkSizes() {
           var changed = 0;
           PRODUCTS.forEach(function (p) {
+            if (p.localOnly) return;
             if (p.cat !== "Flower" && p.cat !== "Concentrates") return;
             if (!p.sizes || !p.sizes.length) return;
             var ladder = bulkLadder(bulkAnchor(p));
