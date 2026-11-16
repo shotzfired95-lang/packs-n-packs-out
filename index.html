@@ -123,6 +123,22 @@
       .ticker .dot { color: var(--gold-bright); padding: 9px 14px; }
       @keyframes tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
       @media (prefers-reduced-motion: reduce) { .ticker-track { animation: none; } }
+      /* ---------- Live member announcement ticker ----------
+         Sits above the promo ticker at the very top of the store.
+         Names come live from the server (GET /members/diamond) and
+         scroll past like an announcement marquee. The bar stays
+         hidden until at least one name arrives, so a server outage
+         can never break or block the store. */
+      .member-ticker { background: var(--gold-grad); color: #2a1d08; overflow: hidden; white-space: nowrap; border-bottom: 1px solid rgba(122, 84, 16, 0.45); }
+      .member-ticker-track { display: inline-flex; animation: tick 26s linear infinite; will-change: transform; }
+      .member-ticker:hover .member-ticker-track { animation-play-state: paused; }
+      .member-ticker span { font-family: "Archivo", sans-serif; font-weight: 700; font-size: 12.5px; letter-spacing: 0.16em; text-transform: uppercase; padding: 8px 0; display: inline-flex; align-items: center; gap: 8px; }
+      .member-ticker b { font-weight: 900; color: #17100a; }
+      .member-ticker .mt-live { background: #241a10; color: var(--gold-pale); border-radius: 5px; padding: 3px 8px; font-size: 10.5px; letter-spacing: 0.22em; }
+      .member-ticker .mt-live i { width: 7px; height: 7px; border-radius: 50%; background: #e9c268; display: inline-block; animation: mtpulse 1.6s ease-in-out infinite; }
+      @keyframes mtpulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+      .member-ticker .dot { color: #7c5410; padding: 8px 14px; }
+      @media (prefers-reduced-motion: reduce) { .member-ticker-track { animation: none; } .member-ticker .mt-live i { animation: none; } }
       .shop-header { position: sticky; top: 0; z-index: 60; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
       .shop-header-in { display: flex; align-items: center; gap: 6px; padding-top: 8px; padding-bottom: 8px; }
       .shop-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); margin-right: auto; min-width: 0; }
@@ -1015,6 +1031,10 @@
 
     <!-- Storefront shell -->
     <div id="appShell" hidden>
+      <div class="member-ticker" id="memberTicker" role="marquee" aria-label="Diamond members" hidden>
+        <div class="member-ticker-track" id="memberTickerTrack"></div>
+      </div>
+
       <div class="ticker" aria-hidden="true">
         <div class="ticker-track" id="tickerTrack"></div>
       </div>
@@ -2404,6 +2424,55 @@
           var half = TICKER.map(function (s) { return "<span>" + s + "</span>"; }).join('<span class="dot">◆</span>') + '<span class="dot">◆</span>';
           $("tickerTrack").innerHTML = "<div style='display:inline-flex'>" + half + "</div><div style='display:inline-flex'>" + half + "</div>";
         })();
+
+        /* ================= Live member announcement ticker =================
+           The usernames of members as they join, rolling past at the
+           very top of the store like an announcement. Names come LIVE
+           from the order server — GET /members/diamond returns
+           { names: ["First L.", …] } for every Diamond member (promo
+           redemptions + memberships), already in first-name +
+           last-initial form with test accounts filtered out server-side.
+           The list is re-checked every 60 seconds (and whenever the tab
+           becomes visible again), so the next member who joins rolls in
+           on their own — no rebuild, no reload. Safety: the bar starts
+           hidden and only appears once at least one real name arrives;
+           a failed or empty answer leaves the last good list on screen
+           (or the bar hidden) and never touches the rest of the store. */
+        var memberTickerSig = "";
+        function renderMemberTicker(names) {
+          var bar = $("memberTicker"), track = $("memberTickerTrack");
+          if (!bar || !track) return;
+          var clean = [];
+          (names || []).forEach(function (n) {
+            var s = String(n == null ? "" : n).trim();
+            if (s && clean.indexOf(s) === -1) clean.push(s);
+          });
+          if (!clean.length) { bar.hidden = true; memberTickerSig = ""; return; }
+          var sig = clean.join("|");
+          if (sig === memberTickerSig && !bar.hidden) return;
+          memberTickerSig = sig;
+          var items = clean.map(function (n) {
+            return '<span><span class="mt-live"><i></i>Live</span> Diamond member <b>' + esc(n) + "</b> just joined the family</span>";
+          });
+          /* Repeat the sequence inside each half so even a single name
+             fills the screen width and the -50% loop stays seamless. */
+          var reps = Math.max(2, Math.ceil(6 / items.length));
+          var seq = [];
+          for (var r = 0; r < reps; r++) seq = seq.concat(items);
+          var half = seq.join('<span class="dot">◆</span>') + '<span class="dot">◆</span>';
+          track.innerHTML = "<div style='display:inline-flex'>" + half + "</div><div style='display:inline-flex'>" + half + "</div>";
+          track.style.animationDuration = Math.max(18, seq.length * 7) + "s";
+          bar.setAttribute("aria-label", "Diamond members: " + clean.join(", "));
+          bar.hidden = false;
+        }
+        function refreshMemberTicker() {
+          api("/members/diamond", { timeout: 5000 }).then(function (r) {
+            if (r && r.status === 200 && r.data && Array.isArray(r.data.names)) renderMemberTicker(r.data.names);
+          });
+        }
+        refreshMemberTicker();
+        setInterval(refreshMemberTicker, 60000);
+        document.addEventListener("visibilitychange", function () { if (!document.hidden) refreshMemberTicker(); });
 
         /* ================= Product cards ================= */
         var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
