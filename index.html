@@ -53,7 +53,13 @@
       * { box-sizing: border-box; }
       html { scroll-behavior: smooth; overflow-x: clip; }
       body { margin: 0; overflow-x: clip; background: var(--bg); color: var(--ink); font-family: "Inter", system-ui, sans-serif; font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
-      body.locked { overflow: hidden; }
+      /* Scroll lock (JS lockScroll/unlockScroll): overflow:hidden alone
+         does NOT stop touch scrolling on iPhones — the page behind an
+         open drawer/menu/gate kept scrolling. Locking html too, fixing
+         the body in place at its scroll offset, and restoring the
+         offset on unlock is what actually freezes the background. */
+      html.locked, body.locked { overflow: hidden !important; overscroll-behavior: none; }
+      body.locked { position: fixed; left: 0; right: 0; width: 100%; }
       h1, h2, h3, .display { font-family: "Archivo", system-ui, sans-serif; line-height: 1.06; margin: 0; letter-spacing: -0.01em; }
       .serif { font-family: "Source Serif 4", Georgia, serif; }
       p { margin: 0; }
@@ -580,8 +586,8 @@
       .back-link { display: inline-flex; align-items: center; gap: 7px; background: none; border: 0; font: inherit; font-weight: 600; color: var(--gold); cursor: pointer; padding: 10px 2px; min-height: 44px; }
 
       /* ---------- Cart drawer ---------- */
-      .scrim { position: fixed; inset: 0; z-index: 160; background: rgba(20, 13, 5, 0.55); }
-      .drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 170; width: min(430px, 94vw); background: var(--surface); box-shadow: -18px 0 44px rgba(30, 20, 5, 0.3); display: flex; flex-direction: column; transform: translateX(0); }
+      .scrim { position: fixed; inset: 0; z-index: 160; background: rgba(20, 13, 5, 0.55); touch-action: none; overscroll-behavior: none; }
+      .drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 170; width: min(430px, 94vw); background: var(--surface); box-shadow: -18px 0 44px rgba(30, 20, 5, 0.3); display: flex; flex-direction: column; transform: translateX(0); overscroll-behavior: contain; }
       .drawer-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 18px 20px; border-bottom: 1px solid var(--line); }
       .drawer-head h3 { font-size: 20px; font-weight: 800; }
       /* Everything between the drawer head and the pinned totals/checkout foot
@@ -608,6 +614,8 @@
       .trow .neg { color: var(--gold); font-weight: 700; }
       .drawer-foot .btn { width: 100%; margin-top: 6px; }
       .drawer-note { font-size: 12.5px; color: var(--ink-soft); text-align: center; }
+      .clear-cart-row { text-align: center; margin-top: 2px; }
+      .clear-cart-btn { background: none; border: 0; padding: 8px 14px; min-height: 40px; font: inherit; font-family: "Archivo", sans-serif; font-weight: 700; font-size: 13.5px; color: var(--ember); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
       .empty-note { text-align: center; color: var(--ink-soft); padding: 34px 10px; display: grid; gap: 12px; justify-items: center; }
 
       /* ---------- Persistent cart bar ---------- */
@@ -724,7 +732,7 @@
       .hold-bar .hb-clock { font-family: "Archivo", sans-serif; font-weight: 900; font-size: 17px; color: var(--gold); font-variant-numeric: tabular-nums; }
       .hold-bar .hb-fine { flex-basis: 100%; font-size: 11.5px; color: var(--ink-soft); }
       /* Spin wheel modal — the one blocking pop-up */
-      .wheel-scrim { position: fixed; inset: 0; z-index: 195; background: rgba(20, 13, 5, 0.62); display: flex; align-items: center; justify-content: center; padding: 20px 16px; overflow-y: auto; }
+      .wheel-scrim { position: fixed; inset: 0; z-index: 195; background: rgba(20, 13, 5, 0.62); display: flex; align-items: center; justify-content: center; padding: 20px 16px; overflow-y: auto; overscroll-behavior: none; }
       .wheel-modal { position: relative; background: var(--surface); border: 2px solid var(--gold-bright); border-radius: 18px; box-shadow: var(--shadow); max-width: 430px; width: 100%; padding: 28px 24px 24px; text-align: center; margin: auto; }
       .wheel-modal h3 { font-size: 24px; font-weight: 900; line-height: 1.15; }
       .wheel-modal .wheel-sub { color: var(--ink-soft); font-size: 14.5px; margin-top: 8px; }
@@ -2059,7 +2067,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>
         </button>
       </div>
-      <div class="drawer-scroll">
+      <div class="drawer-scroll" id="drawerScroll">
       <div class="drawer-ful">
         <span class="seg" role="group" aria-label="Fulfillment">
           <button type="button" data-ful="pickup" aria-pressed="true">Pickup</button>
@@ -2085,6 +2093,7 @@
         <p class="local-note cart-save-note" id="drawerSigninNote" hidden>Sign in to save your cart for opening day.</p>
         <p class="maintenance-notice maintenance-notice--drawer" id="drawerMaintenanceNotice" role="alert" hidden>🛠️ We’re still putting the finishing touches on — the store is under maintenance. Ordering opens the moment we announce we’re officially OPEN. Thanks for rocking with us while we build this right.</p>
         <button class="btn btn-gold" type="button" id="checkoutBtn">Checkout — Order Ahead</button>
+        <div class="clear-cart-row"><button class="clear-cart-btn" type="button" id="clearCartBtn">Clear cart — remove everything</button></div>
         <p class="drawer-note">Apple Pay · Cash App · Chime · Current · Bitcoin · Cash (approved members only) — pay your way at checkout · ID checked on every order</p>
       </div>
     </aside>
@@ -2389,6 +2398,38 @@
         };
         function $(id) { return document.getElementById(id); }
         function money(n) { return "$" + n.toFixed(2); }
+
+        /* ================= Scroll lock =================
+           One reference-counted lock for every full-screen layer (age
+           gate, market picker, menu, cart drawer, spin wheel). The old
+           approach — each layer adding/removing body{overflow:hidden}
+           on its own, with mismatched "is anything else open" checks —
+           never stopped touch scrolling on iPhones, so the store kept
+           scrolling behind an open cart. Now the first lock freezes
+           the body in place at its scroll offset (html + body), each
+           layer takes/releases exactly one count, and the last release
+           restores the offset. Open/close handlers guard on "was I
+           actually open" so a close that never opened can't steal
+           another layer's lock. */
+        var scrollLockCount = 0;
+        var scrollLockY = 0;
+        function lockScroll() {
+          if (scrollLockCount === 0) {
+            scrollLockY = window.scrollY || document.documentElement.scrollTop || 0;
+            document.documentElement.classList.add("locked");
+            document.body.classList.add("locked");
+            document.body.style.top = "-" + scrollLockY + "px";
+          }
+          scrollLockCount++;
+        }
+        function unlockScroll() {
+          if (scrollLockCount > 0) scrollLockCount--;
+          if (scrollLockCount !== 0) return;
+          document.documentElement.classList.remove("locked");
+          document.body.classList.remove("locked");
+          document.body.style.top = "";
+          window.scrollTo(0, scrollLockY);
+        }
 
         /* ================= Order server =================
            The store talks to the Packs N' Packs Out order server for
@@ -3360,8 +3401,8 @@
             $("menuLogIn").addEventListener("click", function () { showView("account"); setAcctTab("login"); });
           }
         }
-        function openMenu() { renderMenuAcct(); $("menuOverlay").hidden = false; document.body.classList.add("locked"); }
-        function closeMenu() { $("menuOverlay").hidden = true; if ($("ageGate").hidden && $("marketScreen").hidden) document.body.classList.remove("locked"); }
+        function openMenu() { if (!$("menuOverlay").hidden) return; renderMenuAcct(); $("menuOverlay").hidden = false; lockScroll(); }
+        function closeMenu() { var was = !$("menuOverlay").hidden; $("menuOverlay").hidden = true; if (was) unlockScroll(); }
         $("menuBtn").addEventListener("click", openMenu);
         $("menuClose").addEventListener("click", closeMenu);
         $("menuLinks").addEventListener("click", function (ev) {
@@ -3388,14 +3429,39 @@
         $("accountBtn").addEventListener("click", function () { showView("account"); });
 
         /* ================= Cart ================= */
+        /* cartEntries() is the single gate every cart reader goes
+           through — the drawer list, the badge, the subtotal, the
+           checkout lines, the order payload — and it only returns
+           lines that fully resolve to a real product at a real size
+           with a positive quantity. A line can go stale without the
+           customer touching anything: the server catalog overlay can
+           swap a product's size list (a renamed size label) after the
+           cart was saved, leaving a saved key pointing at a size that
+           no longer exists. Before this gate, that one stale line
+           made the drawer render throw halfway — the items list had
+           already been cleared, the totals kept their last good
+           values, and the customer saw a charged total ($675) with
+           no items and no way to remove the line. Now an
+           unresolvable line is never listed and never counted. */
         function cartEntries() {
           return Object.keys(state.cart).map(function (k) {
             var parts = k.split("|");
             var p = prodById(parts[0]);
             var size = null;
-            p.sizes.forEach(function (s) { if (s.l === parts[1]) size = s; });
+            if (p && p.sizes) p.sizes.forEach(function (s) { if (s.l === parts[1]) size = s; });
             return { key: k, product: p, size: size, qty: state.cart[k] };
-          });
+          }).filter(function (e) { return !!(e.product && e.size && isFinite(e.qty) && e.qty > 0); });
+        }
+        /* pruneCart() deletes unresolvable lines from the working
+           cart itself, so the saved cart (this device + the account
+           copy renderCart persists right after) heals instead of
+           carrying the stale line into every future render. */
+        function pruneCart() {
+          var valid = {};
+          cartEntries().forEach(function (e) { valid[e.key] = true; });
+          var dropped = false;
+          Object.keys(state.cart).forEach(function (k) { if (!valid[k]) { delete state.cart[k]; dropped = true; } });
+          return dropped;
         }
         function cartCount() { return cartEntries().reduce(function (n, e) { return n + e.qty; }, 0); }
         /* Pens, carts & edibles = the Vapes and Edibles categories,
@@ -3448,10 +3514,32 @@
             return { id: e.product.id, name: e.product.name, sku: e.product.sku || "", size: e.size.l, qty: e.qty, price: e.size.p };
           });
         }
+        /* Last account cart this device successfully saved, keyed by
+           account email — the baseline the sign-in merge diffs the
+           on-device cart against (see the delta merge in
+           syncCartAndFavoritesOnSignIn). */
+        function cartSyncedMap(email) {
+          try {
+            var v = JSON.parse(lsGet("pnpo_cart_synced") || "null");
+            if (!v || typeof v !== "object" || v.email !== normEmail(email) || !v.items || typeof v.items !== "object") return {};
+            var out = {};
+            Object.keys(v.items).forEach(function (k) { var q = Math.floor(Number(v.items[k])); if (isFinite(q) && q > 0) out[k] = q; });
+            return out;
+          } catch (e) { return {}; }
+        }
         function saveCartToServer() {
           var token = getSession();
           if (!token || !state.user) return Promise.resolve(null);
-          return api("/cart/me", { method: "POST", token: token, body: { items: cartItemsForServer() } }).then(function (r) { return r; }, function () { return null; });
+          var email = normEmail(state.user.email);
+          var items = cartItemsForServer();
+          return api("/cart/me", { method: "POST", token: token, body: { items: items } }).then(function (r) {
+            if (r && r.status >= 200 && r.status < 300 && state.user && normEmail(state.user.email) === email) {
+              var snap = {};
+              items.forEach(function (it) { snap[it.id + "|" + it.size] = it.qty; });
+              try { lsSet("pnpo_cart_synced", JSON.stringify({ email: email, items: snap })); } catch (e) {}
+            }
+            return r;
+          }, function () { return null; });
         }
         function scheduleServerCartSave() {
           var token = getSession();
@@ -3584,13 +3672,17 @@
         var favAddAllBtn = $("favAddAll");
         if (favAddAllBtn) favAddAllBtn.addEventListener("click", function () { addAllFavoritesToCart(); });
         /* Sign-in sync for cart + favorites — runs in the same sign-in
-           flow that syncs membership and wallet. The account cart
-           loads; lines that exist only on this device merge in
-           (quantities add on a shared line); the merged cart renders
-           and saves back to the account. Favorites merge as a union.
-           A 404 reads as "nothing saved yet" (merge against empty);
-           any other failure leaves the local cart/favorites exactly
-           as they are. */
+           flow that syncs membership and wallet (and on every page
+           load, via the silent session restore). The account cart
+           loads and this device's UNSYNCED changes merge in as a
+           delta — never a plain quantity sum: this device's saved
+           cart and the account cart are usually the same cart, and
+           summing them counted every line twice and resurrected
+           removed items on every load. The merged cart renders and
+           saves back to the account. Favorites merge as a union.
+           A 404 reads as "nothing saved yet" (the device cart carries
+           over whole); any other failure leaves the local
+           cart/favorites exactly as they are. */
         function syncCartAndFavoritesOnSignIn() {
           var token = getSession();
           if (!token || !state.user) return;
@@ -3601,7 +3693,7 @@
             if (r && r.status === 200 && r.data && Array.isArray(r.data.items)) serverItems = r.data.items;
             else if (r && r.status === 404) serverItems = [];
             if (serverItems === null) return;
-            var merged = {};
+            var serverMap = {};
             serverItems.forEach(function (it) {
               if (!it || it.id == null || !it.size) return;
               var p = prodById(String(it.id));
@@ -3611,9 +3703,28 @@
               var q = Math.floor(Number(it.qty));
               if (!sizeOk || !isFinite(q) || q <= 0) return;
               var k = p.id + "|" + String(it.size);
-              merged[k] = (merged[k] || 0) + q;
+              serverMap[k] = (serverMap[k] || 0) + q;
             });
-            Object.keys(state.cart).forEach(function (k) { merged[k] = (merged[k] || 0) + state.cart[k]; });
+            /* Delta merge: start from the account cart, then apply
+               only what changed on this device since its last
+               successful account save (local qty − synced qty, per
+               line). Nothing changed locally → the account cart
+               stands exactly as-is (no doubling). A line removed on
+               this device stays removed (no resurrection). A line
+               added while signed out still lands on top, so a cart
+               built on a second device still merges in. */
+            var synced = (r.status === 404) ? {} : cartSyncedMap(email);
+            var merged = {};
+            Object.keys(serverMap).forEach(function (k) { merged[k] = serverMap[k]; });
+            var allKeys = {};
+            Object.keys(state.cart).forEach(function (k) { allKeys[k] = true; });
+            Object.keys(synced).forEach(function (k) { allKeys[k] = true; });
+            Object.keys(allKeys).forEach(function (k) {
+              var delta = (state.cart[k] || 0) - (synced[k] || 0);
+              if (!delta) return;
+              var q2 = (merged[k] || 0) + delta;
+              if (q2 > 0) merged[k] = q2; else delete merged[k];
+            });
             state.cart = merged;
             renderCart();
             if (state.view === "checkout") renderCheckout();
@@ -5325,6 +5436,10 @@
           return html;
         }
         function renderCart() {
+          /* Drop any line that no longer resolves (see cartEntries)
+             before anything reads or saves the cart, so the list,
+             the totals, and the persisted cart are the same cart. */
+          pruneCart();
           /* Keep the bundle composition honest: a bundle item removed
              from the cart leaves the pack, and an emptied cart clears it. */
           if (state.bundle && state.bundle.keys) {
@@ -5520,12 +5635,34 @@
             $("cartBarText").textContent = count + (count === 1 ? " item" : " items") + " · " + money(t.total);
           }
         }
-        function openDrawer() { hideSlideIn(false); renderCart(); $("drawerScrim").hidden = false; $("cartDrawer").hidden = false; document.body.classList.add("locked"); updateCartBar(); startHoldTimer(); }
-        function closeDrawer() { stopHoldTimer(); $("drawerScrim").hidden = true; $("cartDrawer").hidden = true; if ($("menuOverlay").hidden && $("ageGate").hidden && $("marketScreen").hidden) document.body.classList.remove("locked"); updateCartBar(); }
+        function openDrawer() { var was = !$("cartDrawer").hidden; hideSlideIn(false); if (!was) lockScroll(); renderCart(); $("drawerScrim").hidden = false; $("cartDrawer").hidden = false; var ds = $("drawerScroll"); if (ds) ds.scrollTop = 0; updateCartBar(); startHoldTimer(); }
+        function closeDrawer() { var was = !$("cartDrawer").hidden; stopHoldTimer(); $("drawerScrim").hidden = true; $("cartDrawer").hidden = true; if (was) unlockScroll(); updateCartBar(); }
         $("cartBtn").addEventListener("click", openDrawer);
         $("cartBarBtn").addEventListener("click", openDrawer);
         $("drawerClose").addEventListener("click", closeDrawer);
         $("drawerScrim").addEventListener("click", closeDrawer);
+        /* Touch guard — the drawer's second line of defense behind
+           the body scroll lock. A swipe that starts on the drawer's
+           non-scrolling parts (header, totals foot) or on the scrim
+           used to chain through to the page behind the open cart;
+           now it is swallowed, and only the items region
+           (.drawer-scroll) scrolls. Clicks are unaffected. */
+        $("cartDrawer").addEventListener("touchmove", function (ev) {
+          if (!ev.target.closest || !ev.target.closest(".drawer-scroll")) ev.preventDefault();
+        }, { passive: false });
+        $("drawerScrim").addEventListener("touchmove", function (ev) { ev.preventDefault(); }, { passive: false });
+        /* One-tap empty: clears the working cart, which renderCart()
+           persists everywhere the cart lives (this device + the
+           account save), so a cart the customer doesn't want can't
+           keep popping back up on the next visit. */
+        $("clearCartBtn").addEventListener("click", function () {
+          if (!cartCount()) return;
+          state.cart = {};
+          state.bundle = null;
+          renderCart();
+          if (state.view === "checkout") renderCheckout();
+          toast("Cart cleared");
+        });
         $("checkoutBtn").addEventListener("click", function () {
           if (!cartCount()) return;
           if (MAINTENANCE_MODE) {
@@ -5686,7 +5823,7 @@
           $("locChange").setAttribute("aria-expanded", "false");
           $("appShell").hidden = true;
           $("marketScreen").hidden = false;
-          document.body.classList.add("locked");
+          lockScroll();
         }
         function setTimeOptions(opts) {
           var sel = document.querySelector('#coForm select[name="time"]');
@@ -8368,7 +8505,7 @@
         });
 
         /* ================= Entry flow: gate → market → store ================= */
-        document.body.classList.add("locked");
+        lockScroll();
         $("ageYes").addEventListener("click", function () {
           $("ageGate").hidden = true;
           $("marketScreen").hidden = false;
@@ -8385,7 +8522,7 @@
             $("locChange").setAttribute("aria-expanded", "false");
             $("marketScreen").hidden = true;
             $("appShell").hidden = false;
-            document.body.classList.remove("locked");
+            unlockScroll();
             updateFulfillmentUI();
             updateCartBar();
             window.scrollTo({ top: 0 });
@@ -9409,16 +9546,18 @@
           if (sb0) { sb0.disabled = false; sb0.textContent = "Spin the Wheel"; }
           var disc0 = $("wheelDisc");
           if (disc0) { disc0.style.transition = "none"; disc0.style.transform = "rotate(" + wheelRot + "deg)"; }
+          var wheelWas = !scrim.hidden;
           scrim.hidden = false;
-          document.body.classList.add("locked");
+          if (!wheelWas) lockScroll();
           lsSet("pnpo_wheel_seen", "1");
           var sess = popSess(); sess.wheelShown = true; popSessSave(sess);
         }
         function closeWheel(dismissed) {
           var scrim = $("wheelScrim");
+          var was = scrim && !scrim.hidden;
           if (scrim) scrim.hidden = true;
           if (wheelCouponTimer) { clearInterval(wheelCouponTimer); wheelCouponTimer = null; }
-          if ($("menuOverlay").hidden && $("ageGate").hidden && $("marketScreen").hidden && $("cartDrawer").hidden) document.body.classList.remove("locked");
+          if (was) unlockScroll();
           if (dismissed) popSetDismiss("wheel");
         }
         function spinWheel() {
