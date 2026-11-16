@@ -1690,6 +1690,10 @@
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Account balance</h3>
                   <div id="acctBalanceBody"></div>
                 </div>
+                <div class="panel" style="margin-top: 18px;" id="acctWalletPanel">
+                  <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Transaction history</h3>
+                  <div id="acctWalletBody"></div>
+                </div>
                 <div class="panel" style="margin-top: 18px;">
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Your orders — live tracking</h3>
                   <p style="font-size: 13.5px; color: var(--ink-soft); margin-bottom: 6px;">Every order’s tracker lives here — come back any time to see where it stands. Your tracker updates on its own as our team works your order, step by step.</p>
@@ -2401,6 +2405,104 @@
             refreshMembershipSurfaces();
           });
         }
+        /* ---------- Server wallet sync ----------
+           The wallet (account balance + its transaction entries) lives
+           on the order server now: GET /wallet/me returns the balance
+           and the full entry list, and the server is the source of
+           truth. The on-device wallet record mirrors it — the balance
+           into w.balance, the entries into w.serverEntries — while the
+           local restriction bookkeeping (welcome-restricted amounts,
+           welcome-used flags, pending top-ups) stays exactly as it
+           was. First contact for an account the server has not
+           initialized yet migrates the on-device wallet up, once:
+           POST /wallet/migrate carries the local balance, the local
+           ledger mapped to signed server entries (notes, order
+           numbers, and times preserved where the local ledger has
+           them), and the order numbers already refunded to balance,
+           so nothing is ever credited twice. Best-effort like every
+           server call here: when the server is unreachable the
+           on-device copy already in place stands. */
+        var WALLET_TYPE_LABELS = { welcome_credit: "Welcome credit", wheel_win: "Wheel win", spend: "Order payment", refund: "Refund", topup: "Top-up", adjustment: "Adjustment" };
+        function adoptServerWallet(email, d) {
+          if (!email || !d) return;
+          var w = state.balances[email];
+          if (!w) { w = { balance: 0, ledger: [], topups: [] }; state.balances[email] = w; }
+          if (typeof d.balance === "number" && isFinite(d.balance)) w.balance = r2(d.balance);
+          if (Array.isArray(d.entries)) w.serverEntries = d.entries;
+          if (state.user && normEmail(state.user.email) === email) { renderAcctBalance(); renderWalletHistory(); }
+        }
+        function localLedgerEntryForServer(e) {
+          var typeMap = { welcome: "welcome_credit", anniversary: "welcome_credit", wheel: "wheel_win", spend: "spend", refund: "refund", load: "topup", bonus: "topup", scratch: "adjustment", referral: "adjustment" };
+          var note = e.note ? String(e.note) : "";
+          var m = /PNPO-\d+/i.exec(note);
+          var out = { type: typeMap[e.type] || "adjustment", amount: r2(Number(e.amount) || 0), note: note, orderNum: m ? m[0].toUpperCase() : "" };
+          var t = e.at ? Date.parse(e.at) : (e.when ? Date.parse(e.when) : NaN);
+          if (!isNaN(t)) out.at = new Date(t).toISOString();
+          return out;
+        }
+        function syncWalletFromServer() {
+          var token = getSession();
+          if (!token || !state.user) return Promise.resolve(null);
+          var email = normEmail(state.user.email);
+          if (!email) return Promise.resolve(null);
+          return api("/wallet/me", { token: token }).then(function (r) {
+            if (!r || r.status !== 200 || !r.data || !state.user) return null;
+            if (normEmail(state.user.email) !== email) return null;
+            var d = r.data;
+            if (d.initialized) { adoptServerWallet(email, d); return null; }
+            var w = state.balances[email];
+            var hasLocal = !!(w && ((w.balance || 0) !== 0 || (w.welcomeRestricted || 0) > 0 || (Array.isArray(w.ledger) && w.ledger.length)));
+            if (!hasLocal) { adoptServerWallet(email, d); return null; }
+            var entries = (w.ledger || []).slice().reverse().map(localLedgerEntryForServer);
+            var refundedOrderNums = state.history.filter(function (o) { return o && o.balanceRefunded && normEmail(o.email) === email && o.num; }).map(function (o) { return o.num; });
+            return api("/wallet/migrate", { method: "POST", token: token, body: { balance: r2(w.balance || 0), entries: entries, refundedOrderNums: refundedOrderNums } }).then(function (mr) {
+              if (!state.user || normEmail(state.user.email) !== email) return;
+              if (mr && (mr.status === 200 || mr.status === 201) && mr.data && (typeof mr.data.balance === "number" || Array.isArray(mr.data.entries))) { adoptServerWallet(email, mr.data); return; }
+              /* The migrate response carried no wallet snapshot —
+                 re-read the server wallet and mirror that instead. */
+              api("/wallet/me", { token: token }).then(function (r2) {
+                if (r2 && r2.status === 200 && r2.data && state.user && normEmail(state.user.email) === email) adoptServerWallet(email, r2.data);
+              });
+            });
+          });
+        }
+        /* A wheel win is reported to the server wallet first
+           (POST /wallet/apply), then the wallet is re-read so the
+           local mirror carries the server's balance. */
+        function reportWheelWinToServer(amount) {
+          var token = getSession();
+          if (!token || !(amount > 0)) return;
+          api("/wallet/apply", { method: "POST", token: token, body: { type: "wheel_win", amount: r2(amount), note: "Wheel win" } }).then(function () { syncWalletFromServer(); });
+        }
+        /* Transaction history: the mirrored server wallet entries,
+           newest first — the same record the business sees, so the
+           customer and the business are looking at one page: what
+           moved, which order it belongs to, where a refund was sent,
+           and when. */
+        function renderWalletHistory() {
+          var body = $("acctWalletBody");
+          if (!body) return;
+          if (!state.user) { body.innerHTML = ""; return; }
+          var w = walletRec(false);
+          var entries = (w && Array.isArray(w.serverEntries)) ? w.serverEntries.slice() : [];
+          entries = entries.map(function (e, i) { return { e: e, i: i, t: e && e.at ? Date.parse(e.at) : NaN }; });
+          entries.sort(function (a, b) {
+            var ta = isNaN(a.t) ? -Infinity : a.t, tb = isNaN(b.t) ? -Infinity : b.t;
+            return tb !== ta ? tb - ta : a.i - b.i;
+          });
+          if (!entries.length) { body.innerHTML = '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 4px 0 0;">No transactions yet.</p>'; return; }
+          body.innerHTML = entries.map(function (wrap) {
+            var e = wrap.e || {};
+            var label = WALLET_TYPE_LABELS[e.type] || "Adjustment";
+            var amt = typeof e.balanceDelta === "number" ? e.balanceDelta : (typeof e.amount === "number" ? e.amount : 0);
+            var small = [];
+            if (e.orderNum) { var on = String(e.orderNum); small.push("Order " + esc(/^PNPO-/i.test(on) ? on : "PNPO-" + on.replace(/^#/, ""))); }
+            if (e.note) small.push(esc(e.note));
+            if (e.type === "refund" && e.destination) small.push("Sent to: " + esc(e.destination));
+            if (e.at) { var dt = new Date(e.at); if (!isNaN(dt.getTime())) small.push(dt.toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })); }
+            return '<div class="ledger-row"><span class="lr-what">' + label + (small.length ? "<small>" + small.join(" · ") + "</small>" : "") + '</span><span class="lr-amt' + (amt >= 0 ? " pos" : "") + '">' + (amt >= 0 ? "+" : "−") + money(Math.abs(amt)) + "</span></div>";
+          }).join("");
+        }
         /* Cash approval: ask the server first (short timeout); its answer
            is cached per email and wins over the baked list. When the
            server doesn't respond, the baked list decides, as before. */
@@ -2428,35 +2530,29 @@
            staff member, and the chosen pickup spot come from the server
            response and render through the existing tracker UI. */
         var SERVER_LOCKED_STAGES = { ready: 1, out: 1, shipped: 1, completed: 1, cancelled: 1 };
-        /* Automatic refund to account balance on cancel: when a
-           cancelled order paid anything from the customer's account
-           balance, that amount goes straight back into the same wallet
-           it was debited from — once only, ever, per order. The welcome
-           portion of the refund is restored as welcome-restricted
-           credit, so it keeps the same fences it had before the order. */
+        /* Balance refunds on cancel are issued by the SERVER now, at
+           cancel time — this function no longer credits anything
+           locally (a local credit on top of the server's would pay the
+           customer twice). Its job at the existing call sites is to
+           kick a wallet re-fetch so the local mirror picks up the
+           refund the server issued. The once-only flag stays as pure
+           bookkeeping: it marks the order's refund as handled, and it
+           is what the one-time wallet migration reports in
+           refundedOrderNums for orders refunded before the server
+           wallet existed. Returns the amount that was paid from
+           balance — used only by the cancel toast, never credited. */
         function refundBalanceForCancelledOrder(o) {
           if (!o) return 0;
-          if (o.balanceRefunded) return 0;
           var amount = 0;
           if (typeof o.paidFromBalance === "number" && o.paidFromBalance > 0) amount = o.paidFromBalance;
           else if (o.breakdown && typeof o.breakdown.balancePaid === "number" && o.breakdown.balancePaid > 0) amount = o.breakdown.balancePaid;
-          if (!(amount > 0)) return 0;
           amount = r2(amount);
           if (!(amount > 0)) return 0;
-          var email = o.email ? String(o.email).trim().toLowerCase() : "";
-          if (!email) return 0;
-          var w = state.balances[email];
-          if (!w) return 0;
-          if (!Array.isArray(w.ledger)) w.ledger = [];
-          w.balance = r2((w.balance || 0) + amount);
-          var welcomePortion = typeof o.balanceWelcomeUsed === "number" ? o.balanceWelcomeUsed : amount;
-          var welcomeAdd = r2(Math.min(Math.max(0, welcomePortion), amount));
-          w.welcomeRestricted = r2((w.welcomeRestricted || 0) + welcomeAdd);
-          if (w.welcomeRestricted > w.balance) w.welcomeRestricted = w.balance;
-          w.ledger.unshift({ type: "refund", amount: amount, when: nowStamp(), note: "Refund — order " + o.num + " cancelled" });
-          o.balanceRefunded = true;
-          saveHistory();
-          renderAcctBalance();
+          if (!o.balanceRefunded) {
+            o.balanceRefunded = true;
+            saveHistory();
+            syncWalletFromServer();
+          }
           return amount;
         }
         function applyServerTracker(o, v) {
@@ -2930,7 +3026,7 @@
           window.scrollTo({ top: 0 });
           updateCartBar();
           syncNavActive();
-          if (v === "account") { renderHistory(); renderCreditCard(); renderAcctBalance(); renderAcctMembership(); renderAcctIdentity(); renderReferrals(); renderAcctGive(); renderTopMembers(); updateCreateNotes(); renderMyAddresses(); renderSignupDefaults(); loadServerTickets(); }
+          if (v === "account") { renderHistory(); renderCreditCard(); renderAcctBalance(); renderWalletHistory(); renderAcctMembership(); renderAcctIdentity(); renderReferrals(); renderAcctGive(); renderTopMembers(); updateCreateNotes(); renderMyAddresses(); renderSignupDefaults(); loadServerTickets(); syncWalletFromServer(); }
         }
         /* Main navigation lit state: the menu + footer item for the
            view (or shop category) you're on carries .nav-active. */
@@ -3828,6 +3924,7 @@
           renderAcctMembership();
           renderAcctIdentity();
           renderAcctBalance();
+          renderWalletHistory();
           renderCreditCard();
           renderCart();
           if (state.view === "checkout") renderCheckout();
@@ -6936,6 +7033,10 @@
               wSpend.ledger.unshift({ type: "spend", amount: -t.balanceApplied, when: nowStamp(), note: "Order " + order.num + (t.dueNow > 0 ? " — part payment, rest by " + payment.brand : " — paid in full from balance") });
             }
             renderAcctBalance();
+            /* The spend just hit the wallet — re-read the server
+               wallet and re-mirror so the local copy matches the
+               server's record of it. */
+            syncWalletFromServer();
           }
           if (payment.method === "credit") {
             var cRec3 = creditRec(false);
@@ -6998,6 +7099,17 @@
           if (o.serverPaymentState === "confirmed") return true;
           return o.payment.pending === false;
         }
+        /* True when the amount paid from the customer's account
+           balance covers the order's full total — by the recorded
+           remainder (breakdown.dueNow at zero) or by the balance-paid
+           amount reaching the total itself. */
+        function orderPaidInFullFromBalance(o) {
+          if (!o) return false;
+          var bp = (typeof o.paidFromBalance === "number" && o.paidFromBalance > 0) ? o.paidFromBalance : (o.breakdown && typeof o.breakdown.balancePaid === "number" ? o.breakdown.balancePaid : 0);
+          if (!(bp > 0)) return false;
+          var due = o.breakdown && typeof o.breakdown.dueNow === "number" ? o.breakdown.dueNow : null;
+          return (due !== null && due <= 0) || r2(bp) >= r2(o.total || 0);
+        }
         function pickupSpotOpenText(o) {
           /* For a pickup order with no spot chosen yet: the sentence for
              the state the order is in NOW once a team member has claimed
@@ -7044,24 +7156,38 @@
           var payTailBtc = payIsConfirmed(o)
             ? " <span class='confirmed-pill'>Confirmed</span> <strong style='color: var(--ink);'>Payment confirmed</strong> — your payment is confirmed on the blockchain. This order is marked paid."
             : " <span class='pending-pill'>Pending</span> This order stays <strong style='color: var(--ink);'>PENDING</strong> until the payment is confirmed on the blockchain — it is not marked paid yet.";
-          if (payM === "card") {
+          /* Balance first: an order the customer's balance covered —
+             in full or in part — never renders as cash due. Full cover
+             reads paid-from-balance with nothing due and no cash code
+             or cash instruction anywhere; partial cover shows only the
+             remainder due. No balance involved: the branches below
+             render exactly as they always have (payAmt === o.total). */
+          var balPaidAmt = (typeof o.paidFromBalance === "number" && o.paidFromBalance > 0) ? o.paidFromBalance : (o.breakdown && typeof o.breakdown.balancePaid === "number" && o.breakdown.balancePaid > 0 ? o.breakdown.balancePaid : 0);
+          var balDueAmt = o.breakdown && typeof o.breakdown.dueNow === "number" ? o.breakdown.dueNow : r2((o.total || 0) - balPaidAmt);
+          var balFullCover = orderPaidInFullFromBalance(o);
+          var balPartial = balPaidAmt > 0 && !balFullCover;
+          var payAmt = balPartial ? Math.max(0, balDueAmt) : o.total;
+          if (balFullCover) {
+            totalLabel = "Paid from account balance";
+            payLine = "<br />Payment: <strong style='color: var(--ink);'>Paid from account balance</strong> — " + (isDeliveryOrder || isShipOrder ? "nothing further due." : "nothing due at pickup.");
+          } else if (payM === "card") {
             totalLabel = "Paid online";
             payLine = "<br />Payment: <strong style='color: var(--ink);'>Paid online</strong> — " + esc(o.payment.brand || "Card") + " ending in " + esc(o.payment.last4 || "") + ".";
           } else if (payM === "applepay") {
             totalLabel = "Total — Apple Pay";
-            payLine = "<br />Payment: <strong style='color: var(--ink);'>Apple Pay</strong> — you sent " + money(o.total) + " to " + APPLEPAY_PHONE + " (from " + esc(o.payment.sender || "") + ")." + payTail;
+            payLine = "<br />Payment: <strong style='color: var(--ink);'>Apple Pay</strong> — you sent " + money(payAmt) + " to " + APPLEPAY_PHONE + " (from " + esc(o.payment.sender || "") + ")." + payTail;
           } else if (payM === "cashapp") {
             totalLabel = "Total — Cash App";
-            payLine = "<br />Payment: <strong style='color: var(--ink);'>Cash App</strong> — you sent " + money(o.total) + " to " + CASHAPP_TAG + " (from " + esc(o.payment.sender || "") + ")." + payTail;
+            payLine = "<br />Payment: <strong style='color: var(--ink);'>Cash App</strong> — you sent " + money(payAmt) + " to " + CASHAPP_TAG + " (from " + esc(o.payment.sender || "") + ")." + payTail;
           } else if (payM === "chime") {
             totalLabel = "Total — Chime";
-            payLine = "<br />Payment: <strong style='color: var(--ink);'>Chime</strong> — you sent " + money(o.total) + " to " + CHIME_NAME + " (from " + esc(o.payment.sender || "") + ")." + payTail;
+            payLine = "<br />Payment: <strong style='color: var(--ink);'>Chime</strong> — you sent " + money(payAmt) + " to " + CHIME_NAME + " (from " + esc(o.payment.sender || "") + ")." + payTail;
           } else if (payM === "current") {
             totalLabel = "Total — Current";
-            payLine = "<br />Payment: <strong style='color: var(--ink);'>Current</strong> — you sent " + money(o.total) + " to " + CURRENT_TAG + " (from " + esc(o.payment.sender || "") + ")." + payTail;
+            payLine = "<br />Payment: <strong style='color: var(--ink);'>Current</strong> — you sent " + money(payAmt) + " to " + CURRENT_TAG + " (from " + esc(o.payment.sender || "") + ")." + payTail;
           } else if (payM === "bitcoin") {
             totalLabel = "Total — Bitcoin";
-            payLine = "<br />Payment: <strong style='color: var(--ink);'>Bitcoin</strong> — you sent " + btcAmountFor(o.total) + " BTC (" + money(o.total) + ") to our wallet " + BTC_WALLET + " (transaction / sending address: " + esc(o.payment.sender || "") + ")." + payTailBtc;
+            payLine = "<br />Payment: <strong style='color: var(--ink);'>Bitcoin</strong> — you sent " + btcAmountFor(payAmt) + " BTC (" + money(payAmt) + ") to our wallet " + BTC_WALLET + " (transaction / sending address: " + esc(o.payment.sender || "") + ")." + payTailBtc;
           } else if (isDeliveryOrder) {
             totalLabel = "Total due at your door";
             payLine = "<br />Payment: <strong style='color: var(--ink);'>Cash on delivery</strong> — pay the driver when your order arrives, and give the driver your Cash Acceptance Code (below) to complete the cash transaction.";
@@ -7072,6 +7198,9 @@
             totalLabel = "Total due at pickup";
             payLine = "<br />Payment: <strong style='color: var(--ink);'>Cash at pickup</strong> — pay at the counter when you pick up, and give the counter your Cash Acceptance Code (below) to complete the cash transaction.";
           }
+          if (balPartial) {
+            payLine = "<br />Account balance: <strong style='color: var(--ink);'>" + money(balPaidAmt) + "</strong> of this order was paid from your account balance — only the remainder is due." + payLine;
+          }
           var fulLine;
           if (o.fulfillment && o.fulfillment.method === "delivery") {
             fulLine = "Delivery for <strong style='color: var(--ink);'>" + esc(o.name) + "</strong> · " + esc(o.time) + "<br />Deliver to: " + esc(o.fulfillment.address || "") + "<br />From: " + esc(originForOrder(o).name) + (originForOrder(o).detail ? " — " + esc(originForOrder(o).detail) : "") + "<br />Market: " + esc(o.market) + " · We’ll text " + esc(o.phone) + " when your order is on its way." + payLine + "<br />Have your photo ID ready at the door — we check it on every delivery.";
@@ -7081,11 +7210,16 @@
             fulLine = "Pickup for <strong style='color: var(--ink);'>" + esc(o.name) + "</strong> · " + esc(o.time) + (o.fulfillment && o.fulfillment.location ? "<br />Pickup at: " + esc(o.fulfillment.location) + (o.fulfillment.detail ? " — " + esc(o.fulfillment.detail) : "") : "<br />Pickup spot: " + (pickupSpotOpenText(o) || "you’ll choose your spot once a team member picks up your order — it opens on your tracker as soon as packing starts.")) + "<br />Market: " + esc(o.market) + " · We’ll text " + esc(o.phone) + " when it’s ready." + payLine + "<br />Bring your photo ID — we check it on every pickup." + '<span style="display: block; margin-top: 10px;">' + dirBtnHTML(pickupDirAddr(o), "Get Directions", "") + "</span>";
           }
           if (o.statusStage === "cancelled") { fulLine = "Order cancelled."; totalLabel = "Total"; }
+          var totalLine = totalLabel + ": " + money(o.total) + (o.tip ? " (includes " + money(o.tip) + " driver tip)" : "");
+          if (o.statusStage !== "cancelled") {
+            if (balFullCover) totalLine = "Paid from account balance: " + money(o.total) + " — nothing due" + (isDeliveryOrder || isShipOrder ? "" : " at pickup");
+            else if (balPartial) totalLine = totalLabel + ": " + money(Math.max(0, balDueAmt)) + " — " + money(balPaidAmt) + " already paid from your account balance";
+          }
           var completedHead = o.statusStage === "completed" ? '<h3 style="font-size: 17px; font-weight: 800; margin-bottom: 10px;">Your receipt</h3>' : '<h3 style="font-size: 17px; font-weight: 800; margin-bottom: 10px;">Order details</h3>';
           box.innerHTML =
             completedHead + lines +
             '<div style="margin-top: 10px;">' + receiptBreakdownHTML(o) + "</div>" +
-            '<p style="font-size: 13px; color: var(--ink-soft); margin-top: 6px;">' + totalLabel + ": " + money(o.total) + (o.tip ? " (includes " + money(o.tip) + " driver tip)" : "") + "</p>" +
+            '<p style="font-size: 13px; color: var(--ink-soft); margin-top: 6px;">' + totalLine + "</p>" +
             (o.memberNote ? '<p style="font-size: 13.5px; color: var(--gold); font-weight: 600; margin-top: 8px;">' + esc(o.memberNote) + "</p>" : "") +
             "<p style='margin-top: 12px; font-size: 14.5px; color: var(--ink-soft);'>" + fulLine + "</p>";
           renderCashComplete(o);
@@ -7096,7 +7230,7 @@
         function renderCashComplete(o) {
           var panel = $("cashComplete");
           if (!panel) return;
-          var isCash = !!(o.payment && o.payment.method === "cash" && o.payment.cashCode);
+          var isCash = !!(o.payment && o.payment.method === "cash" && o.payment.cashCode) && !orderPaidInFullFromBalance(o);
           if (!isCash || o.statusStage === "cancelled") { panel.hidden = true; panel.innerHTML = ""; return; }
           panel.hidden = false;
           var where = o.fulfillment && o.fulfillment.method === "delivery" ? "delivery" : o.fulfillment && o.fulfillment.method === "shipping" ? "shipment release" : "pickup";
@@ -7402,6 +7536,7 @@
           renderAcctMembership();
           renderAcctIdentity();
           renderAcctBalance();
+          renderWalletHistory();
           renderCreditCard();
           renderReferrals();
           renderGiveaway();
@@ -7411,6 +7546,7 @@
           renderCoPay();
           refreshDefaultsFromServer();
           refreshMembershipFromServer();
+          syncWalletFromServer();
           loadServerTickets();
           /* Instant members-roll refresh: every successful sign-in —
              and every successful sign-up, which lands here too —
@@ -8763,6 +8899,10 @@
           w.ledger.unshift({ type: "wheel", amount: pend.amt, when: nowStamp(), note: "Wheel win" });
           var got = pend.amt;
           wheelSetClaimed();
+          /* The win also goes to the server wallet (POST
+             /wallet/apply), then the wallet re-mirrors from the
+             server's returned balance. */
+          reportWheelWinToServer(got);
           return got;
         }
         function buildWheelDisc() {
