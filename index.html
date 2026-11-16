@@ -2326,18 +2326,55 @@
            staff member, and the chosen pickup spot come from the server
            response and render through the existing tracker UI. */
         var SERVER_LOCKED_STAGES = { ready: 1, out: 1, shipped: 1, completed: 1, cancelled: 1 };
+        /* Automatic refund to account balance on cancel: when a
+           cancelled order paid anything from the customer's account
+           balance, that amount goes straight back into the same wallet
+           it was debited from — once only, ever, per order. The welcome
+           portion of the refund is restored as welcome-restricted
+           credit, so it keeps the same fences it had before the order. */
+        function refundBalanceForCancelledOrder(o) {
+          if (!o) return 0;
+          if (o.balanceRefunded) return 0;
+          var amount = 0;
+          if (typeof o.paidFromBalance === "number" && o.paidFromBalance > 0) amount = o.paidFromBalance;
+          else if (o.breakdown && typeof o.breakdown.balancePaid === "number" && o.breakdown.balancePaid > 0) amount = o.breakdown.balancePaid;
+          if (!(amount > 0)) return 0;
+          amount = r2(amount);
+          if (!(amount > 0)) return 0;
+          var email = o.email ? String(o.email).trim().toLowerCase() : "";
+          if (!email) return 0;
+          var w = state.balances[email];
+          if (!w) return 0;
+          if (!Array.isArray(w.ledger)) w.ledger = [];
+          w.balance = r2((w.balance || 0) + amount);
+          var welcomePortion = typeof o.balanceWelcomeUsed === "number" ? o.balanceWelcomeUsed : amount;
+          var welcomeAdd = r2(Math.min(Math.max(0, welcomePortion), amount));
+          w.welcomeRestricted = r2((w.welcomeRestricted || 0) + welcomeAdd);
+          if (w.welcomeRestricted > w.balance) w.welcomeRestricted = w.balance;
+          w.ledger.unshift({ type: "refund", amount: amount, when: nowStamp(), note: "Refund — order " + o.num + " cancelled" });
+          o.balanceRefunded = true;
+          saveHistory();
+          renderAcctBalance();
+          return amount;
+        }
         function applyServerTracker(o, v) {
           if (!o || !v) return false;
           /* Cancelled is terminal: once an order is cancelled (here or
-             from another device), no later sync moves it again. */
-          if (o.statusStage === "cancelled") return false;
+             from another device), no later sync moves it again. An
+             already-cancelled order still gets its balance refund
+             checked here, so orders cancelled before refunds existed
+             are made whole on their next sync. */
+          if (o.statusStage === "cancelled") {
+            if (v.stage === "cancelled") refundBalanceForCancelledOrder(o);
+            return false;
+          }
           function sig() {
             return [o.statusStage || "", o.serverStage || "", o.serverStaffName || "", (o.fulfillment && o.fulfillment.spotId) || "", (o.payment && o.payment.pending) ? "p" : "", o._serverSpotSig || ""].join("|");
           }
           var before = sig();
           var s = v.stage;
           if (s) o.serverStage = s;
-          if (s === "cancelled") o.statusStage = "cancelled";
+          if (s === "cancelled") { o.statusStage = "cancelled"; refundBalanceForCancelledOrder(o); }
           else if (s === "packing") o.statusStage = "processing";
           else if (s === "ready") o.statusStage = "ready";
           else if (s === "out") o.statusStage = "out";
@@ -4092,7 +4129,7 @@
           html += '<h4 style="font-size: 15px; font-weight: 800; margin: 18px 0 2px;">Balance history</h4>';
           if (w.ledger.length) {
             html += w.ledger.map(function (e) {
-              var label = e.type === "load" ? "Balance load" : e.type === "bonus" ? "Load bonus" : e.type === "welcome" ? "Welcome credit — " + (e.note || "") : e.type === "anniversary" ? "Anniversary credit — " + (e.note || "") : e.type === "referral" ? "Referral earnings" : e.type === "scratch" ? "Scratch bonus" : e.type === "wheel" ? "Wheel win" : "Order payment";
+              var label = e.type === "load" ? "Balance load" : e.type === "bonus" ? "Load bonus" : e.type === "welcome" ? "Welcome credit — " + (e.note || "") : e.type === "anniversary" ? "Anniversary credit — " + (e.note || "") : e.type === "referral" ? "Referral earnings" : e.type === "scratch" ? "Scratch bonus" : e.type === "wheel" ? "Wheel win" : e.type === "refund" ? "Refund" : "Order payment";
               var sub = (e.type === "welcome" || e.type === "anniversary") ? esc(e.when) : esc(e.note || "") + " · " + esc(e.when);
               return '<div class="ledger-row"><span class="lr-what">' + label + "<small>" + sub + '</small></span><span class="lr-amt' + (e.amount >= 0 ? " pos" : "") + '">' + (e.amount >= 0 ? "+" : "−") + money(Math.abs(e.amount)) + "</span></div>";
             }).join("");
@@ -5828,7 +5865,8 @@
           if (stage === "cancelled" || stage === "completed") return "";
           if (canCancelOrder(o)) {
             if (o._cancelConfirm) {
-              return '<div class="tracker-cancel"><div class="cancel-confirm"><span><strong>Cancel this order?</strong> This can’t be undone — order ' + esc(o.num) + ' will be cancelled and will not be prepared.</span>' +
+              var paidFromBal = (typeof o.paidFromBalance === "number" && o.paidFromBalance > 0) || (o.breakdown && typeof o.breakdown.balancePaid === "number" && o.breakdown.balancePaid > 0);
+              return '<div class="tracker-cancel"><div class="cancel-confirm"><span><strong>Cancel this order?</strong> This can’t be undone — order ' + esc(o.num) + ' will be cancelled and will not be prepared.' + (paidFromBal ? " Anything you paid from your account balance goes straight back to your balance." : "") + '</span>' +
                 '<span class="cancel-confirm-row"><button class="btn btn-cancel-solid" type="button" data-cancel-confirm="' + esc(o.num) + '"' + (o._cancelling ? " disabled" : "") + ' style="min-height: 44px; padding: 9px 16px;">' + (o._cancelling ? "Cancelling…" : "Yes, cancel this order") + '</button>' +
                 '<button class="btn btn-outline" type="button" data-cancel-dismiss="' + esc(o.num) + '"' + (o._cancelling ? " disabled" : "") + ' style="min-height: 44px; padding: 9px 16px;">Keep my order</button></span></div></div>';
             }
@@ -5860,12 +5898,14 @@
               o._cancelConfirm = false;
               o._cancelDenied = false;
               o._cancelError = "";
+              var refundAmt = refundBalanceForCancelledOrder(o);
               if (r.data) applyServerTracker(o, r.data);
               o.statusStage = "cancelled";
               o.serverStage = "cancelled";
               o.stageAt = Date.now();
+              if (!refundAmt) refundAmt = refundBalanceForCancelledOrder(o);
               refreshOrderViews(o);
-              toast("Order " + o.num + " cancelled");
+              toast(refundAmt > 0 ? "Order " + o.num + " cancelled — " + money(refundAmt) + " is back in your balance" : "Order " + o.num + " cancelled");
               return;
             }
             if (r && r.status === 409) {
@@ -6536,6 +6576,8 @@
             fulfillment: ful, payment: payment,
             items: cartEntries().map(function (e) { return { id: e.product.id, name: e.product.name, sku: e.product.sku || "", size: e.size.l, qty: e.qty, price: e.size.p }; }),
             total: t.total,
+            paidFromBalance: t.balanceApplied || 0,
+            balanceWelcomeUsed: t.balanceWelcomeUsed || 0,
             breakdown: { sub: t.sub, disc: t.disc, discKind: t.discKind || null, memTier: (t.memDisc || 0) > 0 ? t.tierName : "", memDisc: t.memDisc || 0, bundleDisc: t.bundleDisc || 0, bundlePct: t.bundlePct || 0, memFee: t.memFee || 0, memFeeTier: t.memFeeTier || "", memFeeTerm: t.memFeeTerm || 1, fee: t.fee, tip: t.tip || 0, balancePaid: t.balanceApplied || 0, dueNow: t.dueNow != null ? t.dueNow : t.total, creditFee: payment.creditFee || 0, creditTotal: payment.creditTotal || 0 },
             memberNote: jc ? ((tierById(jc.tierId) || {}).name || "") + " membership started with this order — " + (jc.deferred ? "your member discount applies from your next order." : "your member discount was applied to this order.") + ((jc.termMonths || 1) > 1 ? " " + (jc.termMonths || 1) + "-month term — " + money(jc.price) + " charged up front (" + money(termPerMonth(tierById(jc.tierId), jc.termMonths || 1)) + "/mo; you save " + money(termSave(tierById(jc.tierId), jc.termMonths || 1)) + " vs paying monthly). Cancelling stops renewal — benefits run to the end of the paid term and fees aren’t refunded mid-term." : " Billed monthly as its own line · Cancel anytime in My Account.") : "",
             tip: t.tip || 0, tipLabel: state.fulfillment === "delivery" ? tipLabelFor(state.tipChoice, state.tipCustom, t.tip || 0) : "Driver tip",
