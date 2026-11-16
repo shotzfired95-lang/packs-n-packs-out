@@ -4729,7 +4729,7 @@
           var zip = state.deliveryZip;
           if (!/^\d{5}$/.test(zip)) return "";
           return zipInArea(zip)
-            ? "Good news — " + zip + " is in our delivery area. Typical arrival 60–90 minutes."
+            ? "Good news — " + zip + " is in our delivery area. Typical arrival ~30 minutes."
             : zip + " is outside our current delivery area — pickup is available, and the delivery map is growing.";
         }
         /* Pickup search: matches on area name, street name/number, and
@@ -4911,7 +4911,7 @@
             $("coZip").addEventListener("input", function () { state.deliveryZip = this.value; updateSaveDefRow(); });
             updateSaveDefRow();
             $("coTimeLabel").textContent = "Delivery window";
-            setTimeOptions(["As soon as possible (60–90 min)", "Today — 2:00–4:00 PM", "Today — 4:00–6:00 PM", "Today — 6:00–8:00 PM", "Tomorrow — 10:00 AM–12:00 PM"]);
+            setTimeOptions(["As soon as possible (~30 min)", "Today — 2:00–4:00 PM", "Today — 4:00–6:00 PM", "Today — 6:00–8:00 PM", "Tomorrow — 10:00 AM–12:00 PM"]);
             $("coTimeSelect").hidden = false;
             $("coPickupGrid").hidden = true;
             $("coSubmit").textContent = "Place Delivery Order";
