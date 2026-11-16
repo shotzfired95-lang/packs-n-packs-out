@@ -7161,7 +7161,7 @@
              flow continues exactly as before. */
           var coFormEl = this;
           var serverPayload = {
-            items: order.items.map(function (i) { return { sku: i.sku || null, name: i.name, qty: i.qty, linePrice: r2(i.price * i.qty) }; }),
+            items: order.items.map(function (i) { return { sku: i.sku || null, name: i.name, size: i.size || null, qty: i.qty, linePrice: r2(i.price * i.qty) }; }),
             subtotal: t.sub, discountTotal: t.disc || 0,
             deliveryFee: ful.method === "delivery" ? (t.fee || 0) : 0,
             shippingFee: ful.method === "shipping" ? (t.fee || 0) : 0,
@@ -7303,7 +7303,7 @@
           var trk = $("ordTracker");
           if (trk) { trk.innerHTML = trackerHTML(o, "confirm"); wireShipInfo(trk); wirePickupPicker(trk); wireCancelButtons(trk); }
           var box = $("ordDetails");
-          var lines = o.items.map(function (i) { var skuI = i.sku || (prodById(i.id) || {}).sku || ""; return "<div class='sum-line'><span class='sl-n'>" + esc(i.name) + "<small>" + esc(i.size) + " × " + i.qty + (skuI ? " · Item #" + esc(skuI) : "") + "</small></span><span>" + money(i.price * i.qty) + "</span></div>"; }).join("");
+          var lines = o.items.map(function (i) { var skuI = i.sku || (prodById(i.id) || {}).sku || ""; return "<div class='sum-line'><span class='sl-n'>" + esc(i.name) + "<small>" + (i.size ? esc(i.size) + " × " : "") + i.qty + (skuI ? " · Item #" + esc(skuI) : "") + "</small></span><span>" + money(i.price * i.qty) + "</span></div>"; }).join("");
           var isDeliveryOrder = o.fulfillment && o.fulfillment.method === "delivery";
           var isShipOrder = o.fulfillment && o.fulfillment.method === "shipping";
           var payM = o.payment ? o.payment.method : "cash";
@@ -7754,7 +7754,7 @@
         function buildHistoryCard(o) {
             var d = document.createElement("div");
             d.className = "order-card";
-            var itemsHtml = o.items.map(function (i) { var skuH = i.sku || (prodById(i.id) || {}).sku || ""; return "<div class='sum-line'><span class='sl-n'>" + esc(i.name) + "<small>" + esc(i.size) + " × " + i.qty + (skuH ? " · Item #" + esc(skuH) : "") + "</small></span><span>" + money(i.price * i.qty) + "</span></div>"; }).join("");
+            var itemsHtml = o.items.map(function (i) { var skuH = i.sku || (prodById(i.id) || {}).sku || ""; return "<div class='sum-line'><span class='sl-n'>" + esc(i.name) + "<small>" + (i.size ? esc(i.size) + " × " : "") + i.qty + (skuH ? " · Item #" + esc(skuH) : "") + "</small></span><span>" + money(i.price * i.qty) + "</span></div>"; }).join("");
             var whereHtml = o.statusStage === "cancelled"
               ? "Order cancelled."
               : o.fulfillment && o.fulfillment.method === "delivery"
@@ -9303,7 +9303,7 @@
           lines.push("Items:");
           (o.items || []).forEach(function (i) {
             var sku = i.sku || (prodById(i.id) || {}).sku || "";
-            lines.push("- " + i.name + (sku ? " (Item #" + sku + ")" : "") + " — " + i.size + " x " + i.qty + " — " + money(i.price * i.qty));
+            lines.push("- " + i.name + (sku ? " (Item #" + sku + ")" : "") + " — " + (i.size ? i.size + " x " : "") + i.qty + " — " + money(i.price * i.qty));
           });
           lines.push("");
           lines.push("Order total: " + money(o.total));
