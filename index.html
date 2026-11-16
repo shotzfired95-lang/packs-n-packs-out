@@ -530,6 +530,15 @@
       .prod .pprice small { font-weight: 600; font-size: 12px; color: var(--ink-soft); }
       .prod select { margin-top: 8px; font: inherit; font-size: 14px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%; min-height: 42px; }
       .prod .add { margin-top: 10px; width: 100%; min-height: 46px; padding: 10px 12px; font-size: 14px; }
+      /* Favorite heart on every product card — top-right of the media,
+         above the artwork, never overlapping the badge / item chip. */
+      .fav-btn { position: absolute; top: 8px; right: 8px; z-index: 5; width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid rgba(20, 13, 5, 0.2); background: rgba(255, 255, 255, 0.94); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; box-shadow: 0 2px 8px rgba(20, 13, 5, 0.2); }
+      .fav-btn svg { width: 21px; height: 21px; fill: none; stroke: #57431f; stroke-width: 2; stroke-linejoin: round; }
+      .fav-btn.on { border-color: #d92c1e; }
+      .fav-btn.on svg { fill: #d92c1e; stroke: #d92c1e; }
+      .fav-btn:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 2px; }
+      /* Cart-save notes (maintenance build-your-cart line + sign-in nudge) */
+      .cart-save-note[hidden] { display: none; }
 
       /* ---------- Story / reviews / FAQ ---------- */
       .story-grid { display: grid; gap: 34px; }
@@ -1166,6 +1175,7 @@
             <nav class="menu-links" aria-label="Menu" id="menuLinks">
               <button type="button" data-nav="home">Home <span class="arr">→</span></button>
               <button type="button" data-nav="news"><span class="news-label">News<span class="news-nav-dot" hidden></span></span> <span class="arr">→</span></button>
+              <button type="button" data-nav="favorites">❤️ Favorites <span class="arr">→</span></button>
               <button type="button" data-nav="shop" data-cat="all">Shop All <span class="arr">→</span></button>
               <button type="button" data-nav="shop" data-cat="Flower">Flower <span class="arr">→</span></button>
               <button type="button" data-nav="shop" data-cat="Vapes">Vapes <span class="arr">→</span></button>
@@ -1574,6 +1584,25 @@
           </section>
         </div>
 
+        <!-- ============ FAVORITES VIEW ============ -->
+        <div id="viewFavorites" hidden>
+          <section style="padding-top: 30px;">
+            <div class="wrap">
+              <button class="back-link" type="button" data-nav="home">← Back to home</button>
+              <div class="sec-head" style="margin-bottom: 16px;">
+                <div class="tag">Your Picks</div>
+                <h2>❤️ Favorites</h2>
+                <p>The items you hearted — saved and waiting for you here.</p>
+                <div class="gold-rule"></div>
+              </div>
+              <div class="prod-grid" id="favGrid"></div>
+              <div class="local-empty" id="favEmpty" hidden>
+                <span>No favorites yet — tap the heart on anything you like and it'll wait for you here.</span>
+              </div>
+            </div>
+          </section>
+        </div>
+
         <!-- ============ CHECKOUT VIEW ============ -->
         <div id="viewCheckout" hidden>
           <section style="padding-top: 30px;">
@@ -1586,6 +1615,8 @@
                 <div class="gold-rule"></div>
               </div>
               <div class="maintenance-notice" id="coMaintenanceNotice" role="alert" hidden>🛠️ We’re still putting the finishing touches on — the store is under maintenance. Ordering opens the moment we announce we’re officially OPEN. Thanks for rocking with us while we build this right.</div>
+              <p class="local-note cart-save-note" id="coCartSaveNote" hidden style="margin-bottom: 12px;">Build your cart now — ordering opens the moment we announce we're OPEN, and your cart will be saved and waiting.</p>
+              <p class="local-note cart-save-note" id="coSigninNote" hidden style="margin-bottom: 12px;">Sign in to save your cart for opening day.</p>
               <div class="co-grid">
                 <form class="stack panel" id="coForm" novalidate>
                   <div class="ful-box" id="coFulFields"></div>
@@ -1994,6 +2025,7 @@
           <nav aria-label="Footer">
             <button type="button" data-nav="home">Home</button>
             <button type="button" data-nav="news">News<span class="news-nav-dot" hidden></span></button>
+            <button type="button" data-nav="favorites">❤️ Favorites</button>
             <button type="button" data-shop="all">Shop All</button>
             <button type="button" data-nav="local">Local Pickup &amp; Delivery</button>
             <button type="button" data-nav="wholesale">Buy Wholesale</button>
@@ -2042,6 +2074,8 @@
       </div>
       <div class="drawer-foot" id="drawerFoot">
         <div id="drawerTotals"></div>
+        <p class="local-note cart-save-note" id="drawerCartSaveNote" hidden>Build your cart now — ordering opens the moment we announce we're OPEN, and your cart will be saved and waiting.</p>
+        <p class="local-note cart-save-note" id="drawerSigninNote" hidden>Sign in to save your cart for opening day.</p>
         <p class="maintenance-notice maintenance-notice--drawer" id="drawerMaintenanceNotice" role="alert" hidden>🛠️ We’re still putting the finishing touches on — the store is under maintenance. Ordering opens the moment we announce we’re officially OPEN. Thanks for rocking with us while we build this right.</p>
         <button class="btn btn-gold" type="button" id="checkoutBtn">Checkout — Order Ahead</button>
         <p class="drawer-note">Apple Pay · Cash App · Chime · Current · Bitcoin · Cash (approved members only) — pay your way at checkout · ID checked on every order</p>
@@ -2328,7 +2362,7 @@
 
         /* ================= State ================= */
         var state = {
-          market: null, user: null, cart: {}, history: [], serverTickets: [],
+          market: null, user: null, cart: {}, favorites: [], history: [], serverTickets: [],
           view: "home", shopCat: "all", shopBrand: "all", shopSort: "featured", shopQuery: "",
           fulfillment: "pickup", locationId: null, deliveryZip: "", locQuery: "",
           addr: { street: "", apt: "", city: "" },
@@ -2945,6 +2979,18 @@
             card.querySelector("img").src = p.img;
             card.querySelector("img").alt = p.name + " — product artwork";
           }
+          /* Favorite heart — toggles this product in the Favorites
+             list. It lives in the media corner and swallows its own
+             click, so it never triggers the card's video, gallery, or
+             Add to Cart. */
+          var favBtn = document.createElement("button");
+          favBtn.type = "button";
+          favBtn.className = "fav-btn";
+          favBtn.setAttribute("data-fav", p.id);
+          favBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+          favBtn.addEventListener("click", function (ev) { toggleFavorite(p.id, ev); });
+          card.querySelector(".pimg").appendChild(favBtn);
+          syncFavBtn(favBtn);
           if (p.badge) card.querySelector(".pbadge").textContent = p.badge;
           card.querySelector(".pbrand").textContent = p.brand;
           card.querySelector(".pname").textContent = p.name;
@@ -3216,7 +3262,7 @@
         }
 
         /* ================= Views & navigation ================= */
-        var VIEWS = { home: "viewHome", shop: "viewShop", checkout: "viewCheckout", confirm: "viewConfirm", account: "viewAccount", wholesale: "viewWholesale", membership: "viewMembership", news: "viewNews", inbox: "viewInbox" };
+        var VIEWS = { home: "viewHome", shop: "viewShop", favorites: "viewFavorites", checkout: "viewCheckout", confirm: "viewConfirm", account: "viewAccount", wholesale: "viewWholesale", membership: "viewMembership", news: "viewNews", inbox: "viewInbox" };
         function showView(v) {
           state.view = v;
           Object.keys(VIEWS).forEach(function (k) { $(VIEWS[k]).hidden = k !== v; });
@@ -3225,6 +3271,7 @@
           updateCartBar();
           syncNavActive();
           if (v === "account") { renderHistory(); renderCreditCard(); renderAcctBalance(); renderWalletHistory(); renderAcctMembership(); renderAcctIdentity(); renderReferrals(); renderAcctGive(); renderTopMembers(); updateCreateNotes(); renderMyAddresses(); renderSignupDefaults(); loadServerTickets(); syncWalletFromServer(); renderNotifyPrefs(); loadNotifyPrefs(); }
+          if (v === "favorites") { renderFavorites(); }
         }
         /* Main navigation lit state: the menu + footer item for the
            view (or shop category) you're on carries .nav-active. */
@@ -3248,6 +3295,7 @@
         syncNavActive();
         function goNav(target) {
           if (target === "home") { showView("home"); }
+          else if (target === "favorites") { showView("favorites"); }
           else if (target === "news") { openNews(); }
           else if (target === "inbox") { openInbox(); }
           else if (target === "account") { showView("account"); }
@@ -3356,7 +3404,7 @@
            a key whose product or size no longer exists, or whose
            quantity is not positive, is dropped; a missing or corrupt
            saved value simply means an empty cart. */
-        function saveCart() { try { lsSet("pnpo_cart", JSON.stringify(state.cart)); } catch (e) {} }
+        function saveCart() { try { lsSet("pnpo_cart", JSON.stringify(state.cart)); } catch (e) {} scheduleServerCartSave(); }
         function loadCart() {
           try {
             var v = JSON.parse(lsGet("pnpo_cart") || "null");
@@ -3376,6 +3424,158 @@
           } catch (e) {}
         }
         loadCart();
+        /* ================= Account-saved cart =================
+           When a customer is signed in, the cart also lives on their
+           account: every cart change (all of them flow through
+           saveCart() via renderCart()) is debounced and POSTed to
+           /cart/me, and on sign-in the account cart is loaded and
+           merged with whatever is on this device — same product id +
+           same size label = same line, quantities add. The merged
+           cart becomes the working cart and is saved back. Signed
+           out, the on-device save above is the whole story, exactly
+           as before. Every server call here is best-effort: a failure
+           never breaks or blocks the local cart and shows no error. */
+        var cartSaveTimer = null;
+        function cartItemsForServer() {
+          return cartEntries().filter(function (e) { return e.product && e.size; }).map(function (e) {
+            return { id: e.product.id, name: e.product.name, sku: e.product.sku || "", size: e.size.l, qty: e.qty, price: e.size.p };
+          });
+        }
+        function saveCartToServer() {
+          var token = getSession();
+          if (!token || !state.user) return Promise.resolve(null);
+          return api("/cart/me", { method: "POST", token: token, body: { items: cartItemsForServer() } }).then(function (r) { return r; }, function () { return null; });
+        }
+        function scheduleServerCartSave() {
+          var token = getSession();
+          if (!token || !state.user) return;
+          if (cartSaveTimer) clearTimeout(cartSaveTimer);
+          cartSaveTimer = setTimeout(function () { cartSaveTimer = null; saveCartToServer(); }, 600);
+        }
+        /* Cart messaging: while maintenance is on, the drawer and the
+           checkout show the build-your-cart line; a signed-out customer
+           holding items also sees the sign-in nudge. Called from
+           renderCart() and renderCheckout(), so it is always current. */
+        function updateCartSaveNotes() {
+          var dB = $("drawerCartSaveNote"); if (dB) dB.hidden = !MAINTENANCE_MODE;
+          var cB = $("coCartSaveNote"); if (cB) cB.hidden = !MAINTENANCE_MODE;
+          var showSignin = !state.user && cartCount() > 0;
+          var dS = $("drawerSigninNote"); if (dS) dS.hidden = !showSignin;
+          var cS = $("coSigninNote"); if (cS) cS.hidden = !showSignin;
+        }
+        /* ================= Favorites =================
+           Hearted product ids. Signed out they persist on this device
+           (pnpo_favorites); signed in they also save to the account
+           via /favorites/me on every change and merge (union of
+           account + device ids) on sign-in. Same best-effort rule as
+           the cart: a server failure never breaks the local list. */
+        function loadFavorites() {
+          try {
+            var v = JSON.parse(lsGet("pnpo_favorites") || "null");
+            if (!Array.isArray(v)) return;
+            var clean = [];
+            v.forEach(function (id) { if (typeof id === "string" && prodById(id) && clean.indexOf(id) === -1) clean.push(id); });
+            state.favorites = clean;
+          } catch (e) {}
+        }
+        loadFavorites();
+        function saveFavoritesLocal() { try { lsSet("pnpo_favorites", JSON.stringify(state.favorites)); } catch (e) {} }
+        function isFavorite(id) { return state.favorites.indexOf(id) !== -1; }
+        var favSaveTimer = null;
+        function saveFavoritesToServer() {
+          var token = getSession();
+          if (!token || !state.user) return Promise.resolve(null);
+          return api("/favorites/me", { method: "POST", token: token, body: { ids: state.favorites.slice() } }).then(function (r) { return r; }, function () { return null; });
+        }
+        function scheduleFavoritesSave() {
+          saveFavoritesLocal();
+          var token = getSession();
+          if (!token || !state.user) return;
+          if (favSaveTimer) clearTimeout(favSaveTimer);
+          favSaveTimer = setTimeout(function () { favSaveTimer = null; saveFavoritesToServer(); }, 600);
+        }
+        function syncFavBtn(b) {
+          if (!b) return;
+          var id = b.getAttribute("data-fav");
+          var on = isFavorite(id);
+          var p = prodById(id);
+          b.classList.toggle("on", on);
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+          b.setAttribute("aria-label", (on ? "Remove " : "Save ") + (p ? p.name : "this item") + (on ? " from favorites" : " to favorites"));
+        }
+        function refreshFavButtons() { document.querySelectorAll(".fav-btn[data-fav]").forEach(syncFavBtn); }
+        function toggleFavorite(id, ev) {
+          if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+          var i = state.favorites.indexOf(id);
+          var added = i === -1;
+          if (added) state.favorites.push(id); else state.favorites.splice(i, 1);
+          scheduleFavoritesSave();
+          refreshFavButtons();
+          if (state.view === "favorites") renderFavorites();
+          var p = prodById(id);
+          toast(added ? "Saved to Favorites — " + (p ? p.name : "item") : "Removed from Favorites — " + (p ? p.name : "item"));
+        }
+        function renderFavorites() {
+          var grid = $("favGrid"), empty = $("favEmpty");
+          if (!grid) return;
+          grid.innerHTML = "";
+          var list = state.favorites.map(function (id) { return prodById(id); }).filter(function (p) { return !!p; });
+          list.forEach(function (p) { grid.appendChild(buildCard(p)); });
+          grid.hidden = list.length === 0;
+          if (empty) empty.hidden = list.length > 0;
+        }
+        /* Sign-in sync for cart + favorites — runs in the same sign-in
+           flow that syncs membership and wallet. The account cart
+           loads; lines that exist only on this device merge in
+           (quantities add on a shared line); the merged cart renders
+           and saves back to the account. Favorites merge as a union.
+           A 404 reads as "nothing saved yet" (merge against empty);
+           any other failure leaves the local cart/favorites exactly
+           as they are. */
+        function syncCartAndFavoritesOnSignIn() {
+          var token = getSession();
+          if (!token || !state.user) return;
+          var email = normEmail(state.user.email);
+          api("/cart/me", { token: token }).then(function (r) {
+            if (!state.user || normEmail(state.user.email) !== email) return;
+            var serverItems = null;
+            if (r && r.status === 200 && r.data && Array.isArray(r.data.items)) serverItems = r.data.items;
+            else if (r && r.status === 404) serverItems = [];
+            if (serverItems === null) return;
+            var merged = {};
+            serverItems.forEach(function (it) {
+              if (!it || it.id == null || !it.size) return;
+              var p = prodById(String(it.id));
+              if (!p || !p.sizes) return;
+              var sizeOk = false;
+              p.sizes.forEach(function (s) { if (s.l === String(it.size)) sizeOk = true; });
+              var q = Math.floor(Number(it.qty));
+              if (!sizeOk || !isFinite(q) || q <= 0) return;
+              var k = p.id + "|" + String(it.size);
+              merged[k] = (merged[k] || 0) + q;
+            });
+            Object.keys(state.cart).forEach(function (k) { merged[k] = (merged[k] || 0) + state.cart[k]; });
+            state.cart = merged;
+            renderCart();
+            if (state.view === "checkout") renderCheckout();
+            saveCartToServer();
+          });
+          api("/favorites/me", { token: token }).then(function (r) {
+            if (!state.user || normEmail(state.user.email) !== email) return;
+            var serverIds = null;
+            if (r && r.status === 200 && r.data && Array.isArray(r.data.ids)) serverIds = r.data.ids;
+            else if (r && r.status === 404) serverIds = [];
+            if (serverIds === null) return;
+            var union = {};
+            state.favorites.forEach(function (id) { union[id] = true; });
+            serverIds.forEach(function (id) { if (id != null && prodById(String(id))) union[String(id)] = true; });
+            state.favorites = Object.keys(union);
+            saveFavoritesLocal();
+            refreshFavButtons();
+            if (state.view === "favorites") renderFavorites();
+            saveFavoritesToServer();
+          });
+        }
         /* Order history persists on this device too, the same way:
            saveHistory() runs the moment an order is placed, again
            when the server answers with the real order number and
@@ -5124,6 +5324,7 @@
           renderDrawerMemberNote();
           updateCartBar();
           syncLocalFulfillment();
+          updateCartSaveNotes();
         }
 
         /* ==== Server catalog overlay =====================================
@@ -5207,6 +5408,7 @@
                 if (typeof renderCart === "function") renderCart();
                 if (typeof renderBundle === "function") renderBundle();
                 if (typeof renderLocal === "function") renderLocal();
+                if (typeof renderFavorites === "function" && state.view === "favorites") renderFavorites();
                 if (typeof refocusLinkedProduct === "function") refocusLinkedProduct();
               }
             })
@@ -6761,6 +6963,7 @@
           renderCoFul();
           renderCoMember();
           applyMaintenanceMode();
+          updateCartSaveNotes();
         }
         function refreshCheckoutMoney() {
           renderCart();
@@ -7757,6 +7960,8 @@
           refreshDefaultsFromServer();
           refreshMembershipFromServer();
           syncWalletFromServer();
+          syncCartAndFavoritesOnSignIn();
+          updateCartSaveNotes();
           loadServerTickets();
           /* Instant members-roll refresh: every successful sign-in —
              and every successful sign-up, which lands here too —
