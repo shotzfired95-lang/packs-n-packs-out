@@ -83,6 +83,50 @@
       .icon-btn svg { width: 23px; height: 23px; }
       .cart-count { position: absolute; top: 1px; right: 0; min-width: 20px; height: 20px; border-radius: 999px; background: var(--gold-grad); color: #2a1d08; font-family: "Archivo", sans-serif; font-size: 11.5px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; padding: 0 5px; border: 1.5px solid var(--bg); }
 
+      /* ---------- Notifications: bell badge, banner, inbox, news, prefs ---------- */
+      .bell-count { background: #bc2b1a; color: #fff; }
+      .news-banner { background: var(--espresso); color: #f5ecd9; border-bottom: 1px solid var(--line); }
+      .news-banner-in { display: flex; align-items: center; gap: 10px; padding-top: 7px; padding-bottom: 7px; }
+      .news-banner .nb-tag { font-family: "Archivo", sans-serif; font-weight: 800; font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-pale); background: #382818; border: 1px solid #57431f; border-radius: 6px; padding: 4px 8px; flex: none; }
+      .news-banner .nb-main { flex: 1 1 auto; min-width: 0; background: none; border: 0; color: #f5ecd9; font: inherit; font-family: "Archivo", sans-serif; font-weight: 700; font-size: 14.5px; text-align: left; cursor: pointer; padding: 8px 2px; min-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .news-banner .nb-main:hover { color: var(--gold-pale); }
+      .news-banner .nb-x { flex: none; width: 38px; height: 38px; min-height: 38px; border-radius: 50%; border: 0; background: transparent; color: #c9bda6; font-size: 17px; line-height: 1; cursor: pointer; }
+      .news-banner .nb-x:hover { background: #382818; color: #fff; }
+      .news-item, .notif-item { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px; }
+      .news-item h3 { font-size: 19px; font-weight: 800; }
+      .news-when { font-size: 12.5px; color: var(--ink-soft); margin-top: 3px; }
+      .news-body { font-size: 15px; margin-top: 8px; white-space: pre-wrap; overflow-wrap: anywhere; }
+      .news-body a { font-weight: 600; overflow-wrap: anywhere; }
+      .news-empty { font-size: 15.5px; color: var(--ink-soft); background: var(--surface); border: 1.5px dashed var(--gold-pale); border-radius: var(--radius); padding: 24px 20px; text-align: center; }
+      .notif-item { display: flex; gap: 12px; align-items: flex-start; }
+      .notif-item.unread { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 6%, var(--surface)); }
+      .notif-dot { width: 10px; height: 10px; border-radius: 50%; background: #bc2b1a; flex: none; margin-top: 7px; }
+      .notif-main { flex: 1 1 auto; min-width: 0; }
+      .notif-top { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+      .notif-top strong { font-family: "Archivo", sans-serif; font-size: 16px; }
+      .notif-tag { font-family: "Archivo", sans-serif; font-weight: 700; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); background: color-mix(in srgb, var(--gold) 13%, var(--bg)); border: 1px solid var(--gold-pale); border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+      .notif-body { font-size: 14.5px; margin-top: 3px; white-space: pre-wrap; overflow-wrap: anywhere; }
+      .news-img { display: block; width: 100%; max-height: 230px; object-fit: cover; border-radius: 10px; margin-bottom: 12px; background: var(--bg-soft); }
+      .notif-item.has-media { flex-wrap: wrap; }
+      .notif-item.has-media .news-img { flex: 0 0 100%; }
+      .shop-it-btn { display: inline-flex; align-items: center; min-height: 40px; margin-top: 12px; padding: 9px 20px; border-radius: 999px; background: var(--gold-grad); color: #2a1d08; font-family: "Archivo", sans-serif; font-weight: 800; font-size: 14px; letter-spacing: 0.04em; text-decoration: none; }
+      .shop-it-btn:hover { filter: brightness(1.06); }
+      .inbox-sec-head { font-family: "Archivo", sans-serif; font-weight: 800; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin: 24px 0 12px; }
+      .inbox-sec-head:first-child { margin-top: 0; }
+      .news-nav-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #bc2b1a; box-shadow: 0 0 0 2px rgba(193, 144, 42, 0.35); margin-left: 7px; flex: none; }
+      .news-nav-dot[hidden] { display: none; }
+      .notify-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 0; border-bottom: 1px dashed var(--line); }
+      .notify-row:last-child { border-bottom: 0; }
+      .notify-copy { min-width: 0; display: grid; gap: 1px; }
+      .notify-name { font-family: "Archivo", sans-serif; font-weight: 800; font-size: 15.5px; }
+      .notify-desc { font-size: 13px; color: var(--ink-soft); }
+      .notify-toggle { flex: none; width: 56px; height: 32px; min-height: 32px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--bg-soft); position: relative; cursor: pointer; padding: 0; transition: background 0.18s ease, border-color 0.18s ease; }
+      .notify-toggle .nt-knob { position: absolute; top: 3px; left: 3px; width: 23px; height: 23px; border-radius: 50%; background: var(--surface); border: 1px solid var(--line); transition: left 0.18s ease; }
+      .notify-toggle[aria-checked="true"] { background: var(--gold-grad); border-color: var(--gold); }
+      .notify-toggle[aria-checked="true"] .nt-knob { left: 27px; }
+      .notify-note { font-size: 13.5px; color: var(--ember); font-weight: 600; margin-top: 8px; }
+      @media (prefers-reduced-motion: reduce) { .notify-toggle, .notify-toggle .nt-knob { transition: none; } }
+
       /* ---------- Age gate — full-screen entry ---------- */
       .age-gate { position: fixed; inset: 0; z-index: 200; background: #2a1a0c url("assets/age-gate-bg.webp") center / cover no-repeat; display: flex; align-items: center; justify-content: center; padding: 28px 18px; overflow-y: auto; }
       .age-card { background: #ffffff; color: #2e2114; border-radius: 6px; max-width: 540px; width: 100%; padding: 0 34px 34px; text-align: center; box-shadow: 0 34px 70px rgba(10, 6, 2, 0.55); margin-top: 52px; }
@@ -1062,6 +1106,10 @@
           <button class="icon-btn" id="searchBtn" type="button" aria-label="Search products">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.8-3.8"/></svg>
           </button>
+          <button class="icon-btn" id="bellBtn" type="button" aria-label="Notifications">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 1 0-12 0c0 6-2.5 7-2.5 7h17S18 15 18 9"/><path d="M10 20a2.2 2.2 0 0 0 4 0"/></svg>
+            <span class="cart-count bell-count" id="bellCount" hidden>0</span>
+          </button>
           <button class="icon-btn" id="accountBtn" type="button" aria-label="Your account">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-3.6 4.5-5.4 8-5.4s6.5 1.8 8 5.4"/></svg>
           </button>
@@ -1105,6 +1153,7 @@
           <div class="menu-grid">
             <nav class="menu-links" aria-label="Menu" id="menuLinks">
               <button type="button" data-nav="home">Home <span class="arr">→</span></button>
+              <button type="button" data-nav="news"><span class="news-label">News<span class="news-nav-dot" hidden></span></span> <span class="arr">→</span></button>
               <button type="button" data-nav="shop" data-cat="all">Shop All <span class="arr">→</span></button>
               <button type="button" data-nav="shop" data-cat="Flower">Flower <span class="arr">→</span></button>
               <button type="button" data-nav="shop" data-cat="Vapes">Vapes <span class="arr">→</span></button>
@@ -1125,6 +1174,14 @@
       <main>
         <!-- ============ HOME VIEW ============ -->
         <div id="viewHome">
+          <!-- Announcement banner — newest store announcement, dismissible per announcement -->
+          <div class="news-banner" id="newsBanner" hidden>
+            <div class="wrap news-banner-in">
+              <span class="nb-tag">News</span>
+              <button class="nb-main" type="button" id="newsBannerMain"><span id="newsBannerTitle"></span></button>
+              <button class="nb-x" type="button" id="newsBannerClose" aria-label="Dismiss this announcement">✕</button>
+            </div>
+          </div>
           <!-- Install banner — slim, top of store, dismissible per device -->
           <div class="install-banner" id="installBanner" hidden>
             <div class="wrap install-banner-in">
@@ -1686,6 +1743,12 @@
                     <button class="btn btn-espresso" type="submit">Save New Password</button>
                   </form>
                 </div>
+                <div class="panel" style="margin-top: 18px;" id="acctNotifyPanel">
+                  <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Notifications</h3>
+                  <p style="font-size: 14px; color: var(--ink-soft); margin: 0;">Pick how you hear about your orders and store news — one channel, the others, or all of them. The bell inbox on the site is always on. Changes save right away.</p>
+                  <div id="notifyPrefsBody"></div>
+                  <div id="notifyPushBody" style="margin-top: 6px;"></div>
+                </div>
                 <div class="panel" style="margin-top: 18px;" id="acctIdentityPanel" hidden>
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Your member identity</h3>
                   <div id="acctIdentityBody"></div>
@@ -1763,6 +1826,40 @@
                 </form>
                 <div id="ticketList" style="margin-top: 8px;"></div>
               </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ============ NEWS VIEW ============ -->
+        <div id="viewNews" hidden>
+          <section style="padding-top: 30px;">
+            <div class="wrap" style="max-width: 860px;">
+              <button class="back-link" type="button" data-nav="home">← Back to home</button>
+              <div class="sec-head" style="margin-bottom: 20px;">
+                <div class="tag">Store News</div>
+                <h2>News</h2>
+                <p>Every announcement, newest first — new drops, restocks, and store updates live here for good.</p>
+                <div class="gold-rule"></div>
+              </div>
+              <p id="newsSigninNote" hidden style="font-size: 14.5px; font-weight: 600; color: var(--ink); background: color-mix(in srgb, var(--gold) 9%, var(--surface)); border: 1.5px solid var(--gold-pale); border-radius: 10px; padding: 11px 13px; margin-bottom: 16px;">You’re reading the public news. Order alerts are personal — <button type="button" data-nav="account" style="background:none;border:0;padding:0;font:inherit;font-weight:700;color:var(--gold);text-decoration:underline;text-underline-offset:3px;cursor:pointer;">sign in</button> and tap the bell to get alerts for your own orders.</p>
+              <div id="newsList"></div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ============ NOTIFICATIONS (INBOX) VIEW ============ -->
+        <div id="viewInbox" hidden>
+          <section style="padding-top: 30px;">
+            <div class="wrap" style="max-width: 860px;">
+              <button class="back-link" type="button" data-nav="home">← Back to home</button>
+              <div class="sec-head" style="margin-bottom: 20px;">
+                <div class="tag">Your Inbox</div>
+                <h2>Notifications</h2>
+                <p>Your order alerts and store news, newest first.</p>
+                <div class="gold-rule"></div>
+              </div>
+              <p class="form-msg err" id="inboxMsg" role="status" aria-live="polite" style="margin-bottom: 12px;"></p>
+              <div id="inboxList"></div>
             </div>
           </section>
         </div>
@@ -1882,6 +1979,7 @@
           </div>
           <nav aria-label="Footer">
             <button type="button" data-nav="home">Home</button>
+            <button type="button" data-nav="news">News<span class="news-nav-dot" hidden></span></button>
             <button type="button" data-shop="all">Shop All</button>
             <button type="button" data-nav="local">Local Pickup &amp; Delivery</button>
             <button type="button" data-nav="wholesale">Buy Wholesale</button>
@@ -3079,7 +3177,7 @@
         }
 
         /* ================= Views & navigation ================= */
-        var VIEWS = { home: "viewHome", shop: "viewShop", checkout: "viewCheckout", confirm: "viewConfirm", account: "viewAccount", wholesale: "viewWholesale", membership: "viewMembership" };
+        var VIEWS = { home: "viewHome", shop: "viewShop", checkout: "viewCheckout", confirm: "viewConfirm", account: "viewAccount", wholesale: "viewWholesale", membership: "viewMembership", news: "viewNews", inbox: "viewInbox" };
         function showView(v) {
           state.view = v;
           Object.keys(VIEWS).forEach(function (k) { $(VIEWS[k]).hidden = k !== v; });
@@ -3087,7 +3185,7 @@
           window.scrollTo({ top: 0 });
           updateCartBar();
           syncNavActive();
-          if (v === "account") { renderHistory(); renderCreditCard(); renderAcctBalance(); renderWalletHistory(); renderAcctMembership(); renderAcctIdentity(); renderReferrals(); renderAcctGive(); renderTopMembers(); updateCreateNotes(); renderMyAddresses(); renderSignupDefaults(); loadServerTickets(); syncWalletFromServer(); }
+          if (v === "account") { renderHistory(); renderCreditCard(); renderAcctBalance(); renderWalletHistory(); renderAcctMembership(); renderAcctIdentity(); renderReferrals(); renderAcctGive(); renderTopMembers(); updateCreateNotes(); renderMyAddresses(); renderSignupDefaults(); loadServerTickets(); syncWalletFromServer(); renderNotifyPrefs(); loadNotifyPrefs(); }
         }
         /* Main navigation lit state: the menu + footer item for the
            view (or shop category) you're on carries .nav-active. */
@@ -3111,6 +3209,8 @@
         syncNavActive();
         function goNav(target) {
           if (target === "home") { showView("home"); }
+          else if (target === "news") { openNews(); }
+          else if (target === "inbox") { openInbox(); }
           else if (target === "account") { showView("account"); }
           else if (target === "wholesale") { showView("wholesale"); }
           else if (target === "membership") { showView("membership"); renderMembershipView(); }
@@ -7615,6 +7715,8 @@
              re-fetches the roll at once, so a brand-new member sees
              their own name lead it right away. */
           refreshMemberTicker();
+          refreshBell();
+          loadNotifyPrefs();
           if (!(opts && opts.silent)) toast(approved ? "Signed in — approved member, cash is unlocked" : "Signed in — welcome to the route");
         }
         function renderHistory() {
@@ -7852,6 +7954,7 @@
           $("acctIn").hidden = true;
           $("acctTitle").textContent = "Join the route";
           state.serverTickets = [];
+          NOTIF.prefs = null; NOTIF.items = []; NOTIF.pushMsg = ""; setBellBadge(0); updateNewsDot();
           renderTickets();
           renderHistory();
           renderMenuAcct();
@@ -9285,6 +9388,338 @@
           tickGrowth();
         })();
 
+
+        /* ================= Notifications: bell, inbox, news, push =================
+           The customer notification system, wired to the order server:
+           GET /announcements (public) feeds the News view and the home
+           banner; GET /notifications/me (session) feeds the bell badge
+           and the inbox; POST /notifications/read clears unread state;
+           GET /accounts/me + POST /accounts/notify-prefs carry the
+           email / text / push channel picks; phone push subscribes
+           through /push/customer/*. Every call goes through the same
+           api() helper + session token as the wallet, and every failure
+           is quiet — notifications never break the store. */
+        var NOTIF = { unread: 0, items: [], announcements: [], prefs: null, pushOnDevice: false, pushMsg: "" };
+        function fmtWhen(at) {
+          var d = new Date(at);
+          if (isNaN(d.getTime())) return "";
+          return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + " · " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+        }
+        function setBellBadge(n) {
+          NOTIF.unread = Math.max(0, Number(n) || 0);
+          var b = $("bellCount");
+          if (!b) return;
+          if (state.user && NOTIF.unread > 0) { b.textContent = NOTIF.unread > 99 ? "99+" : String(NOTIF.unread); b.hidden = false; }
+          else b.hidden = true;
+        }
+        function hasUnreadNews() {
+          if (!state.user || !getSession()) return false;
+          return NOTIF.items.some(function (it) { return it && it.kind === "news" && !it.read; });
+        }
+        function updateNewsDot() {
+          var show = hasUnreadNews();
+          document.querySelectorAll(".news-nav-dot").forEach(function (d) { d.hidden = !show; });
+        }
+        function refreshBell() {
+          var token = getSession();
+          if (!token || !state.user) { setBellBadge(0); updateNewsDot(); return Promise.resolve(null); }
+          return api("/notifications/me", { token: token }).then(function (r) {
+            if (r && r.status === 200 && r.data) {
+              if (Array.isArray(r.data.items)) NOTIF.items = r.data.items;
+              setBellBadge(r.data.unreadCount);
+              updateNewsDot();
+            }
+            return r;
+          });
+        }
+        setInterval(function () { if (state.user && getSession()) refreshBell(); }, 60000);
+
+        /* ---------- Announcements: banner + News view ---------- */
+        function refreshAnnouncements() {
+          return api("/announcements", { timeout: 6000 }).then(function (r) {
+            if (r && r.status === 200 && r.data && Array.isArray(r.data.announcements)) {
+              NOTIF.announcements = r.data.announcements;
+              renderNewsBanner();
+              if (state.view === "news") renderNewsList();
+            }
+            return r;
+          });
+        }
+        function bannerAnnouncement() {
+          for (var i = 0; i < NOTIF.announcements.length; i++) {
+            var a = NOTIF.announcements[i];
+            if (a && a.banner === true) return a;
+          }
+          return null;
+        }
+        function renderNewsBanner() {
+          var bar = $("newsBanner");
+          if (!bar) return;
+          var a = bannerAnnouncement();
+          if (!a) { bar.hidden = true; return; }
+          var dismissed = null;
+          try { dismissed = lsGet("pnpo_news_dismissed"); } catch (e) {}
+          if (dismissed !== null && dismissed !== "" && Number(dismissed) >= Number(a.seq)) { bar.hidden = true; return; }
+          $("newsBannerTitle").textContent = a.title || "Store news";
+          bar.hidden = false;
+        }
+        function linkifyText(text) {
+          var s = esc(text == null ? "" : text);
+          return s.replace(/https?:\/\/[^\s<]+/g, function (m) {
+            var trail = "";
+            while (/[.,!?;:)\]]$/.test(m)) { trail = m.slice(-1) + trail; m = m.slice(0, -1); }
+            return '<a href="' + m + '" target="_blank" rel="noopener">' + m + "</a>" + trail;
+          });
+        }
+        function newsImageHtml(a) {
+          if (!a || !a.image) return "";
+          return '<img class="news-img" src="' + esc(String(a.image)) + '" alt="' + esc(a.title || "Store news") + '" loading="lazy" />';
+        }
+        function shopItHtml(a) {
+          if (!a || a.productId == null || String(a.productId) === "") return "";
+          return '<a class="shop-it-btn" href="/?p=' + encodeURIComponent(String(a.productId)) + '">Shop It</a>';
+        }
+        function renderNewsList() {
+          var box = $("newsList");
+          if (!box) return;
+          var note = $("newsSigninNote");
+          if (note) note.hidden = !!state.user;
+          if (!NOTIF.announcements.length) {
+            box.innerHTML = '<p class="news-empty">No announcements yet — new drops and updates will land here.</p>';
+            return;
+          }
+          box.innerHTML = NOTIF.announcements.map(function (a) {
+            return '<article class="news-item">' + newsImageHtml(a) + '<h3>' + esc(a.title || "") + '</h3><p class="news-when">' + esc(fmtWhen(a.at)) + '</p><p class="news-body">' + linkifyText(a.body || "") + "</p>" + shopItHtml(a) + "</article>";
+          }).join("");
+        }
+        function openNews() {
+          showView("news");
+          renderNewsList();
+          refreshAnnouncements().then(function () {
+            renderNewsList();
+            var token = getSession();
+            if (!token || !state.user || !NOTIF.announcements.length) return;
+            var top = 0;
+            NOTIF.announcements.forEach(function (a) { var s = Number(a.seq) || 0; if (s > top) top = s; });
+            if (top > 0) {
+              api("/notifications/read", { method: "POST", token: token, body: { newsSeq: top } }).then(function (r) {
+                if (r && r.data && typeof r.data.unreadCount === "number") setBellBadge(r.data.unreadCount);
+                NOTIF.items.forEach(function (it) { if (it && it.kind === "news") it.read = true; });
+                updateNewsDot();
+              });
+            }
+          });
+        }
+
+        /* ---------- Inbox ---------- */
+        function notifKindLabel(k) { return k === "order" ? "Order" : k === "account" ? "Account" : "Store News"; }
+        function renderInbox(items) {
+          var box = $("inboxList");
+          if (!box) return;
+          if (!items.length) { box.innerHTML = '<p class="news-empty">No notifications yet.</p>'; return; }
+          function byNewest(x, y) {
+            var tx = new Date(x.at).getTime(); if (isNaN(tx)) tx = 0;
+            var ty = new Date(y.at).getTime(); if (isNaN(ty)) ty = 0;
+            return ty - tx;
+          }
+          function itemHtml(it) {
+            var unread = !it.read;
+            var media = newsImageHtml(it);
+            return '<article class="notif-item' + (unread ? " unread" : "") + (media ? " has-media" : "") + '">' + media +
+              (unread ? '<span class="notif-dot" aria-label="Unread"></span>' : '<span class="notif-dot" hidden></span>') +
+              '<div class="notif-main"><div class="notif-top"><strong>' + esc(it.title || "") + '</strong><span class="notif-tag">' + notifKindLabel(it.kind) + "</span></div>" +
+              '<p class="notif-body">' + esc(it.body || "") + "</p>" + shopItHtml(it) + '<p class="news-when">' + esc(fmtWhen(it.at)) + "</p></div></article>";
+          }
+          var personal = items.filter(function (it) { return it.kind === "order" || it.kind === "account"; }).sort(byNewest);
+          var news = items.filter(function (it) { return it.kind === "news"; }).sort(byNewest);
+          var other = items.filter(function (it) { return it.kind !== "order" && it.kind !== "account" && it.kind !== "news"; }).sort(byNewest);
+          var html = "";
+          if (personal.length) html += '<h3 class="inbox-sec-head">Your Orders</h3>' + personal.map(itemHtml).join("");
+          if (news.length) html += '<h3 class="inbox-sec-head">Store News</h3>' + news.map(itemHtml).join("");
+          if (other.length) html += other.map(itemHtml).join("");
+          box.innerHTML = html || '<p class="news-empty">No notifications yet.</p>';
+        }
+        function openInbox() {
+          var token = getSession();
+          if (!token || !state.user) { openNews(); return; }
+          showView("inbox");
+          var msg = $("inboxMsg");
+          if (msg) msg.textContent = "";
+          if (NOTIF.items.length) renderInbox(NOTIF.items);
+          api("/notifications/me", { token: token }).then(function (r) {
+            if (r && r.status === 200 && r.data) {
+              var items = Array.isArray(r.data.items) ? r.data.items : [];
+              NOTIF.items = items;
+              renderInbox(items);
+              api("/notifications/read", { method: "POST", token: token, body: { all: true } }).then(function (r2) {
+                if (r2 && r2.data && typeof r2.data.unreadCount === "number") setBellBadge(r2.data.unreadCount);
+                else setBellBadge(0);
+                NOTIF.items.forEach(function (it) { if (it) it.read = true; });
+                updateNewsDot();
+              });
+            } else {
+              if (NOTIF.items.length) renderInbox(NOTIF.items);
+              else { var box = $("inboxList"); if (box) box.innerHTML = ""; }
+              if (msg) msg.textContent = "Couldn’t load — pull to retry";
+            }
+          });
+        }
+        $("bellBtn").addEventListener("click", function () {
+          if (state.user && getSession()) openInbox();
+          else openNews();
+        });
+        $("newsBannerMain").addEventListener("click", function () { openNews(); });
+        $("newsBannerClose").addEventListener("click", function () {
+          var a = bannerAnnouncement();
+          if (a) { try { lsSet("pnpo_news_dismissed", String(a.seq)); } catch (e) {} }
+          $("newsBanner").hidden = true;
+        });
+
+        /* ---------- My Account: channel prefs + phone push ---------- */
+        function acctPhoneOnFile() {
+          if (!state.user) return "";
+          var a = state.accounts[normEmail(state.user.email)];
+          return a && a.phone ? String(a.phone) : "";
+        }
+        function renderNotifyPrefs() {
+          var body = $("notifyPrefsBody");
+          if (!body) return;
+          if (!state.user) { body.innerHTML = ""; var pb = $("notifyPushBody"); if (pb) pb.innerHTML = ""; return; }
+          var p = NOTIF.prefs || { email: false, text: false, push: false };
+          var phone = acctPhoneOnFile();
+          function row(key, label, desc) {
+            return '<div class="notify-row"><div class="notify-copy"><span class="notify-name">' + label + '</span><span class="notify-desc">' + desc + '</span></div>' +
+              '<button type="button" class="notify-toggle" data-pref="' + key + '" role="switch" aria-checked="' + (p[key] ? "true" : "false") + '" aria-label="' + label + '"><span class="nt-knob"></span></button></div>';
+          }
+          body.innerHTML =
+            row("email", "Email alerts", "To the email on file — " + esc(state.user.email)) +
+            row("text", "Text alerts", phone ? "To the phone on file — " + esc(phone) : "To the phone number on your account") +
+            '<p class="notify-note" id="notifyPhoneNote"' + (p.text && !phone ? "" : " hidden") + ">Add your phone number to your account so we can text you.</p>" +
+            row("push", "Phone push alerts", "A buzz on your phone, like any seller app");
+          body.querySelectorAll("[data-pref]").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+              var key = btn.getAttribute("data-pref");
+              var next = !(NOTIF.prefs && NOTIF.prefs[key]);
+              saveNotifyPref(key, next);
+            });
+          });
+          renderPushControl();
+        }
+        function saveNotifyPref(key, val) {
+          if (!NOTIF.prefs) NOTIF.prefs = { email: false, text: false, push: false };
+          NOTIF.prefs[key] = !!val;
+          renderNotifyPrefs();
+          var token = getSession();
+          if (!token || !state.user) return;
+          var body = {};
+          body[key] = !!val;
+          api("/accounts/notify-prefs", { method: "POST", token: token, body: body }).then(function (r) {
+            if (r && r.data && r.data.notifyPrefs) { NOTIF.prefs = r.data.notifyPrefs; renderNotifyPrefs(); }
+          });
+        }
+        function loadNotifyPrefs() {
+          var token = getSession();
+          if (!token || !state.user) return;
+          api("/accounts/me", { token: token }).then(function (r) {
+            if (r && r.status === 200 && r.data) {
+              var src = r.data.account || r.data;
+              if (src && src.notifyPrefs) NOTIF.prefs = src.notifyPrefs;
+              renderNotifyPrefs();
+              checkDevicePush();
+            }
+          });
+        }
+        function pushSupported() { return ("serviceWorker" in navigator) && ("PushManager" in window) && ("Notification" in window); }
+        function isStandaloneMode() { return !!((window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone); }
+        function checkDevicePush() {
+          if (!pushSupported()) { NOTIF.pushOnDevice = false; renderPushControl(); return; }
+          try {
+            navigator.serviceWorker.getRegistration().then(function (reg) {
+              if (!reg) { NOTIF.pushOnDevice = false; renderPushControl(); return; }
+              reg.pushManager.getSubscription().then(function (sub) {
+                NOTIF.pushOnDevice = !!sub;
+                renderPushControl();
+              }, function () { renderPushControl(); });
+            }, function () { renderPushControl(); });
+          } catch (e) { renderPushControl(); }
+        }
+        function renderPushControl() {
+          var box = $("notifyPushBody");
+          if (!box || !state.user) { if (box) box.innerHTML = ""; return; }
+          var ua = navigator.userAgent || "";
+          var msgHtml = NOTIF.pushMsg ? '<p class="notify-note">' + esc(NOTIF.pushMsg) + "</p>" : "";
+          if (/iphone|ipad|ipod/i.test(ua) && !isStandaloneMode()) {
+            box.innerHTML = '<p class="notify-note" style="color: var(--ink-soft);">On iPhone, add this site to your Home Screen first (Share → Add to Home Screen), open it from there, then enable phone notifications.</p>' + msgHtml;
+            return;
+          }
+          var prefOn = !!(NOTIF.prefs && NOTIF.prefs.push);
+          if (prefOn && NOTIF.pushOnDevice) {
+            box.innerHTML = '<div class="notify-row"><div class="notify-copy"><span class="notify-name">Phone notifications are ON</span><span class="notify-desc">This phone will buzz for your order alerts and store news.</span></div>' +
+              '<button type="button" class="btn btn-outline" id="pushOffBtn" style="flex: none;">Turn off</button></div>' + msgHtml;
+            $("pushOffBtn").addEventListener("click", disablePush);
+          } else {
+            box.innerHTML = '<div class="notify-row"><div class="notify-copy"><span class="notify-name">Phone notifications</span><span class="notify-desc">' + (prefOn ? "On in your settings — this phone still needs to connect below." : "Get order alerts right on this phone.") + '</span></div>' +
+              '<button type="button" class="btn btn-gold" id="pushOnBtn" style="flex: none;">Enable phone notifications</button></div>' + msgHtml;
+            $("pushOnBtn").addEventListener("click", enablePush);
+          }
+        }
+        function urlB64ToUint8(base64String) {
+          var padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+          var base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+          var raw = window.atob(base64);
+          var out = new Uint8Array(raw.length);
+          for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+          return out;
+        }
+        function pushFail(msg) { NOTIF.pushMsg = msg; renderPushControl(); }
+        function enablePush() {
+          NOTIF.pushMsg = "";
+          var token = getSession();
+          if (!token || !state.user) { pushFail("Sign in first, then enable phone notifications."); return; }
+          if (!pushSupported()) { pushFail("This browser can’t receive phone notifications — your inbox, email, and text alerts still work."); return; }
+          api("/push/customer/vapid-public-key", { token: token }).then(function (r) {
+            if (!r || !r.data || !r.data.publicKey) { pushFail("Phone notifications aren’t switched on at the store yet — your inbox, email, and text alerts still work."); return; }
+            var key = r.data.publicKey;
+            Notification.requestPermission().then(function (perm) {
+              if (perm !== "granted") { pushFail("Notifications are blocked for this site — allow them in your browser settings, then tap Enable again."); return; }
+              navigator.serviceWorker.register("/sw.js").then(function (reg) {
+                reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToUint8(key) }).then(function (sub) {
+                  var payload = sub && sub.toJSON ? sub.toJSON() : sub;
+                  api("/push/customer/subscribe", { method: "POST", token: token, body: { subscription: payload } }).then(function (r2) {
+                    if (!r2 || (r2.status !== 200 && r2.status !== 201)) { pushFail("We couldn’t save this phone for alerts — please try again."); return; }
+                    NOTIF.pushOnDevice = true;
+                    NOTIF.pushMsg = "";
+                    saveNotifyPref("push", true);
+                    renderPushControl();
+                  });
+                }, function () { pushFail("We couldn’t subscribe this phone — please try again."); });
+              }, function () { pushFail("We couldn’t start notifications on this phone — please try again."); });
+            }, function () { pushFail("We couldn’t ask for notification permission — please try again."); });
+          });
+        }
+        function disablePush() {
+          var token = getSession();
+          function finish() {
+            NOTIF.pushOnDevice = false;
+            NOTIF.pushMsg = "";
+            saveNotifyPref("push", false);
+          }
+          if (!("serviceWorker" in navigator)) { finish(); return; }
+          try {
+            navigator.serviceWorker.getRegistration().then(function (reg) {
+              if (!reg) { finish(); return; }
+              reg.pushManager.getSubscription().then(function (sub) {
+                if (!sub) { finish(); return; }
+                var endpoint = sub.endpoint;
+                sub.unsubscribe().then(function () {
+                  if (token) api("/push/customer/unsubscribe", { method: "POST", token: token, body: { endpoint: endpoint } });
+                  finish();
+                }, finish);
+              }, finish);
+            }, finish);
+          } catch (e) { finish(); }
+        }
+        refreshAnnouncements();
 
         /* ================= Session restore =================
            A stored session restores the account from GET /accounts/me —
