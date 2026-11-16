@@ -537,6 +537,10 @@
       .fav-btn.on { border-color: #d92c1e; }
       .fav-btn.on svg { fill: #d92c1e; stroke: #d92c1e; }
       .fav-btn:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 2px; }
+      /* Favorites view: "Add all available to cart" bar above the grid */
+      .fav-actions { margin-bottom: 18px; }
+      .fav-actions .btn { min-height: 48px; }
+      @media (max-width: 520px) { .fav-actions .btn { width: 100%; } }
       /* Cart-save notes (maintenance build-your-cart line + sign-in nudge) */
       .cart-save-note[hidden] { display: none; }
 
@@ -1175,7 +1179,7 @@
             <nav class="menu-links" aria-label="Menu" id="menuLinks">
               <button type="button" data-nav="home">Home <span class="arr">→</span></button>
               <button type="button" data-nav="news"><span class="news-label">News<span class="news-nav-dot" hidden></span></span> <span class="arr">→</span></button>
-              <button type="button" data-nav="favorites">❤️ Favorites <span class="arr">→</span></button>
+              <button type="button" data-nav="favorites"><span>❤️ Favorites<span class="fav-count"></span></span> <span class="arr">→</span></button>
               <button type="button" data-nav="shop" data-cat="all">Shop All <span class="arr">→</span></button>
               <button type="button" data-nav="shop" data-cat="Flower">Flower <span class="arr">→</span></button>
               <button type="button" data-nav="shop" data-cat="Vapes">Vapes <span class="arr">→</span></button>
@@ -1594,6 +1598,9 @@
                 <h2>❤️ Favorites</h2>
                 <p>The items you hearted — saved and waiting for you here.</p>
                 <div class="gold-rule"></div>
+              </div>
+              <div class="fav-actions" id="favActions" hidden>
+                <button class="btn btn-gold" type="button" id="favAddAll">Add all available to cart</button>
               </div>
               <div class="prod-grid" id="favGrid"></div>
               <div class="local-empty" id="favEmpty" hidden>
@@ -2025,7 +2032,7 @@
           <nav aria-label="Footer">
             <button type="button" data-nav="home">Home</button>
             <button type="button" data-nav="news">News<span class="news-nav-dot" hidden></span></button>
-            <button type="button" data-nav="favorites">❤️ Favorites</button>
+            <button type="button" data-nav="favorites">❤️ Favorites<span class="fav-count"></span></button>
             <button type="button" data-shop="all">Shop All</button>
             <button type="button" data-nav="local">Local Pickup &amp; Delivery</button>
             <button type="button" data-nav="wholesale">Buy Wholesale</button>
@@ -3479,6 +3486,16 @@
           } catch (e) {}
         }
         loadFavorites();
+        /* Favorites count badge — the "❤️ Favorites" nav entries (menu
+           and footer) carry the live count, e.g. "❤️ Favorites (3)";
+           at zero the number disappears entirely. Refreshed on every
+           heart toggle, on the sign-in merge, and on every Favorites
+           view render, so it can never drift from the list. */
+        function updateFavBadges() {
+          var n = state.favorites.length;
+          document.querySelectorAll(".fav-count").forEach(function (el) { el.textContent = n > 0 ? " (" + n + ")" : ""; });
+        }
+        updateFavBadges();
         function saveFavoritesLocal() { try { lsSet("pnpo_favorites", JSON.stringify(state.favorites)); } catch (e) {} }
         function isFavorite(id) { return state.favorites.indexOf(id) !== -1; }
         var favSaveTimer = null;
@@ -3510,6 +3527,7 @@
           var added = i === -1;
           if (added) state.favorites.push(id); else state.favorites.splice(i, 1);
           scheduleFavoritesSave();
+          updateFavBadges();
           refreshFavButtons();
           if (state.view === "favorites") renderFavorites();
           var p = prodById(id);
@@ -3523,7 +3541,48 @@
           list.forEach(function (p) { grid.appendChild(buildCard(p)); });
           grid.hidden = list.length === 0;
           if (empty) empty.hidden = list.length > 0;
+          var acts = $("favActions");
+          if (acts) acts.hidden = list.length === 0;
+          updateFavBadges();
         }
+        /* "Add all available to cart" — one of every favorited product
+           that isn't sold out, at the size currently picked on that
+           product's Favorites card (its first/default size when the
+           picker was never touched). Each add goes through addToCart,
+           so lines merge exactly like a manual add (same product id +
+           same size label = same line, quantities add) and the cart
+           drawer, badge, and account auto-save all update the usual
+           way; the per-add toasts are replaced by one summary. Sold-out
+           favorites are skipped and counted. */
+        function addAllFavoritesToCart() {
+          var grid = $("favGrid");
+          var list = state.favorites.map(function (id) { return prodById(id); }).filter(function (p) { return !!p; });
+          var added = 0, skipped = 0;
+          list.forEach(function (p) {
+            if (p.soldOut) { skipped++; return; }
+            var size = p.sizes && p.sizes.length ? p.sizes[0] : null;
+            if (grid) {
+              var cardEl = null;
+              grid.querySelectorAll(".prod").forEach(function (c) { if (c.getAttribute("data-pid") === p.id) cardEl = c; });
+              if (cardEl) {
+                var sel = cardEl.querySelector("select");
+                if (sel) { var s2 = p.sizes[parseInt(sel.value, 10)]; if (s2) size = s2; }
+              }
+            }
+            if (!size) return;
+            var key = p.id + "|" + size.l;
+            var before = state.cart[key] || 0;
+            addToCart(p, size, 1);
+            if ((state.cart[key] || 0) > before) added++;
+          });
+          if (added === 0 && skipped > 0) { toast("Nothing could be added — all your favorites are sold out"); return; }
+          if (added === 0) { toast("Nothing could be added right now"); return; }
+          var msg = "Added " + added + (added === 1 ? " favorite" : " favorites") + " to your cart";
+          if (skipped > 0) msg += " · " + skipped + " sold out, skipped";
+          toast(msg);
+        }
+        var favAddAllBtn = $("favAddAll");
+        if (favAddAllBtn) favAddAllBtn.addEventListener("click", function () { addAllFavoritesToCart(); });
         /* Sign-in sync for cart + favorites — runs in the same sign-in
            flow that syncs membership and wallet. The account cart
            loads; lines that exist only on this device merge in
@@ -3571,6 +3630,7 @@
             serverIds.forEach(function (id) { if (id != null && prodById(String(id))) union[String(id)] = true; });
             state.favorites = Object.keys(union);
             saveFavoritesLocal();
+            updateFavBadges();
             refreshFavButtons();
             if (state.view === "favorites") renderFavorites();
             saveFavoritesToServer();
