@@ -125,6 +125,9 @@
       .notify-toggle[aria-checked="true"] { background: var(--gold-grad); border-color: var(--gold); }
       .notify-toggle[aria-checked="true"] .nt-knob { left: 27px; }
       .notify-note { font-size: 13.5px; color: var(--ember); font-weight: 600; margin-top: 8px; }
+      .msgr-code { display: inline-block; font-family: "Archivo", sans-serif; font-weight: 800; font-size: 26px; letter-spacing: 0.14em; background: var(--bg-soft); border: 1.5px dashed var(--gold-pale); border-radius: 10px; padding: 10px 18px; cursor: pointer; color: var(--ink); }
+      .msgr-code:hover { border-color: var(--gold); }
+      .text-btn { background: none; border: 0; padding: 6px 2px; font: inherit; font-family: "Archivo", sans-serif; font-weight: 700; font-size: 14px; color: var(--gold); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; flex: none; }
       @media (prefers-reduced-motion: reduce) { .notify-toggle, .notify-toggle .nt-knob { transition: none; } }
 
       /* ---------- Age gate — full-screen entry ---------- */
@@ -1748,6 +1751,7 @@
                   <p style="font-size: 14px; color: var(--ink-soft); margin: 0;">Pick how you hear about your orders and store news — one channel, the others, or all of them. The bell inbox on the site is always on. Changes save right away.</p>
                   <div id="notifyPrefsBody"></div>
                   <div id="notifyPushBody" style="margin-top: 6px;"></div>
+                  <div id="notifyMessengerBody" style="margin-top: 6px;"></div>
                 </div>
                 <div class="panel" style="margin-top: 18px;" id="acctIdentityPanel" hidden>
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Your member identity</h3>
@@ -9399,7 +9403,7 @@
            through /push/customer/*. Every call goes through the same
            api() helper + session token as the wallet, and every failure
            is quiet — notifications never break the store. */
-        var NOTIF = { unread: 0, items: [], announcements: [], prefs: null, pushOnDevice: false, pushMsg: "" };
+        var NOTIF = { unread: 0, items: [], announcements: [], prefs: null, pushOnDevice: false, pushMsg: "", messengerLinked: false, messengerPending: false, messengerCode: "" };
         function fmtWhen(at) {
           var d = new Date(at);
           if (isNaN(d.getTime())) return "";
@@ -9584,7 +9588,7 @@
         function renderNotifyPrefs() {
           var body = $("notifyPrefsBody");
           if (!body) return;
-          if (!state.user) { body.innerHTML = ""; var pb = $("notifyPushBody"); if (pb) pb.innerHTML = ""; return; }
+          if (!state.user) { body.innerHTML = ""; var pb = $("notifyPushBody"); if (pb) pb.innerHTML = ""; var mb = $("notifyMessengerBody"); if (mb) mb.innerHTML = ""; return; }
           var p = NOTIF.prefs || { email: false, text: false, push: false };
           var phone = acctPhoneOnFile();
           function row(key, label, desc) {
@@ -9604,6 +9608,7 @@
             });
           });
           renderPushControl();
+          renderMessenger();
         }
         function saveNotifyPref(key, val) {
           if (!NOTIF.prefs) NOTIF.prefs = { email: false, text: false, push: false };
@@ -9624,8 +9629,103 @@
             if (r && r.status === 200 && r.data) {
               var src = r.data.account || r.data;
               if (src && src.notifyPrefs) NOTIF.prefs = src.notifyPrefs;
+              applyMessengerState(r.data);
               renderNotifyPrefs();
               checkDevicePush();
+            }
+          });
+        }
+        /* ---------- Messenger connect: link code, pending, linked ----------
+           GET /accounts/me carries messengerLinked / messengerPending;
+           POST /messenger/link-code issues (idempotently) the customer's
+           PNPO-XXXXXX code — or answers linked:true; POST /messenger/unlink
+           detaches. The messenger notify-pref itself is flipped by the
+           server on bind/unlink only, so it never rides the prefs save. */
+        function applyMessengerState(data) {
+          var src = (data && data.account) || data || {};
+          if (typeof src.messengerLinked === "boolean") NOTIF.messengerLinked = src.messengerLinked;
+          else if (data && typeof data.messengerLinked === "boolean") NOTIF.messengerLinked = data.messengerLinked;
+          if (typeof src.messengerPending === "boolean") NOTIF.messengerPending = src.messengerPending;
+          else if (data && typeof data.messengerPending === "boolean") NOTIF.messengerPending = data.messengerPending;
+          if (NOTIF.messengerLinked) { NOTIF.messengerPending = false; NOTIF.messengerCode = ""; }
+        }
+        function msgrMsg(text) {
+          var m = $("msgrMsg");
+          if (!m) return;
+          m.textContent = text || "";
+          m.hidden = !text;
+        }
+        function renderMessenger() {
+          var box = $("notifyMessengerBody");
+          if (!box) return;
+          if (!state.user) { box.innerHTML = ""; return; }
+          if (NOTIF.messengerLinked) {
+            box.innerHTML = '<div class="notify-row"><div class="notify-copy"><span class="notify-name">Messenger — Connected ✅</span><span class="notify-desc">Order updates and refund notices will arrive in your Messenger too.</span></div>' +
+              '<button type="button" class="text-btn" id="msgrUnlinkBtn">Unlink</button></div>';
+            var un = $("msgrUnlinkBtn");
+            un.addEventListener("click", function () {
+              if (un.getAttribute("data-armed") !== "1") {
+                un.setAttribute("data-armed", "1");
+                un.textContent = "Tap again to unlink";
+                return;
+              }
+              unlinkMessenger();
+            });
+            return;
+          }
+          if (NOTIF.messengerPending) {
+            var codeHtml = NOTIF.messengerCode
+              ? '<div style="margin-top: 10px;"><span class="notify-desc" style="display: block;">Your code:</span><button type="button" class="msgr-code" id="msgrCodeBtn" aria-label="Copy your Messenger link code">' + esc(NOTIF.messengerCode) + '</button><span class="notify-desc" style="display: block; margin-top: 4px;">Tap the code to copy it.</span></div>'
+              : '<div style="margin-top: 12px;"><button type="button" class="btn btn-outline" id="msgrShowCodeBtn">Show my code</button></div>';
+            box.innerHTML = '<div class="notify-row" style="display: block;"><div class="notify-copy"><span class="notify-name">Messenger</span><span class="notify-desc">Almost there — send us your code in Messenger to finish connecting.</span></div>' + codeHtml +
+              '<p class="notify-desc" style="margin-top: 12px; line-height: 1.65;">1. Tap Open Messenger.<br />2. Send this code in the chat.<br />3. Come back — you’ll show as Connected here in about a minute.</p>' +
+              '<div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;"><a class="btn btn-gold" href="https://m.me/broaday.shotzfired.5" target="_blank" rel="noopener">Open Messenger</a><button type="button" class="btn btn-outline" id="msgrCheckBtn">Check again</button></div>' +
+              '<p class="notify-note" id="msgrMsg" hidden></p></div>';
+            var codeBtn = $("msgrCodeBtn");
+            if (codeBtn) codeBtn.addEventListener("click", function () { copyText(NOTIF.messengerCode, "Code copied — paste it into the Messenger chat"); });
+            var showBtn = $("msgrShowCodeBtn");
+            if (showBtn) showBtn.addEventListener("click", requestMessengerCode);
+            $("msgrCheckBtn").addEventListener("click", checkMessenger);
+            return;
+          }
+          box.innerHTML = '<div class="notify-row"><div class="notify-copy"><span class="notify-name">Messenger</span><span class="notify-desc">Get order updates and refund notices in Messenger, in a private chat with us.</span></div>' +
+            '<button type="button" class="btn btn-gold" id="msgrConnectBtn" style="flex: none;">Connect Messenger</button></div>' +
+            '<p class="notify-note" id="msgrMsg" hidden></p>';
+          $("msgrConnectBtn").addEventListener("click", requestMessengerCode);
+        }
+        function requestMessengerCode() {
+          var token = getSession();
+          if (!token || !state.user) return;
+          api("/messenger/link-code", { method: "POST", token: token }).then(function (r) {
+            if (r && r.data && r.data.linked) { NOTIF.messengerLinked = true; NOTIF.messengerPending = false; NOTIF.messengerCode = ""; renderMessenger(); return; }
+            if (r && r.data && r.data.code) { NOTIF.messengerPending = true; NOTIF.messengerCode = String(r.data.code); renderMessenger(); return; }
+            renderMessenger();
+            msgrMsg("Couldn’t reach the store just now — please try again in a moment.");
+          });
+        }
+        function checkMessenger() {
+          var token = getSession();
+          if (!token || !state.user) return;
+          api("/accounts/me", { token: token }).then(function (r) {
+            if (r && r.status === 200 && r.data) {
+              applyMessengerState(r.data);
+              renderMessenger();
+              if (!NOTIF.messengerLinked) msgrMsg("Not connected yet — send the code in Messenger, then check again.");
+            } else {
+              msgrMsg("Couldn’t check just now — please try again.");
+            }
+          });
+        }
+        function unlinkMessenger() {
+          var token = getSession();
+          if (!token || !state.user) return;
+          api("/messenger/unlink", { method: "POST", token: token }).then(function (r) {
+            if (r && r.data && r.data.ok) {
+              NOTIF.messengerLinked = false;
+              NOTIF.messengerPending = false;
+              NOTIF.messengerCode = "";
+              renderMessenger();
+              toast("Messenger unlinked");
             }
           });
         }
