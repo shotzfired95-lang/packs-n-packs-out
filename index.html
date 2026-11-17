@@ -592,15 +592,22 @@
       /* ---------- Cart drawer ---------- */
       .scrim { position: fixed; inset: 0; z-index: 160; background: rgba(20, 13, 5, 0.55); touch-action: none; overscroll-behavior: none; }
       .drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 170; width: min(430px, 94vw); background: var(--surface); box-shadow: -18px 0 44px rgba(30, 20, 5, 0.3); display: flex; flex-direction: column; transform: translateX(0); overscroll-behavior: contain; }
-      .drawer-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+      .drawer-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 18px 20px; border-bottom: 1px solid var(--line); flex: none; }
       .drawer-head h3 { font-size: 20px; font-weight: 800; }
       /* Everything between the drawer head and the pinned totals/checkout foot
          scrolls as ONE region. The fulfillment block, promo stack, and member
          note used to be fixed siblings around a lone scrolling items list, so
          on a phone they squeezed the items into a thin sliver (and pushed the
-         Checkout button off-screen). Now they scroll away with the items. */
+         Checkout button off-screen). Now they scroll away with the items.
+         The informational notices (build-your-cart, sign-in nudge, maintenance)
+         live at the END of this scroll region, NOT in the pinned foot: stacked
+         in the foot they ate ~45% of a phone screen and crushed this region
+         to a ~120px sliver, so swipes crept a few pixels at a time and the
+         cart felt stuck. The foot now holds only totals + Checkout. */
       .drawer-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
       .drawer-scroll .mem-note { margin: 0 20px 16px; }
+      #drawerNotes { display: grid; gap: 12px; padding: 2px 20px 18px; }
+      #drawerNotes .maintenance-notice--drawer { margin: 0; }
       .drawer-items { padding: 14px 20px; display: grid; gap: 14px; align-content: start; }
       .ditem { display: grid; grid-template-columns: 62px 1fr; gap: 12px; border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
       .ditem img { width: 62px; height: 62px; object-fit: cover; border-radius: 8px; }
@@ -612,7 +619,7 @@
       .stepper .qv { min-width: 30px; text-align: center; font-weight: 700; font-size: 14.5px; }
       .ditem .dp { font-family: "Archivo", sans-serif; font-weight: 800; font-size: 15px; }
       .ditem .drm { background: none; border: 0; color: var(--ember); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 6px 2px; min-height: 32px; }
-      .drawer-foot { border-top: 1px solid var(--line); padding: 16px 20px 20px; display: grid; gap: 8px; }
+      .drawer-foot { border-top: 1px solid var(--line); padding: 16px 20px 20px; display: grid; gap: 8px; flex: none; background: var(--surface); }
       .trow { display: flex; justify-content: space-between; font-size: 14.5px; color: var(--ink-soft); }
       .trow.total { font-family: "Archivo", sans-serif; font-weight: 900; font-size: 18px; color: var(--ink); border-top: 1px dashed var(--line); padding-top: 10px; margin-top: 2px; }
       .trow .neg { color: var(--gold); font-weight: 700; }
@@ -2090,12 +2097,14 @@
       </div>
       <div class="drawer-items" id="drawerItems"></div>
         <div class="mem-note" id="drawerMemberNote" hidden></div>
+        <div id="drawerNotes">
+          <p class="local-note cart-save-note" id="drawerCartSaveNote" hidden>Build your cart now — ordering opens the moment we announce we're OPEN, and your cart will be saved and waiting.</p>
+          <p class="local-note cart-save-note" id="drawerSigninNote" hidden>Sign in to save your cart for opening day.</p>
+          <p class="maintenance-notice maintenance-notice--drawer" id="drawerMaintenanceNotice" role="alert" hidden>🛠️ We’re still putting the finishing touches on — the store is under maintenance and ordering is paused. Opening Tuesday, November 24. Thanks for rocking with us while we build this right.</p>
+        </div>
       </div>
       <div class="drawer-foot" id="drawerFoot">
         <div id="drawerTotals"></div>
-        <p class="local-note cart-save-note" id="drawerCartSaveNote" hidden>Build your cart now — ordering opens the moment we announce we're OPEN, and your cart will be saved and waiting.</p>
-        <p class="local-note cart-save-note" id="drawerSigninNote" hidden>Sign in to save your cart for opening day.</p>
-        <p class="maintenance-notice maintenance-notice--drawer" id="drawerMaintenanceNotice" role="alert" hidden>🛠️ We’re still putting the finishing touches on — the store is under maintenance and ordering is paused. Opening Tuesday, November 24. Thanks for rocking with us while we build this right.</p>
         <button class="btn btn-gold" type="button" id="checkoutBtn">Checkout — Order Ahead</button>
         <div class="clear-cart-row"><button class="clear-cart-btn" type="button" id="clearCartBtn">Clear cart — remove everything</button></div>
         <p class="drawer-note">Apple Pay · Cash App · Chime · Current · Bitcoin · Cash (approved members only) — pay your way at checkout · ID checked on every order</p>
@@ -5671,8 +5680,10 @@
             box.innerHTML = '<div class="empty-note"><p>Your cart is empty.</p><button class="btn btn-espresso" type="button" id="emptyShop">Browse the Menu</button></div>';
             $("emptyShop").addEventListener("click", function () { closeDrawer(); openShop("all", "all", ""); });
             $("drawerFoot").hidden = true;
+            $("drawerNotes").hidden = true;
           } else {
             $("drawerFoot").hidden = false;
+            $("drawerNotes").hidden = false;
             entries.forEach(function (e) {
               var row = document.createElement("div");
               row.className = "ditem";
