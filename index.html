@@ -2767,6 +2767,10 @@
           var w = state.balances[email];
           if (!w) { w = { balance: 0, ledger: [], topups: [] }; state.balances[email] = w; }
           if (typeof d.balance === "number" && isFinite(d.balance)) w.balance = r2(d.balance);
+          if (typeof d.freeBalance === "number" && isFinite(d.freeBalance)) w.freeBalance = r2(d.freeBalance);
+          if (typeof d.paidBalance === "number" && isFinite(d.paidBalance)) w.paidBalance = r2(d.paidBalance);
+          if (typeof d.creditMatchOpen === "boolean") w.creditMatchOpen = d.creditMatchOpen;
+          if (typeof d.creditMatchGrandfathered === "boolean") w.creditMatchGrandfathered = d.creditMatchGrandfathered;
           if (Array.isArray(d.entries)) w.serverEntries = d.entries;
           if (state.user && normEmail(state.user.email) === email) { renderAcctBalance(); renderWalletHistory(); }
         }
@@ -4261,6 +4265,17 @@
           var w = email ? state.balances[email] : null;
           return w ? Math.max(0, Math.min(w.balance || 0, w.welcomeRestricted || 0)) : 0;
         }
+        /* Credit Match gate, mirrored from the server wallet response
+           (GET /wallet/me): creditMatchOpen says whether this account's
+           free/restricted credit may spend alongside its paid balance,
+           creditMatchGrandfathered marks the any-amount unlock. When
+           the response carried no match fields (older cached response),
+           the gate counts as open — the pre-match behavior. */
+        function creditMatchState(email) {
+          var w = email ? state.balances[email] : null;
+          if (!w || typeof w.creditMatchOpen !== "boolean") return { open: true, grandfathered: false };
+          return { open: w.creditMatchOpen, grandfathered: !!w.creditMatchGrandfathered };
+        }
         /* ================= Subscription payment gate =================
            No one gets anything new without a confirmed payment. Joining
            any tier — from the Membership page, the checkout "Members save
@@ -4934,13 +4949,42 @@
                so the welcome portion is held back from the fee. (While the
                membership is inactive the welcome portion is frozen
                outright, so the spendable restr below is $0.) */
-            var feePart = t.memFee || 0;
+            /* The fenced part of the total — what restricted credit can
+               never cover — is the membership fee plus the
+               delivery/shipping fee plus the driver tip: those parts are
+               paid only from the non-welcome part of the balance, so the
+               welcome portion is held back from them. */
+            var feePart = r2((t.memFee || 0) + (t.fee || 0) + (t.tip || 0));
             var nonFeePart = Math.max(0, r2(t.total - feePart));
             var restr = Math.min(t.balanceSpendable, Math.max(0, r2(welcomeRestrictedFor(walletEmail()) - t.balanceFrozen)));
-            var appliedNonFee = Math.min(t.balanceSpendable, nonFeePart);
-            var welcomeUsed = Math.min(restr, appliedNonFee);
-            var openBalance = Math.max(0, r2(t.balanceSpendable - restr - (appliedNonFee - welcomeUsed)));
+            /* Credit Match: while the server says this account's match
+               gate is closed, restricted/free credit applies $0 on this
+               order — the whole balance application comes from the paid
+               portion only, exactly as if the restricted amount were 0. */
+            var matchOpen = creditMatchState(walletEmail()).open;
+            var pool = matchOpen ? t.balanceSpendable : Math.max(0, r2(t.balanceSpendable - restr));
+            var restrEff = matchOpen ? restr : 0;
+            var appliedNonFee = Math.min(pool, nonFeePart);
+            var welcomeUsed = Math.min(restrEff, appliedNonFee);
+            var openBalance = Math.max(0, r2(pool - restrEff - (appliedNonFee - welcomeUsed)));
             var appliedFee = Math.min(openBalance, feePart);
+            if (matchOpen && restrEff > 0) {
+              /* Dollar-for-dollar: the restricted amount applied to the
+                 product portion may not exceed the total paid amount
+                 applied on this order (paid applied to the fenced part
+                 plus paid applied to product). Cap the restricted
+                 application at that paid total — the excess restricted
+                 credit stays in the wallet and the rest shows as due —
+                 then let paid balance fill the product room the cap
+                 freed before the fenced part, as the uncapped pass does. */
+              var paidApplied = r2((appliedNonFee - welcomeUsed) + appliedFee);
+              if (welcomeUsed > paidApplied) {
+                welcomeUsed = paidApplied;
+                appliedNonFee = r2(welcomeUsed + Math.min(Math.max(0, r2(pool - restrEff)), Math.max(0, r2(nonFeePart - welcomeUsed))));
+                openBalance = Math.max(0, r2(pool - restrEff - (appliedNonFee - welcomeUsed)));
+                appliedFee = Math.min(openBalance, feePart);
+              }
+            }
             t.balanceApplied = r2(appliedNonFee + appliedFee);
             t.balanceWelcomeUsed = welcomeUsed;
             t.balanceFeeHeld = restr > 0 ? r2(feePart - appliedFee) : 0;
@@ -5101,6 +5145,15 @@
             html += '<p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;">Spendable right now: <strong style="color: var(--ink);">' + money(r2(w.balance - frozenNow)) + '</strong> of your ' + money(w.balance) + ' balance — <strong style="color: var(--ink);">' + money(frozenNow) + '</strong> in welcome/anniversary credit is paused until your membership is active again. Your loaded funds are never paused — they stay spendable either way.</p>';
           } else if (restrNow > 0) {
             html += '<p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;">Includes <strong style="color: var(--ink);">' + money(restrNow) + '</strong> in welcome/anniversary credit — it spends on orders like regular credit, but it can’t pay membership fees, balance top-ups, or credit-line tabs.</p>';
+          }
+          var matchNow = creditMatchState(walletEmail());
+          var freeNow = typeof w.freeBalance === "number" && isFinite(w.freeBalance) ? r2(w.freeBalance) : restrNow;
+          if (freeNow > 0) {
+            if (!matchNow.open) {
+              html += '<p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;">🔒 Credit Match: add ' + (matchNow.grandfathered ? "any balance amount" : "$10 or more in balance") + " to unlock your " + money(freeNow) + " in credit — once unlocked, credit spends dollar-for-dollar alongside your balance.</p>";
+            } else {
+              html += '<p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;">🔓 Credit Match is on: your credit spends dollar-for-dollar with your balance.</p>';
+            }
           }
           if (pend.length) {
             html += '<p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;">' + pend.length + (pend.length === 1 ? " top-up is" : " top-ups are") + " pending approval — " + money(pendCredit) + " in credit lands in your balance the moment the business approves.</p>";
