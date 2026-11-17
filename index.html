@@ -2316,7 +2316,7 @@
           { name: "Edibles", img: "assets/devour-1500mg-edibles-still1.jpg", sub: "Gummies & kitchen" }
         ];
         var BRANDS = ["All Brands", "Packs N' Packs Out"];
-        var TICKER = ["New flower lots just landed", "Order ahead — pickup in about 30 minutes", "15% off vapes & carts this week", "New drops every Friday", "Shipping to all 50 states — flower & concentrates by the pound, pens & carts ship free at 25+"];
+        var TICKER = ["New flower lots just landed", "Order ahead — pickup in about 30 minutes", "15% off vapes & carts this week", "New drops every Friday", "Shipping to all 50 states — flower & concentrates by the pound, flat $30 shipping on every order"];
 
         /* Pickup locations — the client's Peoria-area counters. To add or change
            a counter later, edit these entries (same fields) and the locbar
@@ -2365,14 +2365,11 @@
            claiming in the customer store. */
         var DELIVERY_ZONES = { "Illinois": ["60", "61", "62"] };
         var DELIVERY_FEE = 4.95, DELIVERY_FREE_OVER = 75, DELIVERY_MIN = 35;
-        var SHIPPING_FEE = 9.95, SHIPPING_FREE_OVER = 150;
-        /* Pens, carts & edibles (Vapes + Edibles categories) on a
-           shipping order: under 25 pieces total, the shipping fee is a
-           flat $30 — it replaces the standard fee calculation and is
-           never waived, member perks included. At 25+ pieces (or no
-           pens/carts/edibles at all) the standard fee rules above apply
-           unchanged. */
-        var PEN_SHIP_FEE = 30, PEN_FREE_COUNT = 25;
+        /* Shipping is a flat $30 on every shipping order, regardless
+           of subtotal or cart contents; the Platinum/Diamond
+           free-shipping membership perk waives it. Local delivery
+           fees are separate (see the DELIVERY_* constants above). */
+        var SHIPPING_FEE = 30;
         var US_STATES = [["AL", "Alabama"], ["AK", "Alaska"], ["AZ", "Arizona"], ["AR", "Arkansas"], ["CA", "California"], ["CO", "Colorado"], ["CT", "Connecticut"], ["DE", "Delaware"], ["FL", "Florida"], ["GA", "Georgia"], ["HI", "Hawaii"], ["ID", "Idaho"], ["IL", "Illinois"], ["IN", "Indiana"], ["IA", "Iowa"], ["KS", "Kansas"], ["KY", "Kentucky"], ["LA", "Louisiana"], ["ME", "Maine"], ["MD", "Maryland"], ["MA", "Massachusetts"], ["MI", "Michigan"], ["MN", "Minnesota"], ["MS", "Mississippi"], ["MO", "Missouri"], ["MT", "Montana"], ["NE", "Nebraska"], ["NV", "Nevada"], ["NH", "New Hampshire"], ["NJ", "New Jersey"], ["NM", "New Mexico"], ["NY", "New York"], ["NC", "North Carolina"], ["ND", "North Dakota"], ["OH", "Ohio"], ["OK", "Oklahoma"], ["OR", "Oregon"], ["PA", "Pennsylvania"], ["RI", "Rhode Island"], ["SC", "South Carolina"], ["SD", "South Dakota"], ["TN", "Tennessee"], ["TX", "Texas"], ["UT", "Utah"], ["VT", "Vermont"], ["VA", "Virginia"], ["WA", "Washington"], ["WV", "West Virginia"], ["WI", "Wisconsin"], ["WY", "Wyoming"]];
         function stateOptionsHTML(sel) {
           return '<option value="">Select a state…</option>' + US_STATES.map(function (s) { return '<option value="' + s[0] + '"' + (sel === s[0] ? " selected" : "") + ">" + s[1] + "</option>"; }).join("");
@@ -3466,10 +3463,6 @@
           return dropped;
         }
         function cartCount() { return cartEntries().reduce(function (n, e) { return n + e.qty; }, 0); }
-        /* Pens, carts & edibles = the Vapes and Edibles categories,
-           counted in pieces across every cart line — the count the
-           $30 small-order shipping fee turns on. */
-        function cartPenCount() { return cartEntries().reduce(function (n, e) { return n + (e.product && (e.product.cat === "Vapes" || e.product.cat === "Edibles") ? e.qty : 0); }, 0); }
         function cartSubtotal() { return cartEntries().reduce(function (n, e) { return n + e.size.p * e.qty; }, 0); }
         /* The cart persists on this device, the same way accounts and
            pending memberships do: every mutation flows through
@@ -4682,7 +4675,7 @@
           var base = calcTotals(sub, null);
           var feeSave = 0;
           if (state.fulfillment === "delivery" && tier.freeDelivery && base.fee > 0) feeSave = base.fee;
-          else if (state.fulfillment === "shipping" && tier.freeShipping && base.fee > 0 && !base.penFee) feeSave = base.fee;
+          else if (state.fulfillment === "shipping" && tier.freeShipping && base.fee > 0) feeSave = base.fee;
           return Math.round((disc + feeSave) * 100) / 100;
         }
         function tierPreviewTotal(sub, tier) {
@@ -4757,18 +4750,8 @@
             fee = (sub - disc) >= DELIVERY_FREE_OVER ? 0 : DELIVERY_FEE;
             if (tier && tier.freeDelivery && fee > 0) { fee = 0; feeWaived = true; }
           } else if (state.fulfillment === "shipping") {
-            /* Small-order rule: 1–24 Vapes + Edibles pieces combined in
-               the cart makes the shipping fee a flat $30 — it replaces
-               the standard calculation and member free-shipping perks
-               never waive it. 0 pieces or 25+ falls through to the
-               standard rules unchanged. */
-            var penCount = cartPenCount();
-            if (penCount > 0 && penCount < PEN_FREE_COUNT) {
-              fee = PEN_SHIP_FEE; penFee = true;
-            } else {
-              fee = (sub - disc) >= SHIPPING_FREE_OVER ? 0 : SHIPPING_FEE;
-              if (tier && tier.freeShipping && fee > 0) { fee = 0; feeWaived = true; }
-            }
+            fee = SHIPPING_FEE;
+            if (tier && tier.freeShipping && fee > 0) { fee = 0; feeWaived = true; }
           }
           var tip = state.fulfillment === "delivery" ? tipFor(sub - disc, state.tipChoice, state.tipCustom) : 0;
           return { sub: sub, disc: disc, discKind: kind, memDisc: memDisc, bundleDisc: bundleDisc, bundlePct: bInfo.pct, bundleCount: bInfo.count, bundleSub: bInfo.sub, exclSub: exclSub, fee: fee, feeWaived: feeWaived, penFee: penFee, tip: tip, total: sub - disc + fee + tip };
@@ -5761,8 +5744,8 @@
             var si = state.shipInfo;
             $("locDetail").textContent = "Shipping · " + (si ? si.city + ", " + si.state + " " + si.zip : "All 50 states");
             $("drawerFulDetail").innerHTML = si
-              ? "<strong>Ship to:</strong> " + esc(shipAddrLine(si)) + " · Flower & concentrates by the pound · Pens & carts " + money(PEN_SHIP_FEE) + " shipping under 25 pieces, free at 25+"
-              : "Shipping — we ship to all 50 states. Flower, waxes, moon rocks and snow caps ship by the Quarter Pound, Half Pound and Pound — the pound is the best deal. Pens & carts carry a " + money(PEN_SHIP_FEE) + " shipping fee on orders under 25 pieces and ship free at 25+. Everything else ships " + money(SHIPPING_FEE) + " flat, free on orders over " + money(SHIPPING_FREE_OVER) + ". Your mailing address is collected at checkout.";
+              ? "<strong>Ship to:</strong> " + esc(shipAddrLine(si)) + " · Flower & concentrates by the pound · Flat $30 shipping on every order"
+              : "Shipping — we ship to all 50 states. Flower, waxes, moon rocks and snow caps ship by the Quarter Pound, Half Pound and Pound — the pound is the best deal. Flat $30 shipping on every order. Priority arrives in 2–3 business days via FedEx or USPS. Your mailing address is collected at checkout.";
           }
           renderLocPanel();
           renderCoFul();
@@ -5829,7 +5812,7 @@
             $("zipInput").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); checkZip(); } });
           } else {
             body.innerHTML =
-              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">We ship to all 50 states. Flower, waxes, moon rocks and snow caps ship by the Quarter Pound, Half Pound and Pound — the pound is the best deal. Pens & carts carry a ' + money(PEN_SHIP_FEE) + ' shipping fee on orders under 25 pieces and ship free at 25+. Everything else ships ' + money(SHIPPING_FEE) + ' flat, free on orders over ' + money(SHIPPING_FREE_OVER) + '. Your mailing address is collected at checkout' + (state.shipInfo ? ' — your saved address (' + esc(state.shipInfo.city) + ', ' + esc(state.shipInfo.state) + ') will be filled in for you' : '') + '.</p>' +
+              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">We ship to all 50 states. Flower, waxes, moon rocks and snow caps ship by the Quarter Pound, Half Pound and Pound — the pound is the best deal. Flat $30 shipping on every order. Priority arrives in 2–3 business days via FedEx or USPS. Your mailing address is collected at checkout' + (state.shipInfo ? ' — your saved address (' + esc(state.shipInfo.city) + ', ' + esc(state.shipInfo.state) + ') will be filled in for you' : '') + '.</p>' +
               marketRowHTML();
           }
           var mb = $("panelMarketBtn");
@@ -6001,7 +5984,7 @@
               '<label class="f" style="margin: 0;">State<select id="coShipState">' + stateOptionsHTML(sv.state) + "</select></label>" +
               '<label class="f" style="margin: 0;">ZIP code<input type="text" id="coShipZip" inputmode="numeric" maxlength="5" value="' + esc(sv.zip) + '" /></label></div>' +
               '<div id="coSaveDefWrap"></div>' +
-              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">We ship to all 50 states · Flower, waxes, moon rocks & snow caps by the Quarter Pound, Half Pound & Pound — the pound is the best deal · Pens & carts: ' + money(PEN_SHIP_FEE) + " shipping under 25 pieces, free at 25+ · Everything else " + money(SHIPPING_FEE) + " flat shipping (free over " + money(SHIPPING_FREE_OVER) + ") · Pay by Apple Pay, Cash App, Chime, Current, or Bitcoin — or cash if you’re an approved member.</p>" +
+              '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">We ship to all 50 states · Flower, waxes, moon rocks & snow caps by the Quarter Pound, Half Pound & Pound — the pound is the best deal · Flat $30 shipping on every order · Priority arrives in 2–3 business days via FedEx or USPS · Pay by Apple Pay, Cash App, Chime, Current, or Bitcoin — or cash if you’re an approved member.</p>' +
               '<p style="font-size: 13.5px; color: var(--ink-soft); margin: 0;">Ships from our pickup hub — <strong style="color: var(--ink);">' + esc((homeBaseLocation() || {}).name || "") + " · " + esc((homeBaseLocation() || {}).detail || "") + "</strong></p>";
             [["coShipStreet", "street"], ["coShipApt", "apt"], ["coShipCity", "city"], ["coShipZip", "zip"]].forEach(function (pair) {
               $(pair[0]).addEventListener("input", function () { state.shipDraft[pair[1]] = this.value; updateSaveDefRow(); });
@@ -6009,7 +5992,7 @@
             $("coShipState").addEventListener("change", function () { state.shipDraft.state = this.value; updateSaveDefRow(); });
             updateSaveDefRow();
             $("coTimeLabel").textContent = "Arrival estimate";
-            setTimeOptions(["Standard — arrives in 3–5 business days", "Priority — arrives in 2 business days"]);
+            setTimeOptions(["Standard — arrives in 3–5 business days", "Priority — arrives in 2–3 business days via FedEx or USPS"]);
             $("coTimeSelect").hidden = false;
             $("coPickupGrid").hidden = true;
             $("coSubmit").textContent = "Place Shipping Order";
@@ -6027,7 +6010,7 @@
               ci.textContent = "Order now and we bring it to your door — pay right here at checkout by Apple Pay, Cash App, Chime, Current, Bitcoin, or your account balance; approved members can choose cash on delivery. Have your ID ready; we check it on every delivery.";
             } else {
               ct.textContent = "Checkout — Shipping";
-              ci.textContent = "Order now and we ship it to you — anywhere in the U.S. Pay right here at checkout by Apple Pay, Cash App, Chime, Current, Bitcoin, or your account balance; approved members can choose cash. Flower, waxes, moon rocks and snow caps ship by the Quarter Pound, Half Pound and Pound — the pound is the best deal. Pens & carts carry a " + money(PEN_SHIP_FEE) + " shipping fee on orders under 25 pieces and ship free at 25+; everything else ships flat " + money(SHIPPING_FEE) + ", free on orders over " + money(SHIPPING_FREE_OVER) + ".";
+              ci.textContent = "Order now and we ship it to you — anywhere in the U.S. Pay right here at checkout by Apple Pay, Cash App, Chime, Current, Bitcoin, or your account balance; approved members can choose cash. Flower, waxes, moon rocks and snow caps ship by the Quarter Pound, Half Pound and Pound — the pound is the best deal. Flat $30 shipping on every order; Priority arrives in 2–3 business days via FedEx or USPS.";
             }
           }
           renderCoTip();
