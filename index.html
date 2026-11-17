@@ -3498,6 +3498,29 @@
             state.cart = clean;
           } catch (e) {}
         }
+        /* Load-time privacy guard: an account cart orphaned by a
+           session that ended WITHOUT sign-out (expired, app closed,
+           token gone) must never render for a signed-out visitor —
+           the sign-out wipe only runs on an explicit sign-out,
+           so a leftover device cart would otherwise be restored by
+           loadCart() below and painted as if it were a guest cart.
+           The pnpo_cart_synced baseline is the evidence the cart
+           belongs to an account: it is written only by
+           saveCartToServer(), which runs only for a signed-in
+           account, and it carries that account's email. A true guest
+           cart has no baseline and is left untouched. When a stored
+           session token exists, the session-restore flow owns the
+           cart (it silently signs in and runs the sign-in cart sync),
+           so this guard stands down and changes nothing. */
+        (function () {
+          try {
+            if (getSession()) return;
+            var v = JSON.parse(lsGet("pnpo_cart_synced") || "null");
+            if (!v || typeof v !== "object" || typeof v.email !== "string" || !v.email || !v.items || typeof v.items !== "object") return;
+          } catch (e) { return; }
+          try { window.localStorage.removeItem("pnpo_cart"); } catch (e) {}
+          try { window.localStorage.removeItem("pnpo_cart_synced"); } catch (e) {}
+        })();
         loadCart();
         /* ================= Account-saved cart =================
            When a customer is signed in, the cart also lives on their
@@ -10332,6 +10355,32 @@
            lands signed in with checkout prefilled. If the server is
            unreachable, nothing is forced: the customer signs in as usual
            and the login fallback uses the on-device account copy. */
+        /* Post-restore sweep for a server-invalidated session token.
+           The load-time orphan-cart guard stands down whenever a
+           stored session token exists, because this restore flow owns
+           the cart then. But if the server has since invalidated that
+           token (expired session), GET /accounts/me answers 401, the
+           app settles signed out, and the account cart — already
+           painted by loadCart() at load — would keep rendering for a
+           signed-out visitor for that launch. On that explicit
+           rejection only, the account cart is wiped exactly like
+           sign-out. api() resolving null (network failure / timeout)
+           or any other status is ambiguous and never sweeps, so a
+           valid user launching offline keeps their cart; a guest cart
+           has no pnpo_cart_synced baseline and is never swept. */
+        function sweepRejectedSessionCart() {
+          if (state.user) return;
+          try {
+            var v = JSON.parse(lsGet("pnpo_cart_synced") || "null");
+            if (!v || typeof v !== "object" || typeof v.email !== "string" || !v.email || !v.items || typeof v.items !== "object") return;
+          } catch (e) { return; }
+          state.cart = {};
+          try { window.localStorage.removeItem("pnpo_cart"); } catch (e) {}
+          try { window.localStorage.removeItem("pnpo_cart_synced"); } catch (e) {}
+          if (cartSaveTimer) { clearTimeout(cartSaveTimer); cartSaveTimer = null; }
+          renderCart();
+          if (state.view === "checkout") renderCheckout();
+        }
         (function restoreSession() {
           var token = getSession();
           if (!token) return;
@@ -10342,6 +10391,8 @@
                 applyServerDefaults(src, src.email);
                 signIn(src.name || derivedName(src.email), src.email, { silent: true });
               }
+            } else if (r && r.status === 401) {
+              sweepRejectedSessionCart();
             }
           });
         })();
