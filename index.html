@@ -8423,12 +8423,20 @@
              account cart sync state (pnpo_cart_synced), the saved
              shipping info and address drafts, tickets, and every
              account panel's rendered view state (repainted below in
-             its signed-out form). The device cart (pnpo_cart) and
-             device favorites stay: both are signed-out features by
-             design — build your cart and heart items before you ever
-             sign in — and neither holds account data. */
+             its signed-out form). The device cart (state.cart +
+             pnpo_cart) is also wiped at sign-out for privacy, so a
+             signed-out device shows an empty cart everywhere — the
+             account's server-saved cart is untouched and reloads at
+             the next sign-in (the delta merge sees an empty device
+             cart and an empty synced baseline, so the account cart
+             restores exactly — nothing added, nothing lost). Device
+             favorites still stay: they are a signed-out feature by
+             design — heart items before you ever sign in — and hold
+             no account data. */
           state.history = [];
           try { window.localStorage.removeItem("pnpo_history"); } catch (e) {}
+          state.cart = {};
+          try { window.localStorage.removeItem("pnpo_cart"); } catch (e) {}
           try { window.localStorage.removeItem("pnpo_cart_synced"); } catch (e) {}
           if (cartSaveTimer) { clearTimeout(cartSaveTimer); cartSaveTimer = null; }
           state.shipInfo = null;
