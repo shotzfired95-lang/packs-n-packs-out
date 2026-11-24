@@ -1210,6 +1210,12 @@
           </div>
         </div>
       </header>
+      <div id="saleTimerBar" style="display:none;background:linear-gradient(90deg,#5a1210,#7a1f14,#5a1210);color:#ffe9b0;text-align:center;padding:10px 12px;font-family:Archivo,sans-serif;font-weight:800;font-size:15.5px;letter-spacing:0.03em;border-bottom:2px solid #d4af37;">
+        🦃 THANKSGIVING SALE ends in <span id="saleTimerClock">…</span> — up to $200 OFF per lb! 🍂
+      </div>
+      <script>
+      (function(){var END=new Date("2026-11-30T00:00:00-06:00").getTime();var bar=document.getElementById("saleTimerBar");var clk=document.getElementById("saleTimerClock");function pad(n){return (n<10?"0":"")+n;}function tick(){var ms=END-Date.now();if(ms<=0){bar.style.display="none";return;}bar.style.display="block";var s=Math.floor(ms/1000);var dd=Math.floor(s/86400);var hh=Math.floor(s%86400/3600);var mm=Math.floor(s%3600/60);var ss=s%60;clk.textContent=(dd>0?dd+"d ":"")+pad(hh)+":"+pad(mm)+":"+pad(ss);}tick();setInterval(tick,1000);})();
+      </script>
 
       <!-- Full-screen menu -->
       <div class="menu-overlay" id="menuOverlay" hidden>
@@ -2295,7 +2301,7 @@
             type: "Sativa-dominant Hybrid", thc: "Typical THC: 22%", flavor: "Citrus, tropical fruit and tree fruit", feel: "Uplifted, focused and energetic",
             desc: "Supersonic is a sativa-dominant hybrid flower with citrus and tropical fruit character. A go-to when you want that uplifted feel with real flavor in every hit." },
           { id: "s1069pgc", brand: "Packs N' Packs Out", name: "Purple Ghost Candy", sku: "S1069PGC", cat: "Flower",
-            video: "assets/s1069pgc-purple-ghost-candy.mp4", poster: "assets/s1069pgc-purple-ghost-candy-poster.jpg", img: "assets/s1069pgc-purple-ghost-candy-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1375 }, { l: "Half Pound", p: 756.25 }, { l: "Quarter Pound", p: 412.5 } ],
+            video: "assets/s1069pgc-purple-ghost-candy.mp4", poster: "assets/s1069pgc-purple-ghost-candy-poster.jpg", img: "assets/s1069pgc-purple-ghost-candy-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1300 }, { l: "Half Pound", p: 715 }, { l: "Quarter Pound", p: 390 } ],
             type: "Sativa-dominant Hybrid (60/40)", thc: "Typical THC: 18–28%", flavor: "Sweet candy, berry and grape", feel: "Euphoric, relaxing and uplifting",
             desc: "Purple Ghost Candy is a sativa-dominant hybrid (60/40) flower with sweet candy and berry character. A go-to when you want that euphoric feel with real flavor in every hit." },
           { id: "s1070bc", brand: "Packs N' Packs Out", name: "Berry Gelato", sku: "S1070BC", cat: "Flower",
@@ -2379,7 +2385,7 @@
             type: "Sativa-dominant Hybrid", thc: "Typical THC: 16–20%", flavor: "Lime, citrus and lemon", feel: "Giggly, tingly and energetic",
             desc: "Tahiti Lime is a sativa-dominant hybrid flower with lime and citrus character. A go-to when you want that giggly feel with real flavor in every hit." },
           { id: "s1073rw", brand: "Packs N' Packs Out", name: "Randy Watson", sku: "S1073RW", cat: "Flower",
-            video: "assets/s1073rw-randy-watson.mp4", poster: "assets/s1073rw-randy-watson-poster.jpg", img: "assets/s1073rw-randy-watson-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 812.5 }, { l: "Half Pound", p: 447 }, { l: "Quarter Pound", p: 243.75 } ],
+            video: "assets/s1073rw-randy-watson.mp4", poster: "assets/s1073rw-randy-watson-poster.jpg", img: "assets/s1073rw-randy-watson-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 747.5 }, { l: "Half Pound", p: 411.25 }, { l: "Quarter Pound", p: 224.25 } ],
             type: "Hybrid", thc: "Typical THC: 18–27%", flavor: "Sweet candy, fruit and diesel", feel: "Euphoric, happy and uplifted",
             desc: "Randy Watson is a hybrid flower with sweet candy and fruit character. A go-to when you want that euphoric feel with real flavor in every hit." },
           { id: "s1080cq", brand: "Packs N' Packs Out", name: "Cheese Quake", sku: "S1080CQ", cat: "Flower",
@@ -2395,7 +2401,7 @@
             type: "Hybrid", thc: "Typical THC: 15–17%", flavor: "Apple, citrus and pine", feel: "Giggly, talkative and creative",
             desc: "Mystery Machine is a hybrid flower with apple and citrus character. A go-to when you want that giggly feel with real flavor in every hit." },
           { id: "s1071lb", brand: "Packs N' Packs Out", name: "Lucid Blue", sku: "S1071LB", cat: "Flower",
-            video: "assets/s1071lb-lucid-blue.mp4", poster: "assets/s1071lb-lucid-blue-poster.jpg", img: "assets/s1071lb-lucid-blue-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1267.5 }, { l: "Half Pound", p: 697.25 }, { l: "Quarter Pound", p: 380.25 } ],
+            video: "assets/s1071lb-lucid-blue.mp4", poster: "assets/s1071lb-lucid-blue-poster.jpg", img: "assets/s1071lb-lucid-blue-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1202.5 }, { l: "Half Pound", p: 661.5 }, { l: "Quarter Pound", p: 360.75 } ],
             type: "Sativa-dominant Hybrid (80/20)", thc: "Typical THC: 20–28%", flavor: "Blueberry, berry and citrus", feel: "Energetic, focused and uplifted",
             desc: "Lucid Blue is a sativa-dominant hybrid (80/20) flower with blueberry and berry character. A go-to when you want that energetic feel with real flavor in every hit." },
           { id: "s1066cr", brand: "Packs N' Packs Out", name: "Crown Royale", sku: "S1066CR", cat: "Flower",
@@ -2403,11 +2409,11 @@
             type: "Indica-dominant Hybrid (70/30)", thc: "Typical THC: 14–22%", flavor: "Berry, pine and flowery", feel: "Relaxed, sleepy and aroused",
             desc: "Crown Royale is an indica-dominant hybrid (70/30) flower with berry and pine character. A go-to when you want that relaxed feel with real flavor in every hit." },
           { id: "s1061cc", brand: "Packs N' Packs Out", name: "Cream Caramel", sku: "S1061CC", cat: "Flower",
-            video: "assets/s1061cc-cream-caramel.mp4", poster: "assets/s1061cc-cream-caramel-poster.jpg", img: "assets/s1061cc-cream-caramel-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 877.5 }, { l: "Half Pound", p: 482.75 }, { l: "Quarter Pound", p: 263.25 } ],
+            video: "assets/s1061cc-cream-caramel.mp4", poster: "assets/s1061cc-cream-caramel-poster.jpg", img: "assets/s1061cc-cream-caramel-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 715 }, { l: "Half Pound", p: 393.25 }, { l: "Quarter Pound", p: 214.5 } ],
             type: "Indica-dominant Hybrid (90/10)", thc: "Typical THC: 15–24%", flavor: "Caramel, sweet cream and earthy", feel: "Relaxed, happy and sleepy",
             desc: "Cream Caramel is an indica-dominant hybrid (90/10) flower with caramel and sweet cream character. A go-to when you want that relaxed feel with real flavor in every hit." },
           { id: "s1059mc", brand: "Packs N' Packs Out", name: "Martian Candy", sku: "S1059MC", cat: "Flower",
-            video: "assets/s1059mc-martian-candy.mp4", poster: "assets/s1059mc-martian-candy-poster.jpg", img: "assets/s1059mc-martian-candy-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1007.5 }, { l: "Half Pound", p: 554.25 }, { l: "Quarter Pound", p: 302.25 } ],
+            video: "assets/s1059mc-martian-candy.mp4", poster: "assets/s1059mc-martian-candy-poster.jpg", img: "assets/s1059mc-martian-candy-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 975 }, { l: "Half Pound", p: 536.25 }, { l: "Quarter Pound", p: 292.5 } ],
             type: "Indica-dominant Hybrid (70/30)", thc: "Typical THC: 18–24%", flavor: "Herbal, pine and earthy", feel: "Happy, relaxed and uplifted",
             desc: "Martian Candy is an indica-dominant hybrid (70/30) flower with herbal and pine character. A go-to when you want that happy feel with real flavor in every hit." },
           { id: "s1034pg", brand: "Packs N' Packs Out", name: "Purple Goo", sku: "S1034PG", cat: "Flower",
@@ -2415,19 +2421,19 @@
             type: "Indica-dominant Hybrid", thc: "Typical THC: 18–21%", flavor: "Sweet, grape and berry", feel: "Relaxed, euphoric and sleepy",
             desc: "Purple Goo is an indica-dominant hybrid flower with sweet and grape character. A go-to when you want that relaxed feel with real flavor in every hit." },
           { id: "s1060vs", brand: "Packs N' Packs Out", name: "Violet Sky", sku: "S1060VS", cat: "Flower",
-            video: "assets/s1060vs-violet-sky.mp4", poster: "assets/s1060vs-violet-sky-poster.jpg", img: "assets/s1060vs-violet-sky-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1137.5 }, { l: "Half Pound", p: 625.75 }, { l: "Quarter Pound", p: 341.25 } ],
+            video: "assets/s1060vs-violet-sky.mp4", poster: "assets/s1060vs-violet-sky-poster.jpg", img: "assets/s1060vs-violet-sky-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1040 }, { l: "Half Pound", p: 572 }, { l: "Quarter Pound", p: 312 } ],
             type: "Indica-dominant Hybrid (75/25)", thc: "Typical THC: 24–30%", flavor: "Berry, grape and citrus", feel: "Creative, euphoric and hungry",
             desc: "Violet Sky is an indica-dominant hybrid (75/25) flower with berry and grape character. A go-to when you want that creative feel with real flavor in every hit." },
           { id: "s1056lcg", brand: "Packs N' Packs Out", name: "Lemon Cherry Gelato", sku: "S1056LCG", cat: "Flower",
-            video: "assets/s1056lcg-lemon-cherry-gelato.mp4", poster: "assets/s1056lcg-lemon-cherry-gelato-poster.jpg", img: "assets/s1056lcg-lemon-cherry-gelato-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1375 }, { l: "Half Pound", p: 756.25 }, { l: "Quarter Pound", p: 412.5 } ],
+            video: "assets/s1056lcg-lemon-cherry-gelato.mp4", poster: "assets/s1056lcg-lemon-cherry-gelato-poster.jpg", img: "assets/s1056lcg-lemon-cherry-gelato-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1312.5 }, { l: "Half Pound", p: 722 }, { l: "Quarter Pound", p: 393.75 } ],
             type: "Indica-dominant Hybrid (60/40)", thc: "Typical THC: 20–25%", flavor: "Lemon, citrus and berry", feel: "Tingly, relaxed and giggly",
             desc: "Lemon Cherry Gelato is an indica-dominant hybrid (60/40) flower with lemon and citrus character. A go-to when you want that tingly feel with real flavor in every hit." },
           { id: "s1053am", brand: "Packs N' Packs Out", name: "Almond Mochi", sku: "S1053AM", cat: "Flower",
-            video: "assets/s1053am-almond-mochi.mp4", poster: "assets/s1053am-almond-mochi-poster.jpg", img: "assets/s1053am-almond-mochi-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1406.25 }, { l: "Half Pound", p: 773.5 }, { l: "Quarter Pound", p: 422 } ],
+            video: "assets/s1053am-almond-mochi.mp4", poster: "assets/s1053am-almond-mochi-poster.jpg", img: "assets/s1053am-almond-mochi-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1281.25 }, { l: "Half Pound", p: 704.75 }, { l: "Quarter Pound", p: 384.5 } ],
             type: "Hybrid", thc: "Typical THC: 20–28%", flavor: "Nutty, woody and earthy", feel: "Happy, creative and relaxed",
             desc: "Almond Mochi is a hybrid flower with nutty and woody character. A go-to when you want that happy feel with real flavor in every hit." },
           { id: "s1055pg", brand: "Packs N' Packs Out", name: "Purple Gushers", sku: "S1055PG", cat: "Flower",
-            video: "assets/s1055pg-purple-gushers.mp4", poster: "assets/s1055pg-purple-gushers-poster.jpg", img: "assets/s1055pg-purple-gushers-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1437.5 }, { l: "Half Pound", p: 790.75 }, { l: "Quarter Pound", p: 431.25 } ],
+            video: "assets/s1055pg-purple-gushers.mp4", poster: "assets/s1055pg-purple-gushers-poster.jpg", img: "assets/s1055pg-purple-gushers-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 1312.5 }, { l: "Half Pound", p: 722 }, { l: "Quarter Pound", p: 393.75 } ],
             type: "Hybrid (50/50)", thc: "Typical THC: 18–25%", flavor: "Grape, berry and earthy", feel: "Euphoric, happy and giggly",
             desc: "Purple Gushers is a hybrid (50/50) flower with grape and berry character. A go-to when you want that euphoric feel with real flavor in every hit." },
           { id: "s1035sc", brand: "Packs N' Packs Out", name: "Space Candy", sku: "S1035SC", cat: "Flower",
@@ -2443,11 +2449,11 @@
             type: "Indica-dominant Hybrid (80/20)", thc: "Typical THC: 20–25%", flavor: "Grape, berry and creamy", feel: "Relaxed, uplifted and creative",
             desc: "Grape Candy is an indica-dominant hybrid (80/20) flower with grape and berry character. A go-to when you want that relaxed feel with real flavor in every hit." },
           { id: "s1033cj", brand: "Packs N' Packs Out", name: "Cracker Jack", sku: "S1033CJ", cat: "Flower",
-            video: "assets/s1033cj-cracker-jack.mp4", poster: "assets/s1033cj-cracker-jack-poster.jpg", img: "assets/s1033cj-cracker-jack-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 641.25 }, { l: "Half Pound", p: 352.75 }, { l: "Quarter Pound", p: 192.5 } ],
+            video: "assets/s1033cj-cracker-jack.mp4", poster: "assets/s1033cj-cracker-jack-poster.jpg", img: "assets/s1033cj-cracker-jack-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 506.25 }, { l: "Half Pound", p: 278.5 }, { l: "Quarter Pound", p: 152 } ],
             type: "Hybrid (50/50)", thc: "Typical THC: 20%", flavor: "Citrus, earthy and sweet", feel: "Energetic, creative and focused",
             desc: "Cracker Jack is a hybrid (50/50) flower with citrus and earthy character. A go-to when you want that energetic feel with real flavor in every hit." },
           { id: "s1032sc", brand: "Packs N' Packs Out", name: "Santa Cruz", sku: "S1032SC", cat: "Flower",
-            video: "assets/s1032sc-santa-cruz.mp4", poster: "assets/s1032sc-santa-cruz-poster.jpg", img: "assets/s1032sc-santa-cruz-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 641.25 }, { l: "Half Pound", p: 352.75 }, { l: "Quarter Pound", p: 192.5 } ],
+            video: "assets/s1032sc-santa-cruz.mp4", poster: "assets/s1032sc-santa-cruz-poster.jpg", img: "assets/s1032sc-santa-cruz-poster.jpg", badge: "", pick: false, sizes: [ { l: "Pound", p: 506.25 }, { l: "Half Pound", p: 278.5 }, { l: "Quarter Pound", p: 152 } ],
             type: "Sativa-dominant Hybrid (60/40)", thc: "Typical THC: 15–29%", flavor: "Berry, blueberry and sweet", feel: "Calming, creative and energetic",
             desc: "Santa Cruz is a sativa-dominant hybrid (60/40) flower with berry and blueberry character. A go-to when you want that calming feel with real flavor in every hit." },
           { id: "s1030bg", brand: "Packs N' Packs Out", name: "Blueberry Gumbo", sku: "S1030BG", cat: "Flower",
