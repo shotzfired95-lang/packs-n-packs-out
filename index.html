@@ -675,6 +675,10 @@
       @media (prefers-color-scheme: dark) { input[type="text"], input[type="email"], input[type="tel"], input[type="password"], select, textarea { background: var(--surface); } }
       textarea { min-height: 90px; resize: vertical; }
       input:focus, select:focus, textarea:focus { outline: 2px solid var(--gold-bright); outline-offset: 1px; border-color: var(--gold-bright); }
+      .auth-divider { display: flex; align-items: center; gap: 12px; margin: 4px 0; color: var(--ink-soft); font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+      .auth-divider::before, .auth-divider::after { content: ""; flex: 1; border-top: 1px solid var(--line); }
+      .google-btn-row { display: flex; justify-content: center; min-height: 44px; }
+      .google-btn-row .google-fallback { width: 100%; max-width: 340px; }
       .form-msg { font-size: 14.5px; padding: 13px 15px; border-radius: 10px; display: none; }
       .form-msg.ok { display: block; background: color-mix(in srgb, var(--gold) 12%, transparent); border: 1px solid var(--gold-bright); }
       .form-msg.err { display: block; background: rgba(178, 34, 34, 0.09); border: 1px solid rgba(178, 34, 34, 0.45); }
@@ -1914,6 +1918,8 @@
                   <p id="createRefNote" style="font-size: 14px; font-weight: 600; color: var(--gold);" hidden></p>
                   <div class="form-msg" id="createMsg" role="status" aria-live="polite"></div>
                   <button class="btn btn-gold" type="submit">Create My Account</button>
+                  <div class="auth-divider"><span>or</span></div>
+                  <div class="google-btn-row" id="googleBtnCreate"></div>
                 </form>
                 <form class="stack panel" id="loginForm" novalidate hidden>
                   <label class="f">Email
@@ -1924,6 +1930,18 @@
                   </label>
                   <div class="form-msg" id="loginMsg" role="status" aria-live="polite"></div>
                   <button class="btn btn-espresso" type="submit">Log In</button>
+                  <div class="auth-divider"><span>or</span></div>
+                  <div class="google-btn-row" id="googleBtnLogin"></div>
+                </form>
+                <form class="stack panel" id="googlePhoneForm" novalidate hidden>
+                  <h3 style="font-size: 18px; font-weight: 800;">One last step — your mobile phone</h3>
+                  <p style="font-size: 14px; color: var(--ink-soft); margin: 0;">Google confirmed <strong style="color: var(--ink);" id="googlePhoneEmail"></strong>. Every account needs a mobile phone — it’s how your order alerts reach you, and one phone holds one account. Add yours to finish creating your account.</p>
+                  <label class="f">Mobile phone
+                    <input type="tel" name="phone" autocomplete="tel" required />
+                  </label>
+                  <div class="form-msg" id="googlePhoneMsg" role="status" aria-live="polite"></div>
+                  <button class="btn btn-gold" type="submit">Finish Creating My Account</button>
+                  <button class="btn btn-outline" type="button" id="googlePhoneBack">Back</button>
                 </form>
                 <form class="stack panel" id="setPwForm" novalidate hidden>
                   <h3 style="font-size: 18px; font-weight: 800;">Set the password for this account</h3>
@@ -1955,6 +1973,10 @@
                   </div>
                   <p style="font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;" id="reorderNote"></p>
                 </div>
+                <div class="panel" style="margin-top: 18px; border: 1.5px solid var(--gold);" id="acctMsgrPromo" hidden>
+                  <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Get your order alerts in Messenger</h3>
+                  <div id="acctMsgrPromoBody"></div>
+                </div>
                 <div class="panel" style="margin-top: 18px;" id="acctPwPanel">
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Change password</h3>
                   <form class="stack" id="changePwForm" novalidate>
@@ -1970,6 +1992,7 @@
                     <div class="form-msg" id="changePwMsg" role="status" aria-live="polite"></div>
                     <button class="btn btn-espresso" type="submit">Save New Password</button>
                   </form>
+                  <p id="acctPwGoogleNote" style="font-size: 14px; color: var(--ink-soft); margin: 0;" hidden>You sign in with Google, so there’s no store password to change — use the <strong style="color: var(--ink);">Continue with Google</strong> button on the sign-in screen.</p>
                 </div>
                 <div class="panel" style="margin-top: 18px;" id="acctNotifyPanel">
                   <h3 style="font-size: 19px; font-weight: 800; margin-bottom: 8px;">Notifications</h3>
@@ -2235,6 +2258,7 @@
             <button type="button" data-nav="account">My Account</button>
             <button type="button" data-nav="faq">FAQ</button>
             <button type="button" data-nav="how">How Ordering Works</button>
+            <a href="privacy.html">Privacy Policy</a>
           </nav>
           <div class="legal">
             <p>For use only by adults 21 years of age and older. Keep out of reach of children and pets. Cannabis can be intoxicating and may be habit forming; do not drive or operate machinery after use. Products are sold only within our licensed service areas and are not shipped across state lines. Nothing on this site is a medical claim or medical advice. Please consume responsibly and in accordance with the laws of your state.</p>
@@ -2820,6 +2844,11 @@
            failure NEVER hangs or breaks a customer flow — each caller
            falls back to the on-device behavior below. */
         var SERVER_URL = "https://packs-n-packs-out-server.onrender.com";
+        /* Google Identity Services client ID for "Continue with Google"
+           (sign-in + create-account forms). This is the live OAuth
+           client ID (public — not a secret); the server must carry the
+           same value in its GOOGLE_CLIENT_ID env var. */
+        var GOOGLE_CLIENT_ID = "990311815166-rgjief5ebc338kjtek1qu94oqpb2em87.apps.googleusercontent.com";
         function api(path, opts) {
           opts = opts || {};
           var headers = {};
@@ -2908,6 +2937,22 @@
         function applyServerDefaults(src, email) {
           var d = defaultsOf(src);
           if (d) setLocalDefaults(d, email);
+          /* Remember HOW the signed-in account authenticates (the
+             server account object carries authProvider) so the
+             change-password panel can step aside for Google accounts. */
+          if (src && src.authProvider && state.user && normEmail(state.user.email) === normEmail(email || src.email || "")) {
+            state.user.authProvider = src.authProvider;
+            renderAcctPwPanel();
+          }
+        }
+        /* Change-password panel: Google accounts have no store
+           password — hide the form, show the explainer note instead. */
+        function renderAcctPwPanel() {
+          var form = $("changePwForm"), note = $("acctPwGoogleNote");
+          if (!form || !note) return;
+          var isGoogle = !!(state.user && state.user.authProvider === "google");
+          form.hidden = isGoogle;
+          note.hidden = !isGoogle;
         }
         /* Save defaults: only the keys in `partial` are sent. The local
            copy updates immediately; when the server answers, its returned
@@ -9007,6 +9052,7 @@
           $("createForm").hidden = which !== "create";
           $("loginForm").hidden = which !== "login";
           var spf = $("setPwForm"); if (spf) spf.hidden = true;
+          var gpf = $("googlePhoneForm"); if (gpf) gpf.hidden = true;
           pendingSetPwEmail = "";
           if (which === "create") updateCreateNotes();
         }
@@ -9076,6 +9122,8 @@
              their own name lead it right away. */
           refreshMemberTicker();
           refreshBell();
+          renderAcctPwPanel();
+          renderMsgrPromo();
           loadNotifyPrefs();
           if (!(opts && opts.silent)) toast(approved ? "Signed in — approved member, cash is unlocked" : "Signed in — welcome to the route");
         }
@@ -9210,6 +9258,10 @@
               if (la && !la.pwHash) setAccountPassword(la, pw);
               return;
             }
+            if (r && r.status === 401 && r.data && String(r.data.error || "").indexOf("google_account") === 0) {
+              /* Google account — password login can never work here. */
+              msg.className = "form-msg err"; msg.textContent = "This account signs in with Google — tap Continue with Google below."; return;
+            }
             if (r && r.status === 401) {
               /* Server account exists, password wrong — flat no. */
               msg.className = "form-msg err"; msg.textContent = "That password doesn't match this account."; return;
@@ -9257,6 +9309,147 @@
           signIn(acct.name || derivedName(email), email);
         });
         $("setPwBack").addEventListener("click", function () { setAcctTab("login"); });
+        /* ================= Google sign-in / sign-up =================
+           "Continue with Google" on both auth forms. GIS returns an ID
+           token; the server verifies it (POST /auth/google) and either
+           signs the customer in, refuses cleanly (password account on
+           that email), or — for a brand-new account — answers
+           needsPhone with a short-lived pending token, and the ONE
+           phone step below completes creation through the same
+           anti-abuse phone gate as normal signup
+           (POST /auth/google/phone). Until GOOGLE_CLIENT_ID holds a
+           real client ID, the buttons render in a fallback form that
+           explains itself instead of failing silently. */
+        var GOOGLE_FLOW = { pendingToken: "", email: "", name: "", origin: "create", sdkReady: false, sdkLoading: false };
+        function googleConfigured() { return !!GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID !== "REPLACE_WITH_CLIENT_ID"; }
+        function googleMsg(text) {
+          var id = GOOGLE_FLOW.origin === "login" ? "loginMsg" : "createMsg";
+          var m = $(id);
+          if (!m) return;
+          m.className = "form-msg" + (text ? " err" : "");
+          m.textContent = text || "";
+        }
+        function friendlyServerErr(r, fallback) {
+          var e = r && r.data && r.data.error ? String(r.data.error) : "";
+          if (!e) return fallback;
+          var i = e.indexOf(": ");
+          return i > 0 ? e.slice(i + 2) : e;
+        }
+        function initGoogleButtons() {
+          ["googleBtnCreate", "googleBtnLogin"].forEach(function (id) {
+            var box = $(id);
+            if (!box || box.getAttribute("data-done")) return;
+            box.setAttribute("data-done", "1");
+            if (!googleConfigured()) {
+              var b = document.createElement("button");
+              b.type = "button";
+              b.className = "btn btn-outline google-fallback";
+              b.textContent = "Continue with Google";
+              b.addEventListener("click", function () {
+                GOOGLE_FLOW.origin = id === "googleBtnLogin" ? "login" : "create";
+                googleMsg("Google sign-in is being switched on — please use your email and password for now.");
+              });
+              box.appendChild(b);
+              return;
+            }
+            loadGoogleSdk();
+          });
+        }
+        function loadGoogleSdk() {
+          if (GOOGLE_FLOW.sdkReady || GOOGLE_FLOW.sdkLoading) { if (GOOGLE_FLOW.sdkReady) renderGoogleButtons(); return; }
+          GOOGLE_FLOW.sdkLoading = true;
+          var s = document.createElement("script");
+          s.src = "https://accounts.google.com/gsi/client";
+          s.async = true;
+          s.defer = true;
+          s.onload = function () {
+            GOOGLE_FLOW.sdkReady = true;
+            try {
+              window.google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onGoogleCredential });
+              renderGoogleButtons();
+            } catch (e) { /* SDK blocked — email forms still work */ }
+          };
+          document.head.appendChild(s);
+        }
+        function renderGoogleButtons() {
+          if (!GOOGLE_FLOW.sdkReady || !window.google) return;
+          [["googleBtnCreate", "create"], ["googleBtnLogin", "login"]].forEach(function (pair) {
+            var box = $(pair[0]);
+            if (!box || box.getAttribute("data-rendered")) return;
+            box.setAttribute("data-rendered", "1");
+            box.addEventListener("click", function () { GOOGLE_FLOW.origin = pair[1]; }, true);
+            try {
+              window.google.accounts.id.renderButton(box, { theme: "outline", size: "large", text: "continue_with", shape: "rectangular", width: 320 });
+            } catch (e) { /* leave empty — email forms still work */ }
+          });
+        }
+        function onGoogleCredential(response) {
+          if (!response || !response.credential) { googleMsg("Google didn’t finish that sign-in — please try again."); return; }
+          googleMsg("");
+          api("/auth/google", { method: "POST", body: { idToken: response.credential } }).then(function (r) {
+            if (!r) { googleMsg("Couldn’t reach the store just now — please try again in a moment."); return; }
+            if (r.data && r.data.token) { completeGoogleSignIn(r.data); return; }
+            if (r.data && r.data.needsPhone && r.data.pendingToken) {
+              GOOGLE_FLOW.pendingToken = String(r.data.pendingToken);
+              GOOGLE_FLOW.email = String(r.data.email || "");
+              GOOGLE_FLOW.name = String(r.data.name || "");
+              showGooglePhoneStep();
+              return;
+            }
+            if (r.status === 409 && r.data && String(r.data.error || "").indexOf("password_account_exists") === 0) {
+              googleMsg("That email already has an account with a password — log in with your password instead.");
+              if (GOOGLE_FLOW.origin === "create") setAcctTab("login");
+              return;
+            }
+            if (r.status === 401 && r.data && String(r.data.error || "").indexOf("google_email_not_verified") === 0) {
+              googleMsg("Google says that email isn’t verified — verify it with Google, then try again.");
+              return;
+            }
+            googleMsg("Google couldn’t confirm that sign-in — please try again.");
+          });
+        }
+        function completeGoogleSignIn(data) {
+          var acct = data.account || data;
+          setSession(data.token);
+          applyServerDefaults(acct, acct.email);
+          if (data.created) state.showSignupDefaults = true;
+          signIn(acct.name || derivedName(acct.email), acct.email);
+          if (acct.authProvider) { state.user.authProvider = acct.authProvider; renderAcctPwPanel(); }
+        }
+        function showGooglePhoneStep() {
+          $("createForm").hidden = true;
+          $("loginForm").hidden = true;
+          var spf = $("setPwForm"); if (spf) spf.hidden = true;
+          $("googlePhoneEmail").textContent = GOOGLE_FLOW.email;
+          var m = $("googlePhoneMsg"); m.className = "form-msg"; m.textContent = "";
+          $("googlePhoneForm").hidden = false;
+        }
+        $("googlePhoneForm").addEventListener("submit", function (ev) {
+          ev.preventDefault();
+          var msg = $("googlePhoneMsg");
+          var phone = this.elements.phone.value.trim();
+          if (!phone) { msg.className = "form-msg err"; msg.textContent = "Enter your mobile phone number to finish."; return; }
+          var formEl = this;
+          api("/auth/google/phone", { method: "POST", body: { pendingToken: GOOGLE_FLOW.pendingToken, phone: phone } }).then(function (r) {
+            if (!r) { msg.className = "form-msg err"; msg.textContent = "Couldn’t reach the store just now — please try again in a moment."; return; }
+            if (r.data && r.data.token) {
+              GOOGLE_FLOW.pendingToken = "";
+              formEl.reset();
+              $("googlePhoneForm").hidden = true;
+              completeGoogleSignIn(r.data);
+              return;
+            }
+            if (r.status === 401) { msg.className = "form-msg err"; msg.textContent = "That Google sign-in expired — go back and tap Continue with Google again."; return; }
+            msg.className = "form-msg err";
+            msg.textContent = friendlyServerErr(r, "We couldn’t finish creating your account — please try again.");
+          });
+        });
+        $("googlePhoneBack").addEventListener("click", function () {
+          GOOGLE_FLOW.pendingToken = "";
+          $("googlePhoneForm").hidden = true;
+          setAcctTab(GOOGLE_FLOW.origin);
+        });
+        initGoogleButtons();
         /* Change password (signed-in account view). With a server
            session, the server makes the change first; on its 200 the
            on-device record's credential is updated to the same new
@@ -9292,6 +9485,7 @@
                 return;
               }
               if (r && r.status === 401) { fail("That current password doesn't match."); return; }
+              if (r && r.status === 400 && r.data && String(r.data.error || "").indexOf("google_account") === 0) { fail("This account signs in with Google — there is no password to change."); return; }
               if (r && r.status === 400) { fail("Choose a new password of at least 6 characters."); return; }
               fail("We couldn’t reach the server to change your password — check your connection and try again.");
             });
@@ -11014,7 +11208,7 @@
             });
           });
           renderPushControl();
-          renderMessenger();
+          renderMessenger(); renderMsgrPromo();
         }
         function saveNotifyPref(key, val) {
           if (!NOTIF.prefs) NOTIF.prefs = { email: false, text: false, push: false };
@@ -11099,13 +11293,42 @@
             '<p class="notify-note" id="msgrMsg" hidden></p>';
           $("msgrConnectBtn").addEventListener("click", requestMessengerCode);
         }
+        /* ---------- Messenger promo panel (account view, above the fold) ----------
+           The same connect flow as the Notifications panel — same NOTIF
+           state, same requestMessengerCode / checkMessenger calls — just
+           surfaced at the top of My Account (and therefore on the signup
+           success screen, which lands here) instead of only deep in
+           Notifications. Hidden once Messenger is linked. */
+        function renderMsgrPromo() {
+          var panel = $("acctMsgrPromo"), box = $("acctMsgrPromoBody");
+          if (!panel || !box) return;
+          if (!state.user || NOTIF.messengerLinked) { panel.hidden = true; box.innerHTML = ""; return; }
+          panel.hidden = false;
+          if (NOTIF.messengerPending) {
+            var codeHtml = NOTIF.messengerCode
+              ? '<div style="margin-top: 10px;"><span class="notify-desc" style="display: block;">Your code:</span><button type="button" class="msgr-code" id="promoMsgrCodeBtn" aria-label="Copy your Messenger link code">' + esc(NOTIF.messengerCode) + '</button><span class="notify-desc" style="display: block; margin-top: 4px;">Tap the code to copy it.</span></div>'
+              : '<div style="margin-top: 12px;"><button type="button" class="btn btn-outline" id="promoMsgrShowCodeBtn">Show my code</button></div>';
+            box.innerHTML = '<p style="font-size: 14px; color: var(--ink-soft); margin: 0;">Almost there — send us your code in Messenger to finish connecting.</p>' + codeHtml +
+              '<p class="notify-desc" style="margin-top: 12px; line-height: 1.65;">1. Tap Open Messenger.<br />2. Send this code in the chat.<br />3. Come back — you’ll show as Connected here in about a minute.</p>' +
+              '<div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;"><a class="btn btn-gold" href="https://m.me/broaday.shotzfired.5" target="_blank" rel="noopener">Open Messenger</a><button type="button" class="btn btn-outline" id="promoMsgrCheckBtn">Check again</button></div>';
+            var cb = $("promoMsgrCodeBtn");
+            if (cb) cb.addEventListener("click", function () { copyText(NOTIF.messengerCode, "Code copied — paste it into the Messenger chat"); });
+            var sb = $("promoMsgrShowCodeBtn");
+            if (sb) sb.addEventListener("click", requestMessengerCode);
+            $("promoMsgrCheckBtn").addEventListener("click", checkMessenger);
+            return;
+          }
+          box.innerHTML = '<p style="font-size: 14px; color: var(--ink-soft); margin: 0 0 12px;">Connect Messenger and your order updates and refund notices arrive in a private Messenger chat too — no checking back here to see where your order stands.</p>' +
+            '<button type="button" class="btn btn-gold" id="promoMsgrBtn">Connect Messenger for order alerts</button>';
+          $("promoMsgrBtn").addEventListener("click", requestMessengerCode);
+        }
         function requestMessengerCode() {
           var token = getSession();
           if (!token || !state.user) return;
           api("/messenger/link-code", { method: "POST", token: token }).then(function (r) {
-            if (r && r.data && r.data.linked) { NOTIF.messengerLinked = true; NOTIF.messengerPending = false; NOTIF.messengerCode = ""; renderMessenger(); return; }
-            if (r && r.data && r.data.code) { NOTIF.messengerPending = true; NOTIF.messengerCode = String(r.data.code); renderMessenger(); return; }
-            renderMessenger();
+            if (r && r.data && r.data.linked) { NOTIF.messengerLinked = true; NOTIF.messengerPending = false; NOTIF.messengerCode = ""; renderMessenger(); renderMsgrPromo(); return; }
+            if (r && r.data && r.data.code) { NOTIF.messengerPending = true; NOTIF.messengerCode = String(r.data.code); renderMessenger(); renderMsgrPromo(); return; }
+            renderMessenger(); renderMsgrPromo();
             msgrMsg("Couldn’t reach the store just now — please try again in a moment.");
           });
         }
@@ -11115,7 +11338,7 @@
           api("/accounts/me", { token: token }).then(function (r) {
             if (r && r.status === 200 && r.data) {
               applyMessengerState(r.data);
-              renderMessenger();
+              renderMessenger(); renderMsgrPromo();
               if (!NOTIF.messengerLinked) msgrMsg("Not connected yet — send the code in Messenger, then check again.");
             } else {
               msgrMsg("Couldn’t check just now — please try again.");
@@ -11130,7 +11353,7 @@
               NOTIF.messengerLinked = false;
               NOTIF.messengerPending = false;
               NOTIF.messengerCode = "";
-              renderMessenger();
+              renderMessenger(); renderMsgrPromo();
               toast("Messenger unlinked");
             }
           });
