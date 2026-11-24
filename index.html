@@ -1106,6 +1106,37 @@
       .id-editor { flex: 1; min-width: 240px; display: grid; gap: 12px; }
       .id-file { position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; }
       .rv-id { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+
+      /* ===== FILTER PANEL + TURKEY DEAL (added 2026-11-24) ===== */
+      .turkey-badge { position: absolute; bottom: 10px; left: 10px; z-index: 3; background: linear-gradient(135deg, #c1271b, #8f1d12); color: #ffe9b0; border: 1.5px solid #efd9a0; font-family: "Archivo", sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase; padding: 6px 10px; border-radius: 999px; box-shadow: 0 4px 12px rgba(20, 13, 5, 0.4); pointer-events: none; white-space: nowrap; }
+      .filter-drawer { z-index: 175; }
+      .filter-scroll { overflow-y: auto; flex: 1; padding: 6px 20px 18px; overscroll-behavior: contain; }
+      .filter-sec { padding: 14px 0 6px; border-bottom: 1px solid var(--line); }
+      .filter-sec h4 { font-size: 13px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 10px; }
+      .filter-chips { margin-bottom: 8px; }
+      .filter-note { font-size: 12.5px; color: var(--ink-soft); margin-top: 6px; }
+      .price-readouts { display: flex; justify-content: space-between; align-items: baseline; font-weight: 800; font-size: 17px; margin-bottom: 2px; }
+      .price-dash { font-size: 12px; font-weight: 600; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.08em; }
+      .price-slider { position: relative; height: 36px; margin: 2px 0 4px; }
+      .price-track { position: absolute; left: 0; right: 0; top: 50%; height: 6px; transform: translateY(-50%); border-radius: 999px; background: var(--line); }
+      .price-fill { position: absolute; top: 50%; height: 6px; transform: translateY(-50%); border-radius: 999px; background: var(--gold-grad); }
+      .price-slider input[type="range"] { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); width: 100%; margin: 0; -webkit-appearance: none; appearance: none; background: transparent; pointer-events: none; height: 36px; font-size: 16px; }
+      .price-slider input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; pointer-events: auto; width: 26px; height: 26px; border-radius: 50%; background: var(--gold-grad); border: 2px solid #fff8e7; box-shadow: 0 2px 8px rgba(20, 13, 5, 0.35); cursor: grab; }
+      .price-slider input[type="range"]::-moz-range-thumb { pointer-events: auto; width: 24px; height: 24px; border-radius: 50%; background: #c1902a; border: 2px solid #fff8e7; box-shadow: 0 2px 8px rgba(20, 13, 5, 0.35); cursor: grab; }
+      .price-slider input[type="range"]::-moz-range-track { background: transparent; }
+      .filter-switch-row { display: flex; align-items: center; justify-content: space-between; }
+      .filter-switch-row h4 { margin-bottom: 0; padding-bottom: 8px; }
+      .fswitch { position: relative; width: 54px; height: 30px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; flex: none; padding: 0; }
+      .fswitch .fswitch-knob { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: var(--ink-soft); transition: left 0.15s ease, background 0.15s ease; }
+      .fswitch[aria-checked="true"] { background: color-mix(in srgb, var(--gold) 22%, var(--surface)); border-color: var(--gold); }
+      .fswitch[aria-checked="true"] .fswitch-knob { left: 27px; background: var(--gold-bright); }
+      .filter-foot { display: flex; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--line); flex: none; }
+      .filter-foot .btn { flex: 1; }
+      .filter-tags { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 14px; }
+      .filter-tags[hidden] { display: none; }
+      .ftag { display: inline-flex; align-items: center; gap: 6px; background: var(--espresso); color: var(--gold-pale); font-family: "Archivo", sans-serif; font-size: 13px; font-weight: 700; padding: 6px 6px 6px 12px; border-radius: 999px; }
+      .ftag-x { width: 22px; height: 22px; border-radius: 50%; border: none; background: rgba(255, 255, 255, 0.16); color: #fff; font-size: 15px; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
+      .ftag-clear { font-family: "Archivo", sans-serif; font-size: 13.5px; font-weight: 700; background: none; border: none; color: var(--gold-bright); text-decoration: underline; cursor: pointer; padding: 6px 4px; }
     </style>
   </head>
   <body>
@@ -1175,6 +1206,10 @@
           </a>
           <button class="icon-btn" id="searchBtn" type="button" aria-label="Search products">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.8-3.8"/></svg>
+          </button>
+          <button class="icon-btn" id="filterBtn" type="button" aria-label="Filter products" aria-haspopup="dialog">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16l-6.2 7.2V19l-3.6-2v-4.8L4 5z"/></svg>
+            <span class="cart-count" id="filterCount" hidden>0</span>
           </button>
           <button class="icon-btn" id="bellBtn" type="button" aria-label="Notifications">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 1 0-12 0c0 6-2.5 7-2.5 7h17S18 15 18 9"/><path d="M10 20a2.2 2.2 0 0 0 4 0"/></svg>
@@ -1719,9 +1754,11 @@
                   <option value="price-asc">Price: Low to High</option>
                   <option value="price-desc">Price: High to Low</option>
                   <option value="name">Name: A to Z</option>
+                  <option value="newest">Newest</option>
                 </select>
                 <span class="count" id="shopCount"></span>
               </div>
+              <div class="filter-tags" id="filterTags" hidden></div>
               <div class="prod-grid" id="shopGrid"></div>
               <p id="shopEmpty" class="cat-note" hidden style="color: var(--ink-soft); font-size: 15px;">Nothing matches that search — try a different term or browse the full menu.</p>
             </div>
@@ -2249,6 +2286,63 @@
       </div>
     </aside>
 
+    <!-- Filter panel (added 2026-11-24) -->
+    <div class="scrim" id="filterScrim" hidden></div>
+    <aside class="drawer filter-drawer" id="filterPanel" hidden aria-label="Filter products">
+      <div class="drawer-head">
+        <h3>Filters</h3>
+        <span class="count" id="filterPanelCount"></span>
+        <button class="icon-btn" id="filterClose" type="button" aria-label="Close filters">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>
+        </button>
+      </div>
+      <div class="filter-scroll">
+        <div class="filter-sec">
+          <h4>Price range</h4>
+          <div class="price-readouts"><span id="fPriceMinVal">$15</span><span class="price-dash">to</span><span id="fPriceMaxVal">$638</span></div>
+          <div class="price-slider">
+            <div class="price-track"></div>
+            <div class="price-fill" id="fPriceFill"></div>
+            <input type="range" id="fPriceMin" aria-label="Minimum price" />
+            <input type="range" id="fPriceMax" aria-label="Maximum price" />
+          </div>
+          <p class="filter-note">By starting price — the smallest size.</p>
+        </div>
+        <div class="filter-sec">
+          <h4>Feel</h4>
+          <div class="filters filter-chips" id="fFeelChips" role="group" aria-label="Filter by feel"></div>
+        </div>
+        <div class="filter-sec">
+          <h4>Type</h4>
+          <div class="filters filter-chips" id="fTypeChips" role="group" aria-label="Filter by type"></div>
+        </div>
+        <div class="filter-sec">
+          <h4>Category</h4>
+          <div class="filters filter-chips" id="fCatChips" role="group" aria-label="Filter by category"></div>
+        </div>
+        <div class="filter-sec">
+          <h4>Fulfillment</h4>
+          <span class="seg" role="group" aria-label="Filter by fulfillment" id="fFulSeg">
+            <button type="button" data-fful="all" aria-pressed="true">All</button>
+            <button type="button" data-fful="shipping" aria-pressed="false">Shipping</button>
+            <button type="button" data-fful="local" aria-pressed="false">Local only</button>
+          </span>
+        </div>
+        <div class="filter-sec filter-switch-row">
+          <h4>Hide sold out</h4>
+          <button class="fswitch" id="fHideSoldOut" type="button" role="switch" aria-checked="true" aria-label="Hide sold out items"><span class="fswitch-knob"></span></button>
+        </div>
+        <div class="filter-sec">
+          <h4>Sort</h4>
+          <div class="filters filter-chips" id="fSortChips" role="group" aria-label="Sort products"></div>
+        </div>
+      </div>
+      <div class="filter-foot">
+        <button class="btn btn-espresso" id="filterClear" type="button">Clear all</button>
+        <button class="btn btn-gold" id="filterDone" type="button">Show results</button>
+      </div>
+    </aside>
+
     <!-- Persistent cart bar -->
     <div class="cartbar" id="cartBar" hidden>
       <div class="cb-t"><span id="cartBarText">0 items</span><small>Order ahead — pickup, delivery, or shipping</small></div>
@@ -2667,7 +2761,7 @@
         /* ================= State ================= */
         var state = {
           market: null, user: null, cart: {}, favorites: [], history: [], serverTickets: [],
-          view: "home", shopCat: "all", shopBrand: "all", shopSort: "featured", shopQuery: "", shopFeel: "all",
+          view: "home", shopCat: "all", shopBrand: "all", shopSort: "featured", shopQuery: "", shopFeel: "all", filters: { priceMin: null, priceMax: null, feels: [], types: [], cats: [], fulfill: "all", hideSoldOut: true },
           fulfillment: "pickup", locationId: null, deliveryZip: "", locQuery: "",
           addr: { street: "", apt: "", city: "" },
           shipInfo: null, shipDraft: { street: "", apt: "", city: "", state: "", zip: "" },
@@ -3252,6 +3346,7 @@
           var mediaHtml = p.video ? '<video muted loop playsinline preload="metadata"></video><img class="gimg" alt="" hidden />' + badge : '<img alt="" />' + badge;
           if (p.sku) mediaHtml += '<span class="pgal-item">Item #' + p.sku + '</span>';
           if (p.soldOut) mediaHtml += '<span class="soldout-sign">Sold Out</span>';
+          if (isTurkeyDeal(p)) mediaHtml += '<span class="turkey-badge">\uD83E\uDD83 Turkey Deal</span>';
           card.innerHTML =
             '<div class="pimg">' + mediaHtml + "</div>" +
             (p.video ? '<div class="pthumbs" role="group"></div>' : "") +
@@ -3534,7 +3629,7 @@
           var box = $("feelChips");
           if (!box) return;
           var buckets = feelBucketsPresent();
-          if (state.shopFeel !== "all" && !buckets.some(function (b) { return b.id === state.shopFeel; })) state.shopFeel = "all";
+          pruneFeelFilters(buckets);
           box.innerHTML = "";
           var label = document.createElement("span");
           label.className = "feel-label";
@@ -3542,14 +3637,14 @@
           box.appendChild(label);
           var all = document.createElement("button");
           all.className = "chip"; all.type = "button"; all.textContent = "All";
-          all.setAttribute("aria-pressed", state.shopFeel === "all" ? "true" : "false");
-          all.addEventListener("click", function () { state.shopFeel = "all"; renderShop(); });
+          all.setAttribute("aria-pressed", effectiveFeelIds().length === 0 ? "true" : "false");
+          all.addEventListener("click", function () { clearFeelFilters(); renderShop(); });
           box.appendChild(all);
           buckets.forEach(function (b) {
             var chip = document.createElement("button");
             chip.className = "chip"; chip.type = "button"; chip.textContent = b.label;
-            chip.setAttribute("aria-pressed", state.shopFeel === b.id ? "true" : "false");
-            chip.addEventListener("click", function () { state.shopFeel = b.id; renderShop(); });
+            chip.setAttribute("aria-pressed", effectiveFeelIds().indexOf(b.id) !== -1 ? "true" : "false");
+            chip.addEventListener("click", function () { toggleFeelFilter(b.id); renderShop(); });
             box.appendChild(chip);
           });
         }
@@ -3562,18 +3657,18 @@
           var box = $("feelChipsHome");
           if (!box) return;
           var buckets = feelBucketsPresent();
-          if (state.shopFeel !== "all" && !buckets.some(function (b) { return b.id === state.shopFeel; })) state.shopFeel = "all";
+          pruneFeelFilters(buckets);
           box.innerHTML = "";
           var all = document.createElement("button");
           all.className = "chip"; all.type = "button"; all.textContent = "All";
-          all.setAttribute("aria-pressed", state.shopFeel === "all" ? "true" : "false");
-          all.addEventListener("click", function () { state.shopFeel = "all"; openShop("all", "all", ""); renderHomeFeelChips(); });
+          all.setAttribute("aria-pressed", effectiveFeelIds().length === 0 ? "true" : "false");
+          all.addEventListener("click", function () { clearFeelFilters(); openShop("all", "all", ""); renderHomeFeelChips(); });
           box.appendChild(all);
           buckets.forEach(function (b) {
             var chip = document.createElement("button");
             chip.className = "chip"; chip.type = "button"; chip.textContent = b.label;
-            chip.setAttribute("aria-pressed", state.shopFeel === b.id ? "true" : "false");
-            chip.addEventListener("click", function () { state.shopFeel = b.id; openShop("all", "all", ""); renderHomeFeelChips(); });
+            chip.setAttribute("aria-pressed", effectiveFeelIds().indexOf(b.id) !== -1 ? "true" : "false");
+            chip.addEventListener("click", function () { toggleFeelFilter(b.id); openShop("all", "all", ""); renderHomeFeelChips(); });
             box.appendChild(chip);
           });
         }
@@ -3588,13 +3683,308 @@
             box.appendChild(chip);
           });
         }
+        /* ===== FILTER PANEL + TURKEY DEAL — added 2026-11-24 =====
+           One source of truth: state.filters. shopList() (below) is
+           still the single render pipeline — it now also calls
+           productMatchesFilters(), and the legacy single-feel state
+           (state.shopFeel) is UNIONED into the feel selection so the
+           home/shop "Shop by Feel" chips and this panel can never
+           disagree: the chips toggle state.filters.feels, and any
+           shopFeel set by older paths still applies.
+           TURKEY DEAL: SALE_SKUS marks the 11 Thanksgiving-sale
+           products; buildCard() stamps a badge on their cards in
+           every grid (shop, search, home, local, favorites — all use
+           buildCard). To end the promo: empty SALE_SKUS (and revert
+           the sale prices) — the badge disappears everywhere. */
+        var SALE_SKUS = { "S1033CJ": 1, "S1032SC": 1, "S1061CC": 1, "S1073RW": 1, "S1059MC": 1, "S1060VS": 1, "S1071LB": 1, "S1069PGC": 1, "S1053AM": 1, "S1056LCG": 1, "S1055PG": 1 };
+        function isTurkeyDeal(p) { return !!(p && p.sku && SALE_SKUS[p.sku]); }
+        function startPrice(p) {
+          var m = null;
+          (p.sizes || []).forEach(function (s) { if (m === null || s.p < m) m = s.p; });
+          return m === null ? 0 : m;
+        }
+        function priceBounds() {
+          var lo = null, hi = null;
+          PRODUCTS.forEach(function (p) {
+            var v = startPrice(p);
+            if (lo === null || v < lo) lo = v;
+            if (hi === null || v > hi) hi = v;
+          });
+          return { min: Math.floor(lo || 0), max: Math.ceil(hi || 0) };
+        }
+        var TYPE_BUCKETS = ["Indica", "Sativa", "Hybrid"];
+        function typeBucketFor(p) {
+          var t = String((p && p.type) || "").trim();
+          if (/^Indica-dominant/i.test(t) || /^Indica$/i.test(t)) return "Indica";
+          if (/^Sativa-dominant/i.test(t) || /^Sativa$/i.test(t)) return "Sativa";
+          if (/^Hybrid/i.test(t)) return "Hybrid";
+          return null;
+        }
+        function effectiveFeelIds() {
+          var out = [];
+          state.filters.feels.forEach(function (id) { if (out.indexOf(id) === -1) out.push(id); });
+          if (state.shopFeel !== "all" && out.indexOf(state.shopFeel) === -1) out.push(state.shopFeel);
+          return out;
+        }
+        function syncShopFeelMirror() {
+          state.shopFeel = state.filters.feels.length === 1 ? state.filters.feels[0] : "all";
+        }
+        function toggleFeelFilter(id) {
+          var i = state.filters.feels.indexOf(id);
+          if (i === -1) state.filters.feels.push(id); else state.filters.feels.splice(i, 1);
+          syncShopFeelMirror();
+        }
+        function clearFeelFilters() { state.filters.feels = []; state.shopFeel = "all"; }
+        function pruneFeelFilters(buckets) {
+          var ok = {};
+          buckets.forEach(function (b) { ok[b.id] = 1; });
+          state.filters.feels = state.filters.feels.filter(function (id) { return !!ok[id]; });
+          if (state.shopFeel !== "all" && !ok[state.shopFeel]) state.shopFeel = "all";
+          if (state.filters.feels.length) syncShopFeelMirror();
+        }
+        function productMatchesFilters(p) {
+          var f = state.filters;
+          if (f.hideSoldOut && p.soldOut) return false;
+          var sp = startPrice(p);
+          if (f.priceMin !== null && sp < f.priceMin) return false;
+          if (f.priceMax !== null && sp > f.priceMax) return false;
+          var feels = effectiveFeelIds();
+          if (feels.length) {
+            var tags = feelTagsFor(p), okF = false;
+            for (var i = 0; i < feels.length; i++) if (tags.indexOf(feels[i]) !== -1) { okF = true; break; }
+            if (!okF) return false;
+          }
+          if (f.types.length && f.types.indexOf(typeBucketFor(p)) === -1) return false;
+          if (f.cats.length && f.cats.indexOf(p.cat) === -1) return false;
+          if (f.fulfill === "shipping" && p.localOnly) return false;
+          if (f.fulfill === "local" && !p.localOnly) return false;
+          return true;
+        }
+        function filtersActiveCount() {
+          var f = state.filters, n = 0;
+          if (f.priceMin !== null || f.priceMax !== null) n += 1;
+          n += effectiveFeelIds().length + f.types.length + f.cats.length;
+          if (f.fulfill !== "all") n += 1;
+          return n;
+        }
+        function clearAllFilters() {
+          state.filters = { priceMin: null, priceMax: null, feels: [], types: [], cats: [], fulfill: "all", hideSoldOut: true };
+          state.shopFeel = "all";
+          state.shopSort = "featured";
+          resetPriceSliderUI();
+          syncFilterPanelChips();
+          renderShop();
+        }
+        function feelLabel(id) {
+          for (var i = 0; i < FEEL_BUCKETS.length; i++) if (FEEL_BUCKETS[i].id === id) return FEEL_BUCKETS[i].label;
+          return id;
+        }
+        function renderFilterTags() {
+          var box = $("filterTags");
+          if (!box) return;
+          var f = state.filters, tags = [], b = priceBounds();
+          if (f.priceMin !== null || f.priceMax !== null)
+            tags.push({ key: "price", label: "$" + (f.priceMin === null ? b.min : f.priceMin) + " \u2013 $" + (f.priceMax === null ? b.max : f.priceMax) });
+          effectiveFeelIds().forEach(function (id) { tags.push({ key: "feel:" + id, label: feelLabel(id) }); });
+          f.types.forEach(function (t) { tags.push({ key: "type:" + t, label: t }); });
+          f.cats.forEach(function (c) { tags.push({ key: "cat:" + c, label: c }); });
+          if (f.fulfill !== "all") tags.push({ key: "fulfill", label: f.fulfill === "local" ? "Local only" : "Shipping" });
+          box.innerHTML = "";
+          box.hidden = tags.length === 0;
+          tags.forEach(function (t) {
+            var el = document.createElement("span");
+            el.className = "ftag";
+            var lab = document.createElement("span");
+            lab.textContent = t.label;
+            el.appendChild(lab);
+            var x = document.createElement("button");
+            x.type = "button"; x.className = "ftag-x"; x.textContent = "\u00D7";
+            x.setAttribute("aria-label", "Remove filter " + t.label);
+            x.addEventListener("click", function () { removeFilterTag(t.key); });
+            el.appendChild(x);
+            box.appendChild(el);
+          });
+          if (tags.length) {
+            var c = document.createElement("button");
+            c.type = "button"; c.className = "ftag-clear"; c.textContent = "Clear all";
+            c.addEventListener("click", function () { clearAllFilters(); });
+            box.appendChild(c);
+          }
+        }
+        function removeFilterTag(key) {
+          var f = state.filters;
+          if (key === "price") { f.priceMin = null; f.priceMax = null; resetPriceSliderUI(); }
+          else if (key === "fulfill") { f.fulfill = "all"; }
+          else if (key.indexOf("feel:") === 0) {
+            var id = key.slice(5), i = f.feels.indexOf(id);
+            if (i !== -1) f.feels.splice(i, 1);
+            if (state.shopFeel === id) state.shopFeel = "all";
+            if (f.feels.length) syncShopFeelMirror();
+          }
+          else if (key.indexOf("type:") === 0) { var j = f.types.indexOf(key.slice(5)); if (j !== -1) f.types.splice(j, 1); }
+          else if (key.indexOf("cat:") === 0) { var k = f.cats.indexOf(key.slice(4)); if (k !== -1) f.cats.splice(k, 1); }
+          syncFilterPanelChips();
+          renderShop();
+        }
+        function updateFilterBadge() {
+          var bd = $("filterCount");
+          if (!bd) return;
+          var n = filtersActiveCount();
+          bd.textContent = n;
+          bd.hidden = n === 0;
+        }
+        /* ---- filter panel DOM ---- */
+        function buildChipGroup(box, items, isActive, onToggle) {
+          if (!box) return;
+          box.innerHTML = "";
+          items.forEach(function (it) {
+            var chip = document.createElement("button");
+            chip.className = "chip"; chip.type = "button"; chip.textContent = it.label;
+            chip.setAttribute("data-fval", it.v);
+            chip.setAttribute("aria-pressed", isActive(it.v) ? "true" : "false");
+            chip.addEventListener("click", function () {
+              onToggle(it.v);
+              chip.setAttribute("aria-pressed", isActive(it.v) ? "true" : "false");
+            });
+            box.appendChild(chip);
+          });
+        }
+        function filterCatsPresent() {
+          var seen = [], have = {};
+          PRODUCTS.forEach(function (p) { if (!have[p.cat]) { have[p.cat] = 1; seen.push(p.cat); } });
+          return seen;
+        }
+        function buildFilterPanel() {
+          var b = priceBounds();
+          var minI = $("fPriceMin"), maxI = $("fPriceMax");
+          if (minI && maxI) {
+            minI.min = b.min; minI.max = b.max; minI.step = 1;
+            minI.value = state.filters.priceMin === null ? b.min : state.filters.priceMin;
+            maxI.min = b.min; maxI.max = b.max; maxI.step = 1;
+            maxI.value = state.filters.priceMax === null ? b.max : state.filters.priceMax;
+          }
+          updatePriceSliderUI();
+          buildChipGroup($("fFeelChips"),
+            feelBucketsPresent().map(function (x) { return { v: x.id, label: x.label }; }),
+            function (v) { return effectiveFeelIds().indexOf(v) !== -1; },
+            function (v) { toggleFeelFilter(v); renderShop(); });
+          buildChipGroup($("fTypeChips"),
+            TYPE_BUCKETS.map(function (t) { return { v: t, label: t }; }),
+            function (v) { return state.filters.types.indexOf(v) !== -1; },
+            function (v) {
+              var i = state.filters.types.indexOf(v);
+              if (i === -1) state.filters.types.push(v); else state.filters.types.splice(i, 1);
+              renderShop();
+            });
+          buildChipGroup($("fCatChips"),
+            filterCatsPresent().map(function (c) { return { v: c, label: c }; }),
+            function (v) { return state.filters.cats.indexOf(v) !== -1; },
+            function (v) {
+              var i = state.filters.cats.indexOf(v);
+              if (i === -1) state.filters.cats.push(v); else state.filters.cats.splice(i, 1);
+              state.shopCat = "all";
+              renderShop();
+            });
+          buildChipGroup($("fSortChips"),
+            [{ v: "featured", label: "Featured" }, { v: "price-asc", label: "Price: Low to High" }, { v: "price-desc", label: "Price: High to Low" }, { v: "name", label: "Name: A to Z" }, { v: "newest", label: "Newest" }],
+            function (v) { return state.shopSort === v; },
+            function (v) { state.shopSort = v; syncFilterPanelChips(); renderShop(); });
+          syncFilterPanelChips();
+        }
+        function syncFilterPanelChips() {
+          var f = state.filters;
+          document.querySelectorAll("#fFeelChips .chip").forEach(function (c) {
+            c.setAttribute("aria-pressed", effectiveFeelIds().indexOf(c.getAttribute("data-fval")) !== -1 ? "true" : "false");
+          });
+          document.querySelectorAll("#fTypeChips .chip").forEach(function (c) {
+            c.setAttribute("aria-pressed", f.types.indexOf(c.getAttribute("data-fval")) !== -1 ? "true" : "false");
+          });
+          document.querySelectorAll("#fCatChips .chip").forEach(function (c) {
+            c.setAttribute("aria-pressed", f.cats.indexOf(c.getAttribute("data-fval")) !== -1 ? "true" : "false");
+          });
+          document.querySelectorAll("#fSortChips .chip").forEach(function (c) {
+            c.setAttribute("aria-pressed", state.shopSort === c.getAttribute("data-fval") ? "true" : "false");
+          });
+          document.querySelectorAll("#fFulSeg [data-fful]").forEach(function (btn) {
+            btn.setAttribute("aria-pressed", f.fulfill === btn.getAttribute("data-fful") ? "true" : "false");
+          });
+          var sw = $("fHideSoldOut");
+          if (sw) sw.setAttribute("aria-checked", f.hideSoldOut ? "true" : "false");
+        }
+        function updatePriceSliderUI() {
+          var minI = $("fPriceMin"), maxI = $("fPriceMax");
+          if (!minI || !maxI) return;
+          var b = priceBounds();
+          var lo = parseInt(minI.value, 10), hi = parseInt(maxI.value, 10);
+          $("fPriceMinVal").textContent = "$" + lo;
+          $("fPriceMaxVal").textContent = "$" + hi;
+          var fill = $("fPriceFill"), span = (b.max - b.min) || 1;
+          fill.style.left = ((lo - b.min) / span * 100) + "%";
+          fill.style.right = (100 - (hi - b.min) / span * 100) + "%";
+        }
+        function onPriceSlider() {
+          var b = priceBounds();
+          var minI = $("fPriceMin"), maxI = $("fPriceMax");
+          var lo = parseInt(minI.value, 10), hi = parseInt(maxI.value, 10);
+          if (lo > hi - 1) {
+            if (document.activeElement === minI) { lo = hi - 1; minI.value = lo; }
+            else { hi = lo + 1; maxI.value = hi; }
+          }
+          state.filters.priceMin = lo <= b.min ? null : lo;
+          state.filters.priceMax = hi >= b.max ? null : hi;
+          updatePriceSliderUI();
+          renderShop();
+        }
+        function resetPriceSliderUI() {
+          var b = priceBounds();
+          var minI = $("fPriceMin"), maxI = $("fPriceMax");
+          if (minI) minI.value = b.min;
+          if (maxI) maxI.value = b.max;
+          updatePriceSliderUI();
+        }
+        function openFilterPanel() {
+          buildFilterPanel();
+          $("filterScrim").hidden = false;
+          $("filterPanel").hidden = false;
+        }
+        function closeFilterPanel() {
+          var s = $("filterScrim"), p = $("filterPanel");
+          if (s) s.hidden = true;
+          if (p) p.hidden = true;
+        }
+        $("filterBtn").addEventListener("click", openFilterPanel);
+        $("filterClose").addEventListener("click", closeFilterPanel);
+        $("filterScrim").addEventListener("click", closeFilterPanel);
+        $("filterDone").addEventListener("click", function () {
+          closeFilterPanel();
+          if (state.view !== "shop") { showView("shop"); renderShop(); }
+        });
+        $("filterClear").addEventListener("click", function () { clearAllFilters(); buildFilterPanel(); });
+        $("fPriceMin").addEventListener("input", onPriceSlider);
+        $("fPriceMax").addEventListener("input", onPriceSlider);
+        $("fHideSoldOut").addEventListener("click", function () {
+          state.filters.hideSoldOut = !state.filters.hideSoldOut;
+          syncFilterPanelChips();
+          renderShop();
+        });
+        document.querySelectorAll("#fFulSeg [data-fful]").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            state.filters.fulfill = btn.getAttribute("data-fful");
+            syncFilterPanelChips();
+            renderShop();
+          });
+        });
+        document.addEventListener("keydown", function (ev) {
+          if (ev.key === "Escape") { var p = $("filterPanel"); if (p && !p.hidden) closeFilterPanel(); }
+        });
+
         function shopList() {
           var list = PRODUCTS.filter(function (p) {
             if (state.fulfillment === "pickup" || state.fulfillment === "delivery") { if (!p.localOnly) return false; }
             else if (state.fulfillment === "shipping") { if (p.localOnly) return false; }
             if (state.shopCat !== "all" && p.cat !== state.shopCat) return false;
             if (state.shopBrand !== "all" && p.brand !== state.shopBrand) return false;
-            if (state.shopFeel !== "all" && feelTagsFor(p).indexOf(state.shopFeel) === -1) return false;
+            if (!productMatchesFilters(p)) return false;
             if (state.shopQuery) {
               var q = state.shopQuery.toLowerCase();
               var hay = (p.name + " " + p.brand + " " + p.cat + " " + (p.sku || "") + " " + (p.type || "") + " " + (p.flavor || "")).toLowerCase();
@@ -3605,7 +3995,12 @@
           var by = {
             "price-asc": function (a, b) { return firstPrice(a) - firstPrice(b); },
             "price-desc": function (a, b) { return firstPrice(b) - firstPrice(a); },
-            "name": function (a, b) { return a.name.localeCompare(b.name); }
+            "name": function (a, b) { return a.name.localeCompare(b.name); },
+            "newest": function (a, b) {
+              var an = a.badge === "NEW" ? 1 : 0, bn = b.badge === "NEW" ? 1 : 0;
+              if (bn !== an) return bn - an;
+              return PRODUCTS.indexOf(b) - PRODUCTS.indexOf(a);
+            }
           };
           if (by[state.shopSort]) list = list.slice().sort(by[state.shopSort]);
           return list;
@@ -3620,10 +4015,17 @@
           $("shopSort").value = state.shopSort;
           var list = shopList();
           $("shopCount").textContent = list.length + (list.length === 1 ? " product" : " products");
+          renderFilterTags();
+          updateFilterBadge();
+          syncFilterPanelChips();
+          var fpc = $("filterPanelCount");
+          if (fpc) fpc.textContent = "Showing " + list.length + (list.length === 1 ? " product" : " products");
           var g = $("shopGrid"); g.innerHTML = "";
           list.forEach(function (p) { g.appendChild(buildCard(p)); });
           var se = $("shopEmpty");
-          if (list.length === 0 && (state.fulfillment === "pickup" || state.fulfillment === "delivery")) {
+          if (list.length === 0 && filtersActiveCount() > 0) {
+            se.textContent = "Nothing matches those filters \u2014 tap Clear all above the grid (or in the Filter panel) to see the full menu.";
+          } else if (list.length === 0 && (state.fulfillment === "pickup" || state.fulfillment === "delivery")) {
             se.textContent = state.shopQuery
               ? "No Local items match that search. Pickup & delivery carry Local section items only — switch to Shipping up top to search the full menu."
               : "Local Pickup & Delivery items are coming soon — switch to Shipping up top to browse the full menu.";
