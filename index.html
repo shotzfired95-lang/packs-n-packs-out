@@ -2299,14 +2299,14 @@
       <div class="filter-scroll">
         <div class="filter-sec">
           <h4>Price range</h4>
-          <div class="price-readouts"><span id="fPriceMinVal">$15</span><span class="price-dash">to</span><span id="fPriceMaxVal">$638</span></div>
+          <div class="price-readouts"><span id="fPriceMinVal">$0</span><span class="price-dash">to</span><span id="fPriceMaxVal">$2000</span></div>
           <div class="price-slider">
             <div class="price-track"></div>
             <div class="price-fill" id="fPriceFill"></div>
             <input type="range" id="fPriceMin" aria-label="Minimum price" />
             <input type="range" id="fPriceMax" aria-label="Maximum price" />
           </div>
-          <p class="filter-note">By starting price — the smallest size.</p>
+          <p class="filter-note">Matches when any size falls in this range.</p>
         </div>
         <div class="filter-sec">
           <h4>Feel</h4>
@@ -3704,13 +3704,7 @@
           return m === null ? 0 : m;
         }
         function priceBounds() {
-          var lo = null, hi = null;
-          PRODUCTS.forEach(function (p) {
-            var v = startPrice(p);
-            if (lo === null || v < lo) lo = v;
-            if (hi === null || v > hi) hi = v;
-          });
-          return { min: Math.floor(lo || 0), max: Math.ceil(hi || 0) };
+          return { min: 0, max: 2000 };
         }
         var TYPE_BUCKETS = ["Indica", "Sativa", "Hybrid"];
         function typeBucketFor(p) {
@@ -3745,9 +3739,13 @@
         function productMatchesFilters(p) {
           var f = state.filters;
           if (f.hideSoldOut && p.soldOut) return false;
-          var sp = startPrice(p);
-          if (f.priceMin !== null && sp < f.priceMin) return false;
-          if (f.priceMax !== null && sp > f.priceMax) return false;
+          if (f.priceMin !== null || f.priceMax !== null) {
+            var priceOk = (p.sizes || []).some(function (s) {
+              return (f.priceMin === null || s.p >= f.priceMin) &&
+                (f.priceMax === null || s.p <= f.priceMax);
+            });
+            if (!priceOk) return false;
+          }
           var feels = effectiveFeelIds();
           if (feels.length) {
             var tags = feelTagsFor(p), okF = false;
@@ -3858,9 +3856,9 @@
           var b = priceBounds();
           var minI = $("fPriceMin"), maxI = $("fPriceMax");
           if (minI && maxI) {
-            minI.min = b.min; minI.max = b.max; minI.step = 1;
+            minI.min = b.min; minI.max = b.max; minI.step = 10;
             minI.value = state.filters.priceMin === null ? b.min : state.filters.priceMin;
-            maxI.min = b.min; maxI.max = b.max; maxI.step = 1;
+            maxI.min = b.min; maxI.max = b.max; maxI.step = 10;
             maxI.value = state.filters.priceMax === null ? b.max : state.filters.priceMax;
           }
           updatePriceSliderUI();
@@ -3926,9 +3924,9 @@
           var b = priceBounds();
           var minI = $("fPriceMin"), maxI = $("fPriceMax");
           var lo = parseInt(minI.value, 10), hi = parseInt(maxI.value, 10);
-          if (lo > hi - 1) {
-            if (document.activeElement === minI) { lo = hi - 1; minI.value = lo; }
-            else { hi = lo + 1; maxI.value = hi; }
+          if (lo > hi - 10) {
+            if (document.activeElement === minI) { lo = hi - 10; minI.value = lo; }
+            else { hi = lo + 10; maxI.value = hi; }
           }
           state.filters.priceMin = lo <= b.min ? null : lo;
           state.filters.priceMax = hi >= b.max ? null : hi;
