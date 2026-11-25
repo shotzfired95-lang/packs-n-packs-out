@@ -11003,7 +11003,7 @@
            through /push/customer/*. Every call goes through the same
            api() helper + session token as the wallet, and every failure
            is quiet — notifications never break the store. */
-        var NOTIF = { unread: 0, items: [], announcements: [], prefs: null, pushOnDevice: false, pushMsg: "", messengerLinked: false, messengerPending: false, messengerCode: "" };
+        var NOTIF = { unread: 0, items: [], announcements: [], prefs: null, pushOnDevice: false, pushMsg: "", messengerLinked: false, messengerPending: false, messengerCode: "", serverPhone: "" };
         function fmtWhen(at) {
           var d = new Date(at);
           if (isNaN(d.getTime())) return "";
@@ -11182,6 +11182,7 @@
         /* ---------- My Account: channel prefs + phone push ---------- */
         function acctPhoneOnFile() {
           if (!state.user) return "";
+          if (NOTIF.serverPhone) return String(NOTIF.serverPhone);
           var a = state.accounts[normEmail(state.user.email)];
           return a && a.phone ? String(a.phone) : "";
         }
@@ -11229,6 +11230,7 @@
             if (r && r.status === 200 && r.data) {
               var src = r.data.account || r.data;
               if (src && src.notifyPrefs) NOTIF.prefs = src.notifyPrefs;
+              if (src && src.phone) NOTIF.serverPhone = String(src.phone);
               applyMessengerState(r.data);
               renderNotifyPrefs();
               checkDevicePush();
